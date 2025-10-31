@@ -1,0 +1,150 @@
+// Data Types Test - Demonstrates all supported nlang data types
+// This file tests: integers, floats, booleans, strings, type inference, type promotion
+
+def main() {
+    println("=== Data Types Test ===");
+    println("");
+    
+    // Integer types
+    println("--- Integer Types ---");
+    store small_int = 42;
+    println("small_int = 42");
+    
+    store large_int = 1000000;
+    println("large_int = 1000000");
+    
+    store negative_int = -123;
+    println("negative_int = -123");
+    
+    store zero = 0;
+    println("zero = 0");
+    println("");
+    
+    // Float types
+    println("--- Float Types ---");
+    store pi = 3.14159;
+    println("pi = 3.14159");
+    
+    store small_float = 0.001;
+    println("small_float = 0.001");
+    
+    store negative_float = -2.5;
+    println("negative_float = -2.5");
+    
+    store scientific = 1.23e10;
+    println("scientific = 1.23e10");
+    println("");
+    
+    // Boolean types
+    println("--- Boolean Types ---");
+    store is_true = true;
+    println("is_true = true");
+    
+    store is_false = false;
+    println("is_false = false");
+    
+    store computed_bool = (5 > 3);
+    println("computed_bool = (5 > 3) = true");
+    println("");
+    
+    // String types
+    println("--- String Types ---");
+    store simple_string = "Hello";
+    println("simple_string = 'Hello'");
+    
+    store empty_string = "";
+    println("empty_string = ''");
+    
+    store string_with_spaces = "Hello, World!";
+    println("string_with_spaces = 'Hello, World!'");
+    
+    store string_with_numbers = "Version 1.0";
+    println("string_with_numbers = 'Version 1.0'");
+    println("");
+    
+    // Type inference examples
+    println("--- Type Inference Examples ---");
+    store inferred_int = 100;        // Should infer as int
+    println("inferred_int = 100 (inferred as int)");
+    
+    store inferred_float = 2.5;      // Should infer as float
+    println("inferred_float = 2.5 (inferred as float)");
+    
+    store inferred_bool = true;      // Should infer as bool
+    println("inferred_bool = true (inferred as bool)");
+    
+    store inferred_string = "test";  // Should infer as string
+    println("inferred_string = 'test' (inferred as string)");
+    println("");
+    
+    // Type promotion in expressions
+    println("--- Type Promotion in Expressions ---");
+    store mixed_arithmetic = small_int + pi;  // int + float -> float
+    println("mixed_arithmetic = small_int + pi = 42 + 3.14159 = 45.14159 (int + float -> float)");
+    
+    store int_arithmetic = small_int + large_int;  // int + int -> int
+    println("int_arithmetic = small_int + large_int = 42 + 1000000 = 1000042 (int + int -> int)");
+    
+    store float_arithmetic = pi + small_float;     // float + float -> float
+    println("float_arithmetic = pi + small_float = 3.14159 + 0.001 = 3.14259 (float + float -> float)");
+    println("");
+    
+    // Function calls with different types
+    println("--- Function Calls with Different Types ---");
+    store int_result = process_integer(42);
+    println("process_integer(42) = 84");
+    
+    store float_result = process_float(3.14);
+    println("process_float(3.14) = 6.28");
+    
+    store bool_result = process_boolean(true);
+    println("process_boolean(true) = false");
+    
+    store string_result = process_string("test");
+    println("process_string('test') = 'processed: test'");
+    println("");
+    
+    // Null value
+    println("--- Null Value ---");
+    store null_value = null;
+    println("null_value = null");
+    
+    println("");
+    println("=== Data Types Test Completed! ===");
+}
+
+// Functions demonstrating explicit type annotations
+def process_integer(value: int): int {
+    return value * 2;
+}
+
+def process_float(value: float): float {
+    return value * 1.5;
+}
+
+def process_boolean(value: bool): bool {
+    return !value;
+}
+
+def process_string(value: string): string {
+    return value + " processed";
+}
+
+// Function demonstrating type promotion
+def add_mixed_types(int_val: int, float_val: float): float {
+    return int_val + float_val;  // Promotes int to float
+}
+
+// Function demonstrating void type
+def demonstrate_void() {
+    store local_var = "This function returns void";
+}
+
+// Function with multiple parameter types
+def complex_calculation(a: int, b: float, multiplier: bool): float {
+    if (multiplier) {
+        return a * b * 2.0;
+    } else {
+        return a + b;
+    }
+}

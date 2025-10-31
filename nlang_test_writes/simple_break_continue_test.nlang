@@ -1,0 +1,52 @@
+// Simple Break and Continue Test
+def main() {
+    println("=== Simple Break and Continue Test ===");
+    
+    // Test 1: Basic break statement
+    println("--- Test 1: Basic Break Statement ---");
+    store counter = 0;
+    while (counter < 10) {
+        if (counter == 5) {
+            println("Breaking at counter = 5");
+            break;
+        }
+        println("Counter:");
+        println(counter);
+        counter = counter + 1;
+    }
+    println("Final counter after break:");
+    println(counter);
+    
+    // Test 2: Basic continue statement
+    println("--- Test 2: Basic Continue Statement ---");
+    store i = 0;
+    while (i < 10) {
+        i = i + 1;
+        if (i == 2 || i == 4 || i == 6 || i == 8) {
+            continue;  // Skip even numbers
+        }
+        println("Odd number:");
+        println(i);
+    }
+    
+    // Test 3: Break in nested loop
+    println("--- Test 3: Break in Nested Structure ---");
+    store outer = 0;
+    while (outer < 3) {
+        println("Outer loop:");
+        println(outer);
+        store inner = 0;
+        while (inner < 5) {
+            if (inner == 3) {
+                println("Breaking inner loop at 3");
+                break;
+            }
+            println("Inner:");
+            println(inner);
+            inner = inner + 1;
+        }
+        outer = outer + 1;
+    }
+    
+    println("=== Test Completed! ===");
+}

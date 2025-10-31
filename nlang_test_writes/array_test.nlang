@@ -1,0 +1,25 @@
+// Test array support (might not be implemented yet)
+def main() {
+    println("Testing array support:");
+    
+    // This might not be supported yet - let's see what happens
+    // store numbers = [1, 2, 3, 4, 5];
+    // println("Array elements:");
+    // println(numbers[0]);
+    // println(numbers[1]);
+    
+    // For now, test individual variables
+    store num1 = 1;
+    store num2 = 2;
+    store num3 = 3;
+    
+    println("Individual numbers:");
+    println(num1);
+    println(num2);
+    println(num3);
+    
+    // Test array-like operations with individual variables
+    store sum = num1 + num2 + num3;
+    println("Sum:");
+    println(sum);
+}

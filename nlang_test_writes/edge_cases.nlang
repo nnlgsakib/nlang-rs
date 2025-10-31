@@ -1,0 +1,35 @@
+// Test edge cases and error conditions
+def main() {
+    println("Testing edge cases:");
+    
+    // Test large numbers
+    store big_num = 999999999;
+    println("Large number:");
+    println(big_num);
+    
+    // Test negative numbers
+    store negative = -12345;
+    println("Negative number:");
+    println(negative);
+    
+    // Test zero
+    store zero = 0;
+    println("Zero:");
+    println(zero);
+    
+    // Test division by zero (might cause runtime error)
+    println("Division tests:");
+    println(10 / 2);
+    // This might crash or need error handling:
+    // println(10 / 0);
+    
+    // Test very small float
+    store tiny = 0.000001;
+    println("Tiny float:");
+    println(tiny);
+    
+    // Test very large float
+    store huge = 999999.999999;
+    println("Large float:");
+    println(huge);
+}

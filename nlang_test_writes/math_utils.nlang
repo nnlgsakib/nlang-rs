@@ -1,0 +1,80 @@
+// Math Utils Module - Demonstrates exportable functions and constants
+// This module provides mathematical utilities for testing imports
+
+// Exported functions
+export def add(a: int, b: int): int {
+    return a + b;
+}
+
+export def subtract(a: int, b: int): int {
+    return a - b;
+}
+
+export def multiply(a: int, b: int): int {
+    return a * b;
+}
+
+export def divide(a: int, b: int): float {
+    return a / b;
+}
+
+export def power(base: int, exponent: int): int {
+    if (exponent == 0) {
+        return 1;
+    }
+    
+    store result = 1;
+    store i = 0;
+    while (i < exponent) {
+        result = result * base;
+        i = i + 1;
+    }
+    return result;
+}
+
+export def factorial(n: int): int {
+    if (n <= 1) {
+        return 1;
+    } else {
+        return n * factorial(n - 1);
+    }
+}
+
+export def is_even(n: int): bool {
+    return n % 2 == 0;
+}
+
+export def is_odd(n: int): bool {
+    return n % 2 == 1;
+}
+
+export def maximum(a: int, b: int): int {
+    if (a > b) {
+        return a;
+    } else {
+        return b;
+    }
+}
+
+export def minimum(a: int, b: int): int {
+    if (a < b) {
+        return a;
+    } else {
+        return b;
+    }
+}
+
+// Exported constants
+export store PI = 3.14159;
+export store E = 2.71828;
+export store GOLDEN_RATIO = 1.61803;
+
+// Private helper function (not exported)
+def private_helper(x: int): int {
+    return x * 2 + 1;
+}
+
+// Private function using the helper
+def internal_calculation(value: int): int {
+    return private_helper(value) + 10;
+}

@@ -1,0 +1,43 @@
+// String Utils Module - Demonstrates string manipulation functions
+// This module provides string utilities for testing imports
+
+export def concat(a: string, b: string): string {
+    return a + b;
+}
+
+export def create_greeting(name: string): string {
+    return "Hello, " + name + "!";
+}
+
+export def create_farewell(name: string): string {
+    return "Goodbye, " + name + "!";
+}
+
+export def repeat_string(text: string, count: int): string {
+    if (count <= 0) {
+        return "";
+    }
+    
+    store result = "";
+    store i = 0;
+    while (i < count) {
+        result = result + text;
+        i = i + 1;
+    }
+    return result;
+}
+
+export def is_empty(text: string): bool {
+    return text == "";
+}
+
+// Exported string constants
+export store EMPTY_STRING = "";
+export store SPACE = " ";
+export store NEWLINE = "\n";
+export store DEFAULT_GREETING = "Hello, World!";
+
+// Private function (not exported)
+def internal_format(text: string): string {
+    return "[" + text + "]";
+}

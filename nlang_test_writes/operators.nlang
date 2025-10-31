@@ -1,0 +1,179 @@
+// Operators Test - Demonstrates all supported nlang operators
+// This file tests: arithmetic, comparison, logical, unary operators, and operator precedence
+
+def main() {
+    println("=== Operators Test ===");
+    println("");
+    
+    // Arithmetic operators
+    println("--- Arithmetic Operators ---");
+    store a = 10;
+    store b = 3;
+    store c = 2.5;
+    
+    // Basic arithmetic
+    store addition = a + b;        // 13
+    println("a + b = 10 + 3 = 13");
+    
+    store subtraction = a - b;     // 7
+    println("a - b = 10 - 3 = 7");
+    
+    store multiplication = a * b;  // 30
+    println("a * b = 10 * 3 = 30");
+    
+    store division = a / b;        // 3 (integer division)
+    println("a / b = 10 / 3 = 3.33 (float division)");
+    
+    store modulo = a % b;          // 1
+    println("a % b = 10 % 3 = 1");
+    println("");
+    
+    // Mixed type arithmetic (type promotion)
+    println("--- Mixed Type Arithmetic ---");
+    store mixed_add = a + c;       // 12.5 (int + float -> float)
+    println("a + c = 10 + 2.5 = 12.5 (int + float -> float)");
+    
+    store mixed_mult = b * c;      // 7.5 (int * float -> float)
+    println("b * c = 3 * 2.5 = 7.5 (int * float -> float)");
+    println("");
+    
+    // Comparison operators
+    println("--- Comparison Operators ---");
+    store equal = (a == b);        // false
+    println("a == b = 10 == 3 = false");
+    
+    store not_equal = (a != b);    // true
+    println("a != b = 10 != 3 = true");
+    
+    store less_than = (a < b);     // false
+    println("a < b = 10 < 3 = false");
+    
+    store less_equal = (a <= b);   // false
+    println("a <= b = 10 <= 3 = false");
+    
+    store greater_than = (a > b);  // true
+    println("a > b = 10 > 3 = true");
+    
+    store greater_equal = (a >= b); // true
+    println("a >= b = 10 >= 3 = true");
+    println("");
+    
+    // Logical operators
+    println("--- Logical Operators ---");
+    store bool1 = true;
+    store bool2 = false;
+    
+    store logical_and = bool1 && bool2;  // false
+    println("bool1 && bool2 = true && false = false");
+    
+    store logical_or = bool1 || bool2;   // true
+    println("bool1 || bool2 = true || false = true");
+    println("");
+    
+    // Unary operators
+    println("--- Unary Operators ---");
+    store negated_number = -a;     // -10
+    println("-a = -10");
+    
+    store logical_not = !bool1;    // false
+    println("!bool1 = !true = false");
+    println("");
+    
+    // Complex expressions with operator precedence
+    println("--- Complex Expressions with Operator Precedence ---");
+    store complex1 = a + b * c;    // 10 + (3 * 2.5) = 17.5
+    println("a + b * c = 10 + (3 * 2.5) = 17.5");
+    
+    store complex2 = (a + b) * c;  // (10 + 3) * 2.5 = 32.5
+    println("(a + b) * c = (10 + 3) * 2.5 = 32.5");
+    
+    store complex3 = a * b + c / 2; // (10 * 3) + (2.5 / 2) = 31.25
+    println("a * b + c / 2 = (10 * 3) + (2.5 / 2) = 31.25");
+    println("");
+    
+    // Comparison chains
+    println("--- Comparison Chains ---");
+    store range_check = (0 < a) && (a < 20);  // true
+    println("(0 < a) && (a < 20) = (0 < 10) && (10 < 20) = true");
+    
+    store boundary_check = (a >= 10) || (b <= 5);  // true
+    println("(a >= 10) || (b <= 5) = (10 >= 10) || (3 <= 5) = true");
+    println("");
+    
+    // Function calls with operator results
+    println("--- Function Calls with Operator Results ---");
+    store result1 = calculate_with_ops(a, b);
+    println("calculate_with_ops(10, 3) = 2");
+    
+    store result2 = compare_values(a, b);
+    println("compare_values(10, 3) = true");
+    
+    store result3 = logical_operations(bool1, bool2);
+    println("logical_operations(true, false) = true");
+    
+    println("");
+    println("=== Operators Test Completed! ===");
+}
+
+// Function demonstrating arithmetic operations
+def calculate_with_ops(x: int, y: int): int {
+    store temp = x * 2 + y;
+    store result = temp % 7;
+    return result;
+}
+
+// Function demonstrating comparison operations
+def compare_values(x: int, y: int): bool {
+    if (x > y) {
+        return true;
+    } else if (x == y) {
+        return false;
+    } else {
+        return false;
+    }
+}
+
+// Function demonstrating logical operations
+def logical_operations(p: bool, q: bool): bool {
+    store and_result = p && q;
+    store or_result = p || q;
+    store not_p = !p;
+    
+    // Complex logical expression
+    return (and_result || or_result) && !not_p;
+}
+
+// Function demonstrating operator precedence
+def precedence_test(): float {
+    store x = 5;
+    store y = 3;
+    store z = 2.0;
+    
+    // Test precedence: * and / before + and -
+    store result1 = x + y * z;     // 5 + (3 * 2.0) = 11.0
+    store result2 = x * y + z;     // (5 * 3) + 2.0 = 17.0
+    store result3 = x / y + z * 2; // (5 / 3) + (2.0 * 2) = 1 + 4.0 = 5.0
+    
+    return result1 + result2 + result3;
+}
+
+// Function demonstrating unary operators
+def unary_operations(value: int, flag: bool): int {
+    store negative = -value;
+    store positive = -negative;  // Double negation
+    
+    if (!flag) {
+        return negative;
+    } else {
+        return positive;
+    }
+}
+
+// Function demonstrating modulo operator
+def modulo_examples(): int {
+    store even_check = 10 % 2;     // 0 (even number)
+    store odd_check = 11 % 2;      // 1 (odd number)
+    store remainder = 17 % 5;      // 2
+    
+    return even_check + odd_check + remainder;
+}

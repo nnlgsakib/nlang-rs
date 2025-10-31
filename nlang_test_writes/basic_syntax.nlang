@@ -1,0 +1,98 @@
+// Basic Syntax Test - Demonstrates fundamental nlang features
+// This file tests: variable declarations, function definitions, basic control flow
+
+def main() {
+    println("=== Basic Syntax Test ===");
+    println("");
+    
+    // Variable declarations with type inference
+    println("--- Variable Declarations ---");
+    store message = "Hello, nlang!";
+    println("message = 'Hello, nlang!'");
+    
+    store number = 42;
+    println("number = 42");
+    
+    store pi = 3.14159;
+    println("pi = 3.14159");
+    
+    store is_active = true;
+    println("is_active = true");
+    println("");
+    
+    // Function calls
+    println("--- Function Calls ---");
+    store result = add_numbers(10, 20);
+    println("add_numbers(10, 20) = 30");
+    
+    store greeting = create_greeting("World");
+    println("create_greeting('World') = 'Hello, World!'");
+    println("");
+    
+    // Basic conditional
+    println("--- Conditional Logic ---");
+    if (result > 25) {
+        store status = "Large result";
+        println("result > 25: status = 'Large result'");
+    } else {
+        store status = "Small result";
+        println("result <= 25: status = 'Small result'");
+    }
+    println("");
+    
+    // Variable assignment
+    println("--- Variable Reassignment ---");
+    number = 100;
+    println("number reassigned to 100");
+    
+    is_active = false;
+    println("is_active reassigned to false");
+    println("");
+    
+    // Testing boolean function
+    println("--- Boolean Function Test ---");
+    store positive_check = is_positive(15);
+    println("is_positive(15) = true");
+    
+    store negative_check = is_positive(-5);
+    println("is_positive(-5) = false");
+    println("");
+    
+    // Testing void function
+    println("--- Void Function Test ---");
+    print_status(true);
+    print_status(false);
+    
+    println("");
+    println("=== Basic Syntax Test Completed! ===");
+}
+
+// Function with parameters and return value
+def add_numbers(a: int, b: int): int {
+    return a + b;
+}
+
+// Function with string parameter
+def create_greeting(name: string): string {
+    return "Hello, " + name + "!";
+}
+
+// Function with boolean logic
+def is_positive(value: int): bool {
+    if (value > 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+// Function demonstrating void return type
+def print_status(active: bool) {
+    if (active) {
+        store msg = "System is active";
+        println("print_status(true): System is active");
+    } else {
+        store msg = "System is inactive";
+        println("print_status(false): System is inactive");
+    }
+}

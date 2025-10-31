@@ -1,0 +1,10 @@
+[package]
+name = "nlang"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap = { version = "4.0", features = ["derive"] }
+tempfile = "3.0"
+thiserror = "1.0"
+anyhow = "1.0"

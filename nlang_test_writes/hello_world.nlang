@@ -1,0 +1,5 @@
+// Simple hello world program
+def main() {
+    println("Hello, World!");
+    println("Welcome to NLang!");
+}

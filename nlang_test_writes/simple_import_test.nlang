@@ -1,0 +1,7 @@
+// Simple import test
+import math_utils as math;
+
+def main() {
+    store result = math.add(5, 10);
+    store product = math.multiply(3, 4);
+}

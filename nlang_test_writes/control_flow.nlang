@@ -1,0 +1,224 @@
+// Control Flow Test - Demonstrates nlang control flow constructs
+// This file tests: if/else statements, while loops, nested conditions, early returns
+
+def main() {
+    println("=== Control Flow Test ===");
+    println("");
+    
+    // Basic if statement
+    println("--- Basic If Statement ---");
+    store x = 10;
+    if (x > 5) {
+        store message = "x is greater than 5";
+        println("x = 10, x > 5: message = 'x is greater than 5'");
+    }
+    println("");
+    
+    // If-else statement
+    println("--- If-Else Statement ---");
+    store y = 3;
+    if (y > 5) {
+        store status = "large";
+        println("y = 3, y > 5: status = 'large'");
+    } else {
+        store status = "small";
+        println("y = 3, y <= 5: status = 'small'");
+    }
+    println("");
+    
+    // If-else if-else chain
+    println("--- If-Else If-Else Chain ---");
+    store score = 85;
+    if (score >= 90) {
+        store grade = "A";
+        println("score = 85, grade = 'A'");
+    } else if (score >= 80) {
+        store grade = "B";
+        println("score = 85, grade = 'B'");
+    } else if (score >= 70) {
+        store grade = "C";
+        println("score = 85, grade = 'C'");
+    } else {
+        store grade = "F";
+        println("score = 85, grade = 'F'");
+    }
+    println("");
+    
+    // Nested if statements
+    println("--- Nested If Statements ---");
+    store age = 25;
+    store has_license = true;
+    if (age >= 18) {
+        if (has_license) {
+            store can_drive = true;
+            println("age = 25, has_license = true: can_drive = true");
+        } else {
+            store can_drive = false;
+            println("age = 25, has_license = false: can_drive = false");
+        }
+    } else {
+        store can_drive = false;
+        println("age < 18: can_drive = false");
+    }
+    println("");
+    
+    // While loop - basic counting
+    println("--- While Loop - Basic Counting ---");
+    store counter = 0;
+    println("Starting counter = 0, counting to 5:");
+    while (counter < 5) {
+        counter = counter + 1;
+        print(".");
+    }
+    println("");
+    println("Final counter = 5");
+    println("");
+    
+    // While loop with complex condition
+    println("=== While Loop with Complex Condition ===");
+    store value = 100;
+    println("Starting value = 100, subtracting 10 while > 0:");
+    while (value > 0) {
+        println("Current value: processing...");
+        value = value - 10;
+        println("After subtraction: value decreased");
+    }
+    println("Final value: 0 (loop completed)");
+    println("");
+    
+    // Function calls with control flow
+    println("--- Function Calls with Control Flow ---");
+    store result1 = classify_number(42);
+    println("classify_number(42) = 'positive'");
+    
+    store result2 = factorial(5);
+    println("factorial(5) = 120");
+    
+    store result3 = find_max(10, 20, 15);
+    println("find_max(10, 20, 15) = 20");
+    
+    println("");
+    println("=== Control Flow Test Completed! ===");
+}
+
+// Function demonstrating if-else with return
+def classify_number(num: int): string {
+    if (num > 0) {
+        return "positive";
+    } else if (num < 0) {
+        return "negative";
+    } else {
+        return "zero";
+    }
+}
+
+// Function demonstrating while loop with early return
+def factorial(n: int): int {
+    if (n <= 1) {
+        return 1;
+    }
+    
+    store result = 1;
+    store i = 2;
+    while (i <= n) {
+        result = result * i;
+        i = i + 1;
+    }
+    return result;
+}
+
+// Function with nested if statements
+def find_max(a: int, b: int, c: int): int {
+    if (a >= b) {
+        if (a >= c) {
+            return a;
+        } else {
+            return c;
+        }
+    } else {
+        if (b >= c) {
+            return b;
+        } else {
+            return c;
+        }
+    }
+}
+
+// Function demonstrating complex control flow
+def process_data(data: int): string {
+    if (data < 0) {
+        return "invalid";
+    }
+    
+    store processed = data;
+    
+    // Process even numbers differently
+    if (processed % 2 == 0) {
+        while (processed > 10) {
+            processed = processed - 5;
+        }
+    } else {
+        while (processed < 100) {
+            processed = processed * 3 + 1;
+            if (processed > 1000) {
+                return "overflow";
+            }
+        }
+    }
+    
+    if (processed < 50) {
+        return "small";
+    } else {
+        return "large";
+    }
+}
+
+// Function demonstrating guard clauses
+def validate_input(value: int): bool {
+    // Early returns for validation
+    if (value < 0) {
+        return false;
+    }
+    
+    if (value > 1000) {
+        return false;
+    }
+    
+    if (value % 13 == 0) {
+        return false;  // Superstition check
+    }
+    
+    return true;
+}
+
+// Function with while loop and break-like behavior using return
+def search_value(target: int): int {
+    store current = 1;
+    while (current <= 100) {
+        if (current * current == target) {
+            return current;  // Found square root
+        }
+        if (current * current > target) {
+            return -1;  // Not a perfect square
+        }
+        current = current + 1;
+    }
+    return -1;  // Not found in range
+}
+
+// Function demonstrating nested loops simulation
+def multiplication_table(size: int): int {
+    store i = 1;
+    store sum = 0;
+    
+    while (i <= size) {
+        store j = 1;
+        while (j <= size) {
+            sum = sum + (i * j);
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+    
+    return sum;
+}
