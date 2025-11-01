@@ -1,7 +1,18 @@
 use std::path::PathBuf;
 use crate::execution_engine::ExecutionEngine;
+use anyhow::bail;
+
+/// Validates that the input file has a .nlang extension.
+fn validate_nlang_file(input: &PathBuf) -> anyhow::Result<()> {
+    if input.extension().map_or(false, |ext| ext == "nlang") {
+        Ok(())
+    } else {
+        bail!("Input file must have a .nlang extension, but got: {}", input.display());
+    }
+}
 
 pub fn compile(input: PathBuf, output: Option<PathBuf>) -> anyhow::Result<()> {
+    validate_nlang_file(&input)?;
     println!("Compiling {}...", input.display());
     
     // Read the source code
@@ -30,6 +41,7 @@ pub fn compile(input: PathBuf, output: Option<PathBuf>) -> anyhow::Result<()> {
 }
 
 pub fn generate_ir(input: PathBuf, output: Option<PathBuf>) -> anyhow::Result<()> {
+    validate_nlang_file(&input)?;
     println!("Generating LLVM IR for {}...", input.display());
     
     // Read the source code
@@ -61,6 +73,7 @@ pub fn generate_ir(input: PathBuf, output: Option<PathBuf>) -> anyhow::Result<()
 }
 
 pub fn generate_c(input: PathBuf, output: Option<PathBuf>) -> anyhow::Result<()> {
+    validate_nlang_file(&input)?;
     println!("Generating C code for {}...", input.display());
     
     // Read the source code
@@ -92,6 +105,7 @@ pub fn generate_c(input: PathBuf, output: Option<PathBuf>) -> anyhow::Result<()>
 }
 
 pub fn run(input: PathBuf) -> anyhow::Result<()> {
+    validate_nlang_file(&input)?;
     println!("Running {}...", input.display());
     
     // Read the source code
