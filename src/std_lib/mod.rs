@@ -67,10 +67,22 @@ impl StdLib {
                     implementation: builtin_int,
                 },
                 BuiltInFunction {
+                    name: "int".to_string(),
+                    parameters: vec![Type::Float],
+                    return_type: Type::Integer,
+                    implementation: builtin_int_from_float,
+                },
+                BuiltInFunction {
                     name: "str".to_string(),
                     parameters: vec![Type::Integer],
                     return_type: Type::String,
                     implementation: builtin_str,
+                },
+                BuiltInFunction {
+                    name: "str".to_string(),
+                    parameters: vec![Type::Float],
+                    return_type: Type::String,
+                    implementation: builtin_str_from_float,
                 },
                 BuiltInFunction {
                     name: "float".to_string(),
@@ -85,6 +97,12 @@ impl StdLib {
                     parameters: vec![Type::Integer],
                     return_type: Type::Integer,
                     implementation: builtin_abs,
+                },
+                BuiltInFunction {
+                    name: "abs_float".to_string(),
+                    parameters: vec![Type::Float],
+                    return_type: Type::Float,
+                    implementation: builtin_abs_float,
                 },
                 BuiltInFunction {
                     name: "max".to_string(),
@@ -183,6 +201,11 @@ impl StdLib {
         self.functions.iter().find(|f| f.name == name)
     }
     
+    /// Get a built-in function by name and parameter types (for overloading)
+    pub fn get_builtin_function_by_signature(&self, name: &str, param_types: &[Type]) -> Option<&BuiltInFunction> {
+        self.functions.iter().find(|f| f.name == name && f.parameters == param_types)
+    }
+    
     /// Check if a type name is a built-in type
     pub fn is_builtin_type(&self, name: &str) -> bool {
         self.types.iter().any(|t| t.name == name)
@@ -221,6 +244,7 @@ fn extract_integer_value(expr: &Expr) -> Result<i64, String> {
 }
 
 // Helper function to extract float value from expression
+#[allow(dead_code)]
 fn extract_float_value(expr: &Expr) -> Result<f64, String> {
     match expr {
         Expr::Literal(Literal::Float(f)) => Ok(*f),
@@ -229,6 +253,7 @@ fn extract_float_value(expr: &Expr) -> Result<f64, String> {
 }
 
 // Helper function to extract boolean value from expression
+#[allow(dead_code)]
 fn extract_boolean_value(expr: &Expr) -> Result<bool, String> {
     match expr {
         Expr::Literal(Literal::Boolean(b)) => Ok(*b),
@@ -309,12 +334,30 @@ fn builtin_int(args: &[Expr]) -> Result<Expr, String> {
     Ok(Expr::Literal(Literal::Integer(parsed)))
 }
 
+fn builtin_int_from_float(args: &[Expr]) -> Result<Expr, String> {
+    if args.len() != 1 {
+        return Err("int() takes exactly 1 argument".to_string());
+    }
+    
+    let num = extract_float_value(&args[0])?;
+    Ok(Expr::Literal(Literal::Integer(num as i64)))
+}
+
 fn builtin_str(args: &[Expr]) -> Result<Expr, String> {
     if args.len() != 1 {
         return Err("str() takes exactly 1 argument".to_string());
     }
     
     let num = extract_integer_value(&args[0])?;
+    Ok(Expr::Literal(Literal::String(num.to_string())))
+}
+
+fn builtin_str_from_float(args: &[Expr]) -> Result<Expr, String> {
+    if args.len() != 1 {
+        return Err("str() takes exactly 1 argument".to_string());
+    }
+    
+    let num = extract_float_value(&args[0])?;
     Ok(Expr::Literal(Literal::String(num.to_string())))
 }
 
@@ -337,6 +380,15 @@ fn builtin_abs(args: &[Expr]) -> Result<Expr, String> {
     
     let num = extract_integer_value(&args[0])?;
     Ok(Expr::Literal(Literal::Integer(num.abs())))
+}
+
+fn builtin_abs_float(args: &[Expr]) -> Result<Expr, String> {
+    if args.len() != 1 {
+        return Err("abs_float() takes exactly 1 argument".to_string());
+    }
+    
+    let num = extract_float_value(&args[0])?;
+    Ok(Expr::Literal(Literal::Float(num.abs())))
 }
 
 fn builtin_max(args: &[Expr]) -> Result<Expr, String> {

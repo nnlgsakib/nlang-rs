@@ -40,6 +40,20 @@ impl CCodeGenerator {
         code.push_str("#include <stdlib.h>\n");
         code.push_str("#include <math.h>\n\n");
         
+        // Add helper functions for built-in conversions
+        code.push_str("// Helper functions for built-in conversions\n");
+        code.push_str("char* int_to_str(int value) {\n");
+        code.push_str("    char* buffer = malloc(32);\n");
+        code.push_str("    sprintf(buffer, \"%d\", value);\n");
+        code.push_str("    return buffer;\n");
+        code.push_str("}\n\n");
+        
+        code.push_str("char* float_to_str(double value) {\n");
+        code.push_str("    char* buffer = malloc(32);\n");
+        code.push_str("    sprintf(buffer, \"%f\", value);\n");
+        code.push_str("    return buffer;\n");
+        code.push_str("}\n\n");
+        
         // Collect string literals first
         self.collect_string_literals(program);
         
@@ -205,8 +219,19 @@ impl CCodeGenerator {
                 Ok(format!("    {};\n", expr_code))
             }
             Statement::LetDeclaration { name, initializer, .. } => {
-                // For simplicity, assume int type for now
-                let c_type = "int".to_string();
+                // Determine the C type based on the initializer
+                let c_type = if let Some(init) = initializer {
+                    match init {
+                        Expr::Literal(Literal::String(_)) => "char*".to_string(),
+                        Expr::Literal(Literal::Float(_)) => "double".to_string(),
+                        Expr::Literal(Literal::Boolean(_)) => "int".to_string(),
+                        Expr::Literal(Literal::Integer(_)) => "int".to_string(),
+                        _ => "int".to_string(), // Default fallback
+                    }
+                } else {
+                    "int".to_string() // Default for uninitialized variables
+                };
+                
                 self.variables.insert(name.clone(), c_type.clone());
                 
                 if let Some(init) = initializer {
@@ -303,16 +328,68 @@ impl CCodeGenerator {
                     });
                 };
                 
-                // Handle print functions specially
-                if func_name == "print" || func_name == "println" {
-                    if arguments.len() == 1 {
-                        let arg_code = self.generate_expression(&arguments[0])?;
-                        let format_and_code = self.generate_print_format_and_arg(&arguments[0], &arg_code)?;
-                        if func_name == "println" {
-                            return Ok(format!("printf(\"{}\\n\", {})", format_and_code.0, format_and_code.1));
-                        } else {
-                            return Ok(format!("printf(\"{}\", {})", format_and_code.0, format_and_code.1));
+                // Handle built-in functions specially
+                match func_name.as_str() {
+                    "print" | "println" => {
+                        if arguments.len() == 1 {
+                            let arg_code = self.generate_expression(&arguments[0])?;
+                            let format_and_code = self.generate_print_format_and_arg(&arguments[0], &arg_code)?;
+                            if func_name == "println" {
+                                return Ok(format!("printf(\"{}\\n\", {})", format_and_code.0, format_and_code.1));
+                            } else {
+                                return Ok(format!("printf(\"{}\", {})", format_and_code.0, format_and_code.1));
+                            }
                         }
+                    }
+                    "str" => {
+                        if arguments.len() == 1 {
+                            let arg_code = self.generate_expression(&arguments[0])?;
+                            // For str() conversion, we need to determine the type
+                            // This is a simplified approach - ideally we'd have type information
+                            // For now, assume integer conversion (int_to_str)
+                            return Ok(format!("int_to_str({})", arg_code));
+                        }
+                    }
+                    "int" => {
+                        if arguments.len() == 1 {
+                            let arg_code = self.generate_expression(&arguments[0])?;
+                            // For int() conversion, check if it's a string or numeric
+                            // If it's a string (from str() call), use atoi(), otherwise cast
+                            if arg_code.contains("int_to_str") || arg_code.contains("float_to_str") {
+                                return Ok(format!("atoi({})", arg_code));
+                            } else {
+                                return Ok(format!("((int){})", arg_code));
+                            }
+                        }
+                    }
+                    "float" => {
+                        if arguments.len() == 1 {
+                            let arg_code = self.generate_expression(&arguments[0])?;
+                            // For float() conversion, check if it's a string or numeric
+                            // If it's a string (from str() call), use atof(), otherwise cast
+                            if arg_code.contains("int_to_str") || arg_code.contains("float_to_str") {
+                                return Ok(format!("atof({})", arg_code));
+                            } else {
+                                return Ok(format!("((double){})", arg_code));
+                            }
+                        }
+                    }
+                    "abs_float" => {
+                        if arguments.len() == 1 {
+                            let arg_code = self.generate_expression(&arguments[0])?;
+                            // Use fabs() from math.h for floating point absolute value
+                            return Ok(format!("fabs({})", arg_code));
+                        }
+                    }
+                    "abs" => {
+                        if arguments.len() == 1 {
+                            let arg_code = self.generate_expression(&arguments[0])?;
+                            // Use abs() from stdlib.h for integer absolute value
+                            return Ok(format!("abs({})", arg_code));
+                        }
+                    }
+                    _ => {
+                        // Regular function call - fall through to default handling
                     }
                 }
                 

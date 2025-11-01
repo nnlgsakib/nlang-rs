@@ -1,0 +1,46 @@
+// Variables and Data Types
+// This demonstrates variable declaration and different data types in nlang
+
+def main() {
+    // Integer variables
+    store age = 25;
+    store year = 2024;
+    
+    // Float variables
+    store pi = 3.14159;
+    store temperature = 98.6;
+    
+    // Boolean variables
+    store is_student = true;
+    store is_graduated = false;
+    
+    // String variables
+    store name = "Alice";
+    store greeting = "Hello, nlang!";
+    
+    // Print all variables
+    println("=== Variable Examples ===");
+    print("Name: ");
+    println(name);
+    
+    print("Age: ");
+    println(age);
+    
+    print("Year: ");
+    println(year);
+    
+    print("Pi: ");
+    println(pi);
+    
+    print("Temperature: ");
+    println(temperature);
+    
+    print("Is student: ");
+    println(is_student);
+    
+    print("Is graduated: ");
+    println(is_graduated);
+    
+    println(greeting);
+}
+

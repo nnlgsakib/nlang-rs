@@ -1,0 +1,180 @@
+// Utility Library - Math and String Utilities
+// This file demonstrates exportable functions that can be imported by other programs
+
+// Export a function to calculate the area of a circle
+export def circle_area(radius) {
+    store pi = 3.14159;
+    return pi * radius * radius;
+}
+
+// Export a function to calculate the perimeter of a rectangle
+export def rectangle_perimeter(length, width) {
+    return 2 * (length + width);
+}
+
+// Export a function to convert temperature from Celsius to Fahrenheit
+export def celsius_to_fahrenheit(celsius) {
+    return (celsius * 9 / 5) + 32;
+}
+
+// Export a function to convert temperature from Fahrenheit to Celsius
+export def fahrenheit_to_celsius(fahrenheit) {
+    return (fahrenheit - 32) * 5 / 9;
+}
+
+// Export a function to check if a year is a leap year
+export def is_leap_year(year) {
+    if (year % 4 != 0) {
+        return false;
+    }
+    
+    if (year % 100 != 0) {
+        return true;
+    }
+    
+    if (year % 400 == 0) {
+        return true;
+    }
+    
+    return false;
+}
+
+// Export a function to calculate compound interest
+export def compound_interest(principal, rate, time) {
+    store amount = principal;
+    store i = 0;
+    
+    while (i < time) {
+        amount = amount * (1 + rate / 100);
+        i = i + 1;
+    }
+    
+    return amount - principal;
+}
+
+// Export a function to find the nth Fibonacci number
+export def fibonacci(n) {
+    if (n <= 0) {
+        return 0;
+    }
+    
+    if (n == 1) {
+        return 1;
+    }
+    
+    store a = 0;
+    store b = 1;
+    store i = 2;
+    
+    while (i <= n) {
+        store temp = a + b;
+        a = b;
+        b = temp;
+        i = i + 1;
+    }
+    
+    return b;
+}
+
+// Export a function to reverse a number
+export def reverse_number(num) {
+    store reversed = 0;
+    store temp = num;
+    
+    while (temp > 0) {
+        store digit = temp % 10;
+        reversed = reversed * 10 + digit;
+        temp = temp / 10;
+    }
+    
+    return reversed;
+}
+
+// Export a function to count digits in a number
+export def count_digits(num) {
+    if (num == 0) {
+        return 1;
+    }
+    
+    store count = 0;
+    store temp = abs(num);
+    
+    while (temp > 0) {
+        count = count + 1;
+        temp = temp / 10;
+    }
+    
+    return count;
+}
+
+// Export a function to calculate the sum of digits
+export def sum_of_digits(num) {
+    store sum = 0;
+    store temp = abs(num);
+    
+    while (temp > 0) {
+        store digit = temp % 10;
+        sum = sum + digit;
+        temp = temp / 10;
+    }
+    
+    return sum;
+}
+
+// Non-exported helper function (private to this module)
+def display_info() {
+    println("This is a utility library for nlang");
+    println("It contains various mathematical and utility functions");
+}
+
+// Main function for testing the library
+def main() {
+    println("=== Utility Library Test ===");
+    
+    display_info();
+    println("");
+    
+    // Test circle area
+    store radius = 5;
+    store area = circle_area(radius);
+    print("Circle area (radius=5): ");
+    println(str(area));
+    
+    // Test rectangle perimeter
+    store perimeter = rectangle_perimeter(10, 6);
+    print("Rectangle perimeter (10x6): ");
+    println(str(perimeter));
+    
+    // Test temperature conversion
+    store temp_c = 25;
+    store temp_f = celsius_to_fahrenheit(temp_c);
+    print("25°C in Fahrenheit: ");
+    println(str(temp_f));
+    
+    // Test leap year
+    store year = 2024;
+    store is_leap = is_leap_year(year);
+    print("Is 2024 a leap year? ");
+    println(str(is_leap));
+    
+    // Test compound interest
+    store interest = compound_interest(1000, 5, 3);
+    print("Compound interest (1000, 5%, 3 years): ");
+    println(str(interest));
+    
+    // Test Fibonacci
+    store fib_10 = fibonacci(10);
+    print("10th Fibonacci number: ");
+    println(str(fib_10));
+    
+    // Test number utilities
+    store num = 12345;
+    print("Number: ");
+    println(str(num));
+    print("Reversed: ");
+    println(str(reverse_number(num)));
+    print("Digit count: ");
+    println(str(count_digits(num)));
+    print("Sum of digits: ");
+    println(str(sum_of_digits(num)));
+}

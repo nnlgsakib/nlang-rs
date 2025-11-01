@@ -1,0 +1,197 @@
+// Calculator Program
+// A comprehensive example demonstrating multiple nlang features
+
+// Function to add two numbers
+def add(a: int, b: int): int {
+    return a + b;
+}
+
+// Function to subtract two numbers
+def subtract(a: int, b: int): int {
+    return a - b;
+}
+
+// Function to multiply two numbers
+def multiply(a: int, b: int): int {
+    return a * b;
+}
+
+// Function to divide two numbers
+def divide(a: int, b: int): float {
+    if (b == 0) {
+        println("Error: Division by zero!");
+        return 0.0;
+    }
+    return a / b;
+}
+
+// Function to calculate power
+def power(base: int, exponent: int): int {
+    if (exponent == 0) {
+        return 1;
+    }
+    
+    store result = 1;
+    store i = 0;
+    while (i < exponent) {
+        result = result * base;
+        i = i + 1;
+    }
+    return result;
+}
+
+// Function to calculate square root (using approximation)
+def sqrt_approx(number: int): float {
+    if (number < 0) {
+        println("Error: Cannot calculate square root of negative number!");
+        return 0.0;
+    }
+    
+    if (number == 0) {
+        return 0.0;
+    }
+    
+    store guess = float(str(number)) / 2.0;
+    store precision = 0.001;
+    
+    store iterations = 0;
+    while (iterations < 20) {
+        store new_guess = (guess + float(str(number)) / guess) / 2.0;
+        store difference = abs_float(new_guess - guess);
+        
+        if (difference < precision) {
+            return new_guess;
+        }
+        
+        guess = new_guess;
+        iterations = iterations + 1;
+    }
+    
+    return guess;
+}
+
+// Function to check if number is prime
+def is_prime(n: int): bool {
+    if (n <= 1) {
+        return false;
+    }
+    
+    if (n <= 3) {
+        return true;
+    }
+    
+    if (n % 2 == 0 || n % 3 == 0) {
+        return false;
+    }
+    
+    store i = 5;
+    while (i * i <= n) {
+        if (n % i == 0 || n % (i + 2) == 0) {
+            return false;
+        }
+        i = i + 6;
+    }
+    
+    return true;
+}
+
+// Function to calculate GCD (Greatest Common Divisor)
+def gcd(a: int, b: int): int {
+    while (b != 0) {
+        store temp = b;
+        b = a % b;
+        a = temp;
+    }
+    return a;
+}
+
+// Function to display a number with label
+def display_result(label: string, value: int): void {
+    print(label);
+    print(": ");
+    println(str(value));
+}
+
+// Function to display a float number with label
+def display_result_float(label: string, value: float): void {
+    print(label);
+    print(": ");
+    println(str(value));
+}
+
+def main(): void {
+    println("=== Advanced Calculator ===");
+    println("");
+    
+    // Basic arithmetic operations
+    println("Basic Arithmetic:");
+    store num1 = 15;
+    store num2 = 4;
+    
+    display_result("First number", num1);
+    display_result("Second number", num2);
+    println("");
+    
+    display_result("Addition", add(num1, num2));
+    display_result("Subtraction", subtract(num1, num2));
+    display_result("Multiplication", multiply(num1, num2));
+    display_result_float("Division", divide(num1, num2));
+    
+    println("");
+    
+    // Power calculations
+    println("Power Calculations:");
+    display_result("2^3", power(2, 3));
+    display_result("5^4", power(5, 4));
+    display_result("10^0", power(10, 0));
+    
+    println("");
+    
+    // Square root approximations
+    println("Square Root Approximations:");
+    display_result_float("sqrt(16)", sqrt_approx(16));
+    display_result_float("sqrt(25)", sqrt_approx(25));
+    display_result_float("sqrt(10)", sqrt_approx(10));
+    
+    println("");
+    
+    // Prime number checking
+    println("Prime Number Checking:");
+    store numbers_to_check = 17;
+    store i = 2;
+    while (i <= numbers_to_check) {
+        store prime_result = is_prime(i);
+        if (prime_result) {
+            print(str(i));
+            println(" is prime");
+        }
+        i = i + 1;
+    }
+    
+    println("");
+    
+    // GCD calculations
+    println("Greatest Common Divisor:");
+    display_result("GCD(48, 18)", gcd(48, 18));
+    display_result("GCD(100, 25)", gcd(100, 25));
+    display_result("GCD(17, 13)", gcd(17, 13));
+    
+    println("");
+    
+    // Complex calculations
+    println("Complex Calculations:");
+    store a = 12;
+    store b = 8;
+    store c = 5;
+    
+    store complex_result = add(multiply(a, b), int(divide(c, 2)));
+    print("(12 * 8) + (5 / 2) = ");
+    println(str(complex_result));
+    
+    store area_circle = multiply(multiply(3, 14), multiply(5, 5));
+    print("Approximate area of circle (r=5): ");
+    println(str(area_circle));
+    
+    println("");
+    println("Calculator operations completed!");
+}

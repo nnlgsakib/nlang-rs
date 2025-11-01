@@ -83,28 +83,45 @@ impl ExecutionEngine {
         let ir_file = temp_dir.join(format!("{}.ll", module_name));
         std::fs::write(&ir_file, ir_code)?;
         
+        let mut errors = Vec::new();
+        
         // Try LLVM tools first (llc + lld-link)
-        if let Ok(()) = self.compile_with_llvm_tools(&ir_file, output_path, module_name) {
-            let _ = std::fs::remove_file(&ir_file);
-            return Ok(());
+        match self.compile_with_llvm_tools(&ir_file, output_path, module_name) {
+            Ok(()) => {
+                let _ = std::fs::remove_file(&ir_file);
+                return Ok(());
+            }
+            Err(e) => {
+                errors.push(format!("LLVM tools: {}", e));
+            }
         }
         
         // Try clang as fallback
-        if let Ok(()) = self.compile_with_clang_from_ir(&ir_file, output_path) {
-            let _ = std::fs::remove_file(&ir_file);
-            return Ok(());
+        match self.compile_with_clang_from_ir(&ir_file, output_path) {
+            Ok(()) => {
+                let _ = std::fs::remove_file(&ir_file);
+                return Ok(());
+            }
+            Err(e) => {
+                errors.push(format!("Clang (from IR): {}", e));
+            }
         }
         
         // Try GCC as final fallback (compile to C first)
-        if let Ok(()) = self.compile_with_gcc(source, module_name, output_path) {
-            let _ = std::fs::remove_file(&ir_file);
-            return Ok(());
+        match self.compile_with_gcc(source, module_name, output_path) {
+            Ok(()) => {
+                let _ = std::fs::remove_file(&ir_file);
+                return Ok(());
+            }
+            Err(e) => {
+                errors.push(format!("GCC (from C): {}", e));
+            }
         }
         
-        // Clean up and return error
+        // Clean up and return detailed error
         let _ = std::fs::remove_file(&ir_file);
         Err(ExecutionError::NotImplemented {
-            message: "No suitable compiler found. Please install LLVM tools, clang, or ensure GCC is available.".to_string(),
+            message: format!("No suitable compiler found. Attempted compilation methods failed:\n{}", errors.join("\n")),
         })
     }
     

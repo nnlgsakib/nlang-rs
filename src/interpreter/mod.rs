@@ -506,6 +506,78 @@ impl Interpreter {
                             let arg2 = self.evaluate_expression(&arguments[1], env)?;
                             self.evaluate_binary_op(&arg1, &BinaryOperator::Star, &arg2)
                         }
+                        "str" => {
+                            if arguments.len() != 1 {
+                                return Err(InterpreterError::InvalidOperation {
+                                    message: "str function requires 1 argument".to_string(),
+                                });
+                            }
+                            let arg = self.evaluate_expression(&arguments[0], env)?;
+                            match arg {
+                                Value::Integer(i) => Ok(Value::String(i.to_string())),
+                                Value::Float(f) => Ok(Value::String(f.to_string())),
+                                Value::Boolean(b) => Ok(Value::String(b.to_string())),
+                                Value::String(s) => Ok(Value::String(s)), // Already a string
+                            }
+                        }
+                        "int" => {
+                            if arguments.len() != 1 {
+                                return Err(InterpreterError::InvalidOperation {
+                                    message: "int function requires 1 argument".to_string(),
+                                });
+                            }
+                            let arg = self.evaluate_expression(&arguments[0], env)?;
+                            match arg {
+                                Value::Integer(i) => Ok(Value::Integer(i)), // Already an integer
+                                Value::Float(f) => Ok(Value::Integer(f as i64)),
+                                Value::Boolean(b) => Ok(Value::Integer(if b { 1 } else { 0 })),
+                                Value::String(s) => {
+                                    match s.parse::<i64>() {
+                                        Ok(i) => Ok(Value::Integer(i)),
+                                        Err(_) => Err(InterpreterError::InvalidOperation {
+                                            message: format!("Cannot convert '{}' to integer", s),
+                                        }),
+                                    }
+                                }
+                            }
+                        }
+                        "float" => {
+                            if arguments.len() != 1 {
+                                return Err(InterpreterError::InvalidOperation {
+                                    message: "float function requires 1 argument".to_string(),
+                                });
+                            }
+                            let arg = self.evaluate_expression(&arguments[0], env)?;
+                            match arg {
+                                Value::Integer(i) => Ok(Value::Float(i as f64)),
+                                Value::Float(f) => Ok(Value::Float(f)), // Already a float
+                                Value::Boolean(b) => Ok(Value::Float(if b { 1.0 } else { 0.0 })),
+                                Value::String(s) => {
+                                    match s.parse::<f64>() {
+                                        Ok(f) => Ok(Value::Float(f)),
+                                        Err(_) => Err(InterpreterError::InvalidOperation {
+                                            message: format!("Cannot convert '{}' to float", s),
+                                        }),
+                                    }
+                                }
+                            }
+                        }
+                        "abs_float" => {
+                            if arguments.len() != 1 {
+                                return Err(InterpreterError::InvalidOperation {
+                                    message: "abs_float function requires 1 argument".to_string(),
+                                });
+                            }
+                            let arg = self.evaluate_expression(&arguments[0], env)?;
+                            match arg {
+                                Value::Float(f) => Ok(Value::Float(f.abs())),
+                                Value::Integer(i) => Ok(Value::Float((i as f64).abs())),
+                                _ => Err(InterpreterError::TypeMismatch {
+                                    expected: "float or integer".to_string(),
+                                    actual: arg.type_name().to_string(),
+                                }),
+                            }
+                        }
                         _ => {
                             // User-defined function
                             

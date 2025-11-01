@@ -220,6 +220,8 @@ impl<'a> Parser<'a> {
             Ok(Type::Boolean)
         } else if self.match_identifier("string") {
             Ok(Type::String)
+        } else if self.match_identifier("void") {
+            Ok(Type::Void)
         } else {
             Err(ParseError {
                 message: "Expected type".to_string(),

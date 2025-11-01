@@ -1,0 +1,66 @@
+// Arithmetic Operations
+// This demonstrates various arithmetic operations in nlang
+
+def main() {
+    println("=== Arithmetic Operations ===");
+    
+    store a = 15;
+    store b = 4;
+    
+    // Basic arithmetic
+    store sum = a + b;
+    store difference = a - b;
+    store product = a * b;
+    store quotient = a / b;
+    store remainder = a % b;
+    
+    println("Numbers: a = 15, b = 4");
+    print("Addition: ");
+    println(sum);
+    
+    print("Subtraction: ");
+    println(difference);
+    
+    print("Multiplication: ");
+    println(product);
+    
+    print("Division: ");
+    println(quotient);
+    
+    print("Modulo: ");
+    println(remainder);
+    
+    println("");
+    println("=== More Arithmetic Examples ===");
+    
+    // Working with floats
+    store price = 19.99;
+    store discount = 0.15;
+    store discount_amount = price * discount;
+    store final_price = price - discount_amount;
+    
+    print("Original price: ");
+    println(price);
+    print("Discount amount: ");
+    println(discount_amount);
+    print("Final price: ");
+    println(final_price);
+    
+    println("");
+    
+    // Complex calculations
+    store x = 10;
+    store y = 3;
+    store z = 2;
+    
+    store result1 = x * y + z;
+    store result2 = x * (y + z);
+    store result3 = (x + y) * z;
+    
+    print("10 * 3 + 2 = ");
+    println(result1);
+    print("10 * (3 + 2) = ");
+    println(result2);
+    print("(10 + 3) * 2 = ");
+    println(result3);
+}

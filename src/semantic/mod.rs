@@ -542,39 +542,55 @@ impl SemanticAnalyzer {
                 // Check function signature
                     // Check if it's a built-in function first
                     if self.std_lib.is_builtin_function(&func_name) {
-                        if let Some(builtin_func) = self.std_lib.get_builtin_function(&func_name) {
-                            if analyzed_arguments.len() != builtin_func.parameters.len() {
-                                return Err(SemanticError {
-                                    message: format!(
-                                        "Built-in function '{}' expects {} arguments, but {} were provided",
-                                        func_name,
-                                        builtin_func.parameters.len(),
-                                        analyzed_arguments.len()
-                                    ),
-                                });
-                            }
-
-                            for (i, arg) in analyzed_arguments.iter().enumerate() {
-                                let arg_type = self.infer_type(arg)?;
-                                let param_type = &builtin_func.parameters[i];
-                                
-                                // Special case for println and print - they can accept any type
-                                if func_name == "println" || func_name == "print" {
-                                    // Skip type checking for println and print - they handle conversion internally
-                                    continue;
-                                }
-                                
-                                if arg_type != *param_type {
+                        // Get argument types for overload resolution
+                        let mut arg_types = Vec::new();
+                        for arg in &analyzed_arguments {
+                            arg_types.push(self.infer_type(arg)?);
+                        }
+                        
+                        // Try to find function with matching signature
+                        if let Some(_builtin_func) = self.std_lib.get_builtin_function_by_signature(&func_name, &arg_types) {
+                            // Found exact match - no need for further type checking
+                        } else {
+                            // No exact match found - try the old method for backward compatibility
+                            if let Some(builtin_func) = self.std_lib.get_builtin_function(&func_name) {
+                                if analyzed_arguments.len() != builtin_func.parameters.len() {
                                     return Err(SemanticError {
                                         message: format!(
-                                            "Type mismatch in argument {} of built-in function '{}': expected {:?}, got {:?}",
-                                            i + 1,
+                                            "Built-in function '{}' expects {} arguments, but {} were provided",
                                             func_name,
-                                            param_type,
-                                            arg_type
+                                            builtin_func.parameters.len(),
+                                            analyzed_arguments.len()
                                         ),
                                     });
                                 }
+
+                                for (i, arg) in analyzed_arguments.iter().enumerate() {
+                                    let arg_type = self.infer_type(arg)?;
+                                    let param_type = &builtin_func.parameters[i];
+                                    
+                                    // Special case for println and print - they can accept any type
+                                    if func_name == "println" || func_name == "print" {
+                                        // Skip type checking for println and print - they handle conversion internally
+                                        continue;
+                                    }
+                                    
+                                    if arg_type != *param_type {
+                                        return Err(SemanticError {
+                                            message: format!(
+                                                "Type mismatch in argument {} of built-in function '{}': expected {:?}, got {:?}",
+                                                i + 1,
+                                                func_name,
+                                                param_type,
+                                                arg_type
+                                            ),
+                                        });
+                                    }
+                                }
+                            } else {
+                                return Err(SemanticError {
+                                    message: format!("No matching overload found for built-in function '{}'", func_name),
+                                });
                             }
                         }
                     } else {
@@ -860,6 +876,8 @@ impl SemanticAnalyzer {
                     Expr::Variable(func_name) => {
                         // Check built-in functions first
                         if self.std_lib.is_builtin_function(func_name) {
+                            // For type inference, we need to analyze the arguments first to get their types
+                            // This is a simplified approach - in a full implementation, we'd need to handle this more carefully
                             if let Some(builtin_func) = self.std_lib.get_builtin_function(func_name) {
                                 Ok(builtin_func.return_type.clone())
                             } else {

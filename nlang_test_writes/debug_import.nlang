@@ -1,7 +1,0 @@
-// Debug import test
-import math_utils as math;
-
-def main() {
-    store result1 = math.add(5, 3);
-    store result2 = math.factorial(4);
-}

@@ -1,0 +1,85 @@
+// Control Flow - If/Else Statements
+// This demonstrates conditional statements and logical operations
+
+def main() {
+    println("=== Control Flow Examples ===");
+    
+    store age = 18;
+    store has_license = true;
+    store score = 85;
+    
+    // Simple if statement
+    if (age >= 18) {
+        println("You are an adult!");
+    }
+    
+    // If-else statement
+    if (age < 13) {
+        println("You are a child.");
+    } else {
+        if (age < 20) {
+            println("You are a teenager.");
+        } else {
+            println("You are an adult.");
+        }
+    }
+    
+    // Logical operators
+    if (age >= 16 && has_license) {
+        println("You can drive!");
+    } else {
+        println("You cannot drive yet.");
+    }
+    
+    // Multiple conditions
+    if (score >= 90) {
+        println("Grade: A - Excellent!");
+    } else {
+        if (score >= 80) {
+            println("Grade: B - Good job!");
+        } else {
+            if (score >= 70) {
+                println("Grade: C - Average");
+            } else {
+                if (score >= 60) {
+                    println("Grade: D - Below average");
+                } else {
+                    println("Grade: F - Failed");
+                }
+            }
+        }
+    }
+    
+    // Comparison operators
+    store x = 10;
+    store y = 20;
+    
+    println("");
+    println("=== Comparison Examples ===");
+    print("x = 10, y = 20");
+    println("");
+    
+    if (x == y) {
+        println("x equals y");
+    }
+    
+    if (x != y) {
+        println("x does not equal y");
+    }
+    
+    if (x < y) {
+        println("x is less than y");
+    }
+    
+    if (x <= y) {
+        println("x is less than or equal to y");
+    }
+    
+    if (y > x) {
+        println("y is greater than x");
+    }
+    
+    if (y >= x) {
+        println("y is greater than or equal to x");
+    }
+}

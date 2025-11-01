@@ -1,0 +1,79 @@
+// Type Conversions and Data Types
+// This demonstrates different data types and their usage in nlang
+// Note: nlang interpreter currently has limited type conversion functions
+
+def main() {
+    println("=== Data Types and Values ===");
+    
+    // Integer values
+    println("Integer Values:");
+    store age = 25;
+    store year = 2024;
+    print("Age: ");
+    println(age);
+    print("Year: ");
+    println(year);
+    
+    println("");
+    
+    // Float values
+    println("Float Values:");
+    store pi = 3.14159;
+    store temperature = 98.6;
+    print("Pi: ");
+    println(pi);
+    print("Temperature: ");
+    println(temperature);
+    
+    println("");
+    
+    // Boolean values
+    println("Boolean Values:");
+    store is_student = true;
+    store is_graduated = false;
+    print("Is student: ");
+    println(is_student);
+    print("Is graduated: ");
+    println(is_graduated);
+    
+    println("");
+    
+    // String values
+    println("String Values:");
+    store name = "Alice";
+    store greeting = "Hello, nlang!";
+    print("Name: ");
+    println(name);
+    print("Greeting: ");
+    println(greeting);
+    
+    println("");
+    
+    // Arithmetic with different types
+    println("Arithmetic Operations:");
+    store num1 = 10;
+    store num2 = 5;
+    store sum = num1 + num2;
+    store product = num1 * num2;
+    
+    print("10 + 5 = ");
+    println(sum);
+    print("10 * 5 = ");
+    println(product);
+    
+    println("");
+    
+    // Working with floats
+    println("Float Arithmetic:");
+    store price = 19.99;
+    store tax_rate = 0.08;
+    store tax = price * tax_rate;
+    store total = price + tax;
+    
+    print("Price: ");
+    println(price);
+    print("Tax: ");
+    println(tax);
+    print("Total: ");
+    println(total);
+}

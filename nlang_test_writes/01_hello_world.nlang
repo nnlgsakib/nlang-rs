@@ -1,0 +1,9 @@
+// Hello World - Basic nlang program
+// This demonstrates the simplest possible nlang program
+
+def main() {
+    println("Hello, World!");
+    println("Welcome to nlang programming!");
+}
+
+//

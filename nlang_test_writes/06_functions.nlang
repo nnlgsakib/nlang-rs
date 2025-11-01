@@ -1,0 +1,119 @@
+// Functions - Definition, Parameters, and Return Values
+// This demonstrates function creation and usage
+
+// Function with no parameters and no return value
+def greet() {
+    println("Hello from a function!");
+}
+
+// Function with parameters but no return value
+def greet_person(name: string) {
+    print("Hello, ");
+    print(name);
+    println("!");
+}
+
+// Function with parameters and return value
+def add_numbers(a: int, b: int): int {
+    store result = a + b;
+    return result;
+}
+
+// Function that calculates factorial
+def factorial(n: int): int {
+    if (n <= 1) {
+        return 1;
+    }
+    store prev = factorial(n - 1);
+    return n * prev;
+}
+
+// Function to check if number is even
+def is_even(number: int): bool {
+    store remainder = number % 2;
+    if (remainder == 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+// Function to find maximum of three numbers (manual implementation)
+def max_of_three(a: int, b: int, c: int): int {
+    store temp_max = a;
+    if (b > temp_max) {
+        temp_max = b;
+    }
+    if (c > temp_max) {
+        temp_max = c;
+    }
+    return temp_max;
+}
+
+// Function to calculate area of rectangle
+def rectangle_area(length: int, width: int): int {
+    return length * width;
+}
+
+def main() {
+    println("=== Function Examples ===");
+    
+    // Call function with no parameters
+    greet();
+    
+    // Call function with parameters
+    greet_person("Alice");
+    greet_person("Bob");
+    
+    println("");
+    
+    // Call function with return value
+    store sum = add_numbers(10, 20);
+    print("10 + 20 = ");
+    println(sum);
+    
+    store sum2 = add_numbers(5, 7);
+    print("5 + 7 = ");
+    println(sum2);
+    
+    println("");
+    
+    // Factorial examples
+    println("Factorial examples:");
+    store fact5 = factorial(5);
+    print("5! = ");
+    println(fact5);
+    
+    store fact3 = factorial(3);
+    print("3! = ");
+    println(fact3);
+    
+    println("");
+    
+    // Even number checking
+    println("Even number checking:");
+    store num1 = 8;
+    store num2 = 7;
+    
+    store even1 = is_even(num1);
+    print(num1);
+    print(" is even: ");
+    println(even1);
+    
+    store even2 = is_even(num2);
+    print(num2);
+    print(" is even: ");
+    println(even2);
+    
+    println("");
+    
+    // Maximum of three numbers
+    store max_result = max_of_three(15, 8, 23);
+    print("Max of 15, 8, 23: ");
+    println(max_result);
+    
+    // Rectangle area calculation
+    store area = rectangle_area(5, 3);
+    print("Area of 5x3 rectangle: ");
+    println(area);
+}

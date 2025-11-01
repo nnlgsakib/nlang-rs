@@ -1,0 +1,97 @@
+// String Operations
+// This demonstrates string manipulation and operations in nlang
+
+def main() {
+    println("=== String Operations ===");
+    
+    // Basic string variables
+    store first_name = "John";
+    store last_name = "Doe";
+    store greeting = "Hello";
+    
+    // Display strings
+    print("First name: ");
+    println(first_name);
+    print("Last name: ");
+    println(last_name);
+    print("Greeting: ");
+    println(greeting);
+    
+    println("");
+    
+    // String concatenation (manual)
+    println("String concatenation:");
+    print(greeting);
+    print(", ");
+    print(first_name);
+    print(" ");
+    println(last_name);
+    
+    println("");
+    
+    // Working with different string content
+    store message = "Welcome to nlang programming!";
+    store empty_string = "";
+    store single_char = "A";
+    
+    print("Message: ");
+    println(message);
+    print("Empty string: '");
+    print(empty_string);
+    println("'");
+    print("Single character: ");
+    println(single_char);
+    
+    println("");
+    
+    // String with numbers and special characters
+    store mixed_string = "Hello123!@#";
+    print("Mixed string: ");
+    println(mixed_string);
+    
+    println("");
+    
+    // Demonstrating string comparison
+    println("String comparisons:");
+    store str1 = "apple";
+    store str2 = "apple";
+    store str3 = "banana";
+    
+    if (str1 == str2) {
+        println("'apple' equals 'apple'");
+    }
+    
+    if (str1 != str3) {
+        println("'apple' does not equal 'banana'");
+    }
+    
+    println("");
+    
+    // Working with quotes in strings
+    store quote = "She said 'Hello world!'";
+    println(quote);
+    
+    // Multi-word strings
+    store sentence = "This is a complete sentence with multiple words.";
+    print("Sentence: ");
+    println(sentence);
+    
+    println("");
+    
+    // String variables in expressions
+    store name = "Alice";
+    store age_num = 25;
+    
+    print("Name: ");
+    println(name);
+    print("Age: ");
+    println(age_num);
+    
+    // Building messages
+    print("User ");
+    print(name);
+    print(" is ");
+    print(age_num);
+    println(" years old.");
+}
+
