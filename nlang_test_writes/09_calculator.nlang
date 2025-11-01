@@ -125,7 +125,7 @@ def main(): void {
     
     // Basic arithmetic operations
     println("Basic Arithmetic:");
-    store num1 = 15;
+    store num1  = 15;
     store num2 = 4;
     
     display_result("First number", num1);
