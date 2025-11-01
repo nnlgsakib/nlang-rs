@@ -41,15 +41,16 @@ export def is_leap_year(year) {
 
 // Export a function to calculate compound interest
 export def compound_interest(principal, rate, time) {
-    store amount = principal;
+    store amount = float(str(principal));
+    store rate_float = float(str(rate));
     store i = 0;
     
     while (i < time) {
-        amount = amount * (1 + rate / 100);
+        amount = amount * (1.0 + rate_float / 100.0);
         i = i + 1;
     }
     
-    return amount - principal;
+    return amount - float(str(principal));
 }
 
 // Export a function to find the nth Fibonacci number
@@ -84,7 +85,7 @@ export def reverse_number(num) {
     while (temp > 0) {
         store digit = temp % 10;
         reversed = reversed * 10 + digit;
-        temp = temp / 10;
+        temp = int(temp / 10);
     }
     
     return reversed;
@@ -101,7 +102,7 @@ export def count_digits(num) {
     
     while (temp > 0) {
         count = count + 1;
-        temp = temp / 10;
+        temp = int(temp / 10);
     }
     
     return count;
@@ -115,7 +116,7 @@ export def sum_of_digits(num) {
     while (temp > 0) {
         store digit = temp % 10;
         sum = sum + digit;
-        temp = temp / 10;
+        temp = int(temp / 10);
     }
     
     return sum;
@@ -155,7 +156,11 @@ def main() {
     store year = 2024;
     store is_leap = is_leap_year(year);
     print("Is 2024 a leap year? ");
-    println(str(is_leap));
+    if (is_leap) {
+        println("true");
+    } else {
+        println("false");
+    }
     
     // Test compound interest
     store interest = compound_interest(1000, 5, 3);

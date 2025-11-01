@@ -119,6 +119,12 @@ impl Lexer {
     
     pub fn tokenize(&mut self) -> Result<Vec<Token>, LexerError> {
         while !self.is_at_end() {
+            // Skip whitespace before setting start
+            self.skip_whitespace();
+            if self.is_at_end() {
+                break;
+            }
+            
             self.start = self.current;
             self.scan_token()?;
         }
@@ -130,6 +136,21 @@ impl Lexer {
         });
         
         Ok(self.tokens.clone())
+    }
+    
+    fn skip_whitespace(&mut self) {
+        while !self.is_at_end() {
+            match self.peek() {
+                ' ' | '\r' | '\t' => {
+                    self.advance();
+                }
+                '\n' => {
+                    self.line += 1;
+                    self.advance();
+                }
+                _ => break,
+            }
+        }
     }
     
     fn scan_token(&mut self) -> Result<(), LexerError> {
@@ -211,12 +232,6 @@ impl Lexer {
                     });
                 }
             }
-            ' ' | '\r' | '\t' => {
-                // Ignore whitespace
-            }
-            '\n' => {
-                self.line += 1;
-            }
             '"' => self.string()?,
             '0'..='9' => self.number(),
             'a'..='z' | 'A'..='Z' | '_' => self.identifier(),
@@ -278,6 +293,7 @@ impl Lexer {
         
         // Look for scientific notation (e or E)
         if self.peek() == 'e' || self.peek() == 'E' {
+            let saved_current = self.current; // Save position before consuming 'e'/'E'
             self.advance(); // consume 'e' or 'E'
             
             // Optional + or - after e/E
@@ -287,24 +303,33 @@ impl Lexer {
             
             // Must have at least one digit after e/E
             if !self.peek().is_ascii_digit() {
-                // Invalid scientific notation, backtrack
-                // This is a simple approach - in a real lexer you might want better error handling
-                return;
-            }
-            
-            while self.peek().is_ascii_digit() {
-                self.advance();
+                // Invalid scientific notation, backtrack to before 'e'/'E'
+                self.current = saved_current;
+            } else {
+                while self.peek().is_ascii_digit() {
+                    self.advance();
+                }
             }
         }
         
         let text = &self.source[self.start..self.current];
         
         if text.contains('.') || text.contains('e') || text.contains('E') {
-            let value: f64 = text.parse().unwrap();
-            self.add_token(TokenType::Float(value));
+            match text.parse::<f64>() {
+                Ok(value) => self.add_token(TokenType::Float(value)),
+                Err(e) => {
+                    eprintln!("Failed to parse float '{}': {}", text, e);
+                    panic!("Invalid float literal: {}", text);
+                }
+            }
         } else {
-            let value: i64 = text.parse().unwrap();
-            self.add_token(TokenType::Integer(value));
+            match text.parse::<i64>() {
+                Ok(value) => self.add_token(TokenType::Integer(value)),
+                Err(e) => {
+                    eprintln!("Failed to parse integer '{}': {}", text, e);
+                    panic!("Invalid integer literal: {}", text);
+                }
+            }
         }
     }
     
@@ -334,11 +359,11 @@ impl Lexer {
     }
     
     fn match_char(&mut self, expected: char) -> bool {
-        if self.is_at_end() || self.source.chars().nth(self.current).unwrap() != expected {
+        if self.is_at_end() || self.peek() != expected {
             return false;
         }
         
-        self.current += 1;
+        self.advance();
         true
     }
     
@@ -346,21 +371,32 @@ impl Lexer {
         if self.is_at_end() {
             '\0'
         } else {
-            self.source.chars().nth(self.current).unwrap()
+            // Get the character at the current byte position
+            let remaining = &self.source[self.current..];
+            remaining.chars().next().unwrap_or('\0')
         }
     }
     
     fn peek_next(&self) -> char {
-        if self.current + 1 >= self.source.len() {
+        if self.is_at_end() {
             '\0'
         } else {
-            self.source.chars().nth(self.current + 1).unwrap()
+            let remaining = &self.source[self.current..];
+            let mut chars = remaining.chars();
+            chars.next(); // Skip current character
+            chars.next().unwrap_or('\0')
         }
     }
     
     fn advance(&mut self) -> char {
-        self.current += 1;
-        self.source.chars().nth(self.current - 1).unwrap()
+        if self.is_at_end() {
+            return '\0';
+        }
+        
+        let remaining = &self.source[self.current..];
+        let ch = remaining.chars().next().unwrap_or('\0');
+        self.current += ch.len_utf8(); // Move by the byte length of the character
+        ch
     }
     
     fn is_at_end(&self) -> bool {

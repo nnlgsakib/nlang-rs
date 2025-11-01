@@ -562,6 +562,21 @@ impl Interpreter {
                                 }
                             }
                         }
+                        "abs" => {
+                            if arguments.len() != 1 {
+                                return Err(InterpreterError::InvalidOperation {
+                                    message: "abs function requires 1 argument".to_string(),
+                                });
+                            }
+                            let arg = self.evaluate_expression(&arguments[0], env)?;
+                            match arg {
+                                Value::Integer(i) => Ok(Value::Integer(i.abs())),
+                                _ => Err(InterpreterError::TypeMismatch {
+                                    expected: "integer".to_string(),
+                                    actual: arg.type_name().to_string(),
+                                }),
+                            }
+                        }
                         "abs_float" => {
                             if arguments.len() != 1 {
                                 return Err(InterpreterError::InvalidOperation {

@@ -113,7 +113,34 @@ impl SemanticAnalyzer {
     }
     
     fn find_return_type_in_statements(&mut self, statements: &[Statement]) -> Option<Type> {
-        for stmt in statements {
+        // First pass: analyze variable declarations to build the symbol table
+        for stmt in statements.iter() {
+            match stmt {
+                Statement::LetDeclaration { name, initializer, .. } => {
+                    // Analyze the initializer if present
+                     let var_type = if let Some(init_expr) = initializer {
+                         match self.analyze_expr(init_expr.clone()) {
+                            Ok(analyzed_expr) => {
+                                match self.infer_type(&analyzed_expr) {
+                                    Ok(inferred_type) => inferred_type,
+                                    Err(_) => Type::Integer, // Default fallback
+                                }
+                            }
+                            Err(_) => Type::Integer, // Default fallback
+                        }
+                    } else {
+                        Type::Integer // Default type for uninitialized variables
+                    };
+                    
+                    // Define the variable in the current scope
+                    let _ = self.define_symbol(name.clone(), Symbol::Variable { var_type });
+                }
+                _ => {} // Skip other statements in first pass
+            }
+        }
+        
+        // Second pass: look for return statements
+        for stmt in statements.iter() {
             if let Some(return_type) = self.find_return_type_in_statement(stmt) {
                 return Some(return_type);
             }
@@ -131,7 +158,9 @@ impl SemanticAnalyzer {
                                 return Some(expr_type);
                             }
                         }
-                        Err(_) => return None,
+                        Err(_) => {
+                            return None;
+                        }
                     }
                 }
                 None
