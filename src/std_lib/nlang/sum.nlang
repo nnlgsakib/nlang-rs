@@ -1,6 +1,6 @@
 export def sum(a) -> int {
-    store s = 0;
-    for (store i = 0; i < len(a); i = i + 1) {
+    @mut store s = 0;
+    for (@mut store i = 0; i < len(a); i = i + 1) {
         s = s + a[i];
     }
     return s;

@@ -12,6 +12,8 @@ use super::ParseError;
 
 /// Parses variable declarations (store statements)
 pub fn parse_let_declaration(parser: &mut super::Parser) -> Result<Statement, ParseError> {
+    // Optional '@mut' before variable name when called standalone (e.g., in declarations context)
+    let is_mutable = if parser.match_token(&TokenType::AtMut) { true } else { false };
     let name = if let TokenType::Identifier(name) = &parser.peek().token_type {
         name.clone()
     } else {
@@ -40,6 +42,7 @@ pub fn parse_let_declaration(parser: &mut super::Parser) -> Result<Statement, Pa
         name, 
         initializer,
         var_type,
+        is_mutable,
         is_exported: false 
     })
 }

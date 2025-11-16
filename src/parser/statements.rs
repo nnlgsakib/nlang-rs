@@ -88,6 +88,7 @@ pub fn parse_for_statement(parser: &mut super::Parser) -> Result<Statement, Pars
             name,
             initializer: initializer_expr,
             var_type,
+            is_mutable: false,
             is_exported: false,
         };
         Some(Box::new(let_stmt))

@@ -146,6 +146,15 @@ impl Lexer {
             }
             '^' => self.add_token(TokenType::BitXor),
             '~' => self.add_token(TokenType::BitNot),
+            '@' => {
+                // Annotation: @mut
+                if self.source[self.current..].starts_with("mut") {
+                    for _ in 0..3 { self.advance(); }
+                    self.add_token(TokenType::AtMut);
+                } else {
+                    return Err(LexerError { message: "Unknown annotation after '@'".to_string(), line: self.line });
+                }
+            }
             '"' => self.string()?,
             '0'..='9' => {
                 // Hex literal quick path: 0x... or 0X...

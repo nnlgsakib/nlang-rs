@@ -11,7 +11,7 @@ pub struct ModuleInfo {
 
 #[derive(Debug, Clone)]
 pub enum Symbol {
-    Variable { var_type: Type },
+    Variable { var_type: Type, is_mutable: bool },
     Function { 
         return_type: Type, 
         parameters: Vec<Parameter> 

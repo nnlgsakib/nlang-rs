@@ -100,7 +100,7 @@ impl SemanticAnalyzer {
                     };
                     
                     // Define the variable in the current scope
-                    let _ = self.define_symbol(name.clone(), Symbol::Variable { var_type });
+                    let _ = self.define_symbol(name.clone(), Symbol::Variable { var_type, is_mutable: false });
                 }
                 _ => {} // Skip other statements in first pass
             }
@@ -173,7 +173,7 @@ impl SemanticAnalyzer {
                     self.begin_scope();
                     for param in parameters {
                         let param_type = param.param_type.clone().unwrap_or(Type::Unknown);
-                        self.define_symbol(param.name.clone(), Symbol::Variable { var_type: param_type })?;
+                        self.define_symbol(param.name.clone(), Symbol::Variable { var_type: param_type, is_mutable: false })?;
                     }
                     if let Some(inferred) = self.find_return_type_in_statements(body) {
                         // Update the function symbol with the inferred return type
@@ -236,7 +236,7 @@ impl SemanticAnalyzer {
                 let analyzed_expr = self.analyze_expr(expr)?;
                 Ok(Statement::Expression(analyzed_expr))
             },
-            Statement::LetDeclaration { name, initializer, var_type, is_exported } => {
+            Statement::LetDeclaration { name, initializer, var_type, is_mutable, is_exported } => {
                 let analyzed_initializer = match initializer {
                     Some(expr) => Some(self.analyze_expr(expr)?),
                     None => None,
@@ -285,12 +285,13 @@ impl SemanticAnalyzer {
                     default_type
                 };
                 
-                self.define_symbol(name.clone(), Symbol::Variable { var_type: final_var_type.clone() })?;
+                self.define_symbol(name.clone(), Symbol::Variable { var_type: final_var_type.clone(), is_mutable })?;
                 
                 Ok(Statement::LetDeclaration {
                     name,
                     initializer: analyzed_initializer,
                     var_type: Some(final_var_type),
+                    is_mutable,
                     is_exported,
                 })
             },
@@ -345,7 +346,7 @@ impl SemanticAnalyzer {
                     let param_type = param.param_type.as_ref().unwrap();
                     self.define_symbol(
                         param.name.clone(),
-                        Symbol::Variable { var_type: param_type.clone() }
+                        Symbol::Variable { var_type: param_type.clone(), is_mutable: false }
                     )?;
                 }
 
@@ -775,6 +776,10 @@ impl SemanticAnalyzer {
                     operand: analyzed_operand,
                 })
             },
+            Expr::Borrow { target, mutable } => {
+                let analyzed_target = Box::new(self.analyze_expr(*target)?);
+                Ok(Expr::Borrow { target: analyzed_target, mutable })
+            },
             Expr::Call { callee, arguments } => {
                 let mut analyzed_arguments = Vec::new();
                 for arg in arguments {
@@ -1051,7 +1056,7 @@ impl SemanticAnalyzer {
                     let param_type = param.param_type.clone().unwrap_or(Type::Unknown);
                     self.define_symbol(
                         param.name.clone(),
-                        Symbol::Variable { var_type: param_type }
+                        Symbol::Variable { var_type: param_type, is_mutable: false }
                     )?;
                 }
                 
@@ -1113,7 +1118,10 @@ impl SemanticAnalyzer {
                 
                 // Type checking for assignment
                 let var_symbol = self.get_symbol(&name)?;
-                if let Symbol::Variable { var_type } = var_symbol {
+                if let Symbol::Variable { var_type, is_mutable } = var_symbol {
+                    if !is_mutable {
+                        return Err(SemanticError { message: format!("Cannot assign to immutable variable '{}'", name) });
+                    }
                     let value_type = self.infer_type(&analyzed_value)?;
                     if !self.are_types_compatible(&var_type, &value_type) {
                         return Err(SemanticError {
@@ -1138,6 +1146,14 @@ impl SemanticAnalyzer {
                 let sequence_type = self.infer_type(&analyzed_sequence)?;
                 match sequence_type {
                     Type::Array(element_type, _) => {
+                        // For indexed assignment into arrays, require sequence to be a mutable variable
+                        if let Expr::Variable(seq_name) = analyzed_sequence.as_ref() {
+                            if let Ok(Symbol::Variable { is_mutable, .. }) = self.get_symbol(seq_name) {
+                                if !is_mutable {
+                                    return Err(SemanticError { message: format!("Cannot mutate immutable variable '{}' via index assignment", seq_name) });
+                                }
+                            }
+                        }
                         let index_type = self.infer_type(&analyzed_index)?;
                         if !matches!(index_type, Type::Integer | Type::I8 | Type::I16 | Type::I32 | Type::I64 | Type::ISize | Type::U8 | Type::U16 | Type::U32 | Type::U64 | Type::USize) {
                             return Err(SemanticError { message: format!("Array index must be integer type, got: {:?}", index_type) });
@@ -1283,7 +1299,7 @@ impl SemanticAnalyzer {
             },
             Expr::Variable(name) => {
                 match self.get_symbol(name)? {
-                    Symbol::Variable { var_type } => Ok(var_type),
+                    Symbol::Variable { var_type, .. } => Ok(var_type),
                     Symbol::Function { .. } => Err(SemanticError {
                         message: format!("Expected variable, found function: {}", name),
                     }),
@@ -1604,7 +1620,7 @@ impl SemanticAnalyzer {
                 if let Expr::Variable(namespace_name) = object.as_ref() {
                     let qualified_name = format!("{}.{}", namespace_name, name);
                     match self.get_symbol(&qualified_name) {
-                        Ok(Symbol::Variable { var_type }) => Ok(var_type),
+                        Ok(Symbol::Variable { var_type, .. }) => Ok(var_type),
                         Ok(Symbol::Function { .. }) => Err(SemanticError {
                             message: format!("'{}' is a function, not a variable", qualified_name),
                         }),
@@ -1827,7 +1843,7 @@ impl SemanticAnalyzer {
                         });
                     }
                 },
-                Statement::LetDeclaration { name, initializer, var_type: _, is_exported } => {
+                Statement::LetDeclaration { name, initializer, var_type: _, is_mutable, is_exported } => {
                     if *is_exported {
                         // Infer type from initializer if available
                         let var_type = if let Some(init_expr) = initializer {
@@ -1835,7 +1851,7 @@ impl SemanticAnalyzer {
                         } else {
                             Type::Integer // Default type for uninitialized variables
                         };
-                        symbols.insert(name.clone(), Symbol::Variable { var_type });
+                        symbols.insert(name.clone(), Symbol::Variable { var_type, is_mutable: *is_mutable });
                     }
                 },
                 Statement::Block { statements } => {

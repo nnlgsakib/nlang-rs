@@ -11,7 +11,7 @@ mod tests {
         let program = parse(&tokens).unwrap();
         
         match &program.statements[0] {
-            Statement::LetDeclaration { name, initializer: Some(init), var_type: _, is_exported: _ } => {
+            Statement::LetDeclaration { name, initializer: Some(init), var_type: _, is_exported: _, .. } => {
                 assert_eq!(name, "x");
                 match init {
                     Expr::Literal(Literal::Integer(42)) => (),
@@ -106,7 +106,7 @@ mod tests {
         let program = parse(&tokens).unwrap();
         
         match &program.statements[0] {
-            Statement::LetDeclaration { name, initializer: Some(init), var_type: _, is_exported: _ } => {
+            Statement::LetDeclaration { name, initializer: Some(init), var_type: _, is_exported: _, .. } => {
                 assert_eq!(name, "x");
                 match init {
                     Expr::Literal(Literal::I32(42)) => (),
@@ -117,7 +117,7 @@ mod tests {
         }
         
         match &program.statements[1] {
-            Statement::LetDeclaration { name, initializer: Some(init), var_type: _, is_exported: _ } => {
+            Statement::LetDeclaration { name, initializer: Some(init), var_type: _, is_exported: _, .. } => {
                 assert_eq!(name, "y");
                 match init {
                     Expr::Literal(Literal::I32(-123)) => (),

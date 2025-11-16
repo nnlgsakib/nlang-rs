@@ -3,8 +3,8 @@ export def min(a) -> int {
     if (n == 0) {
         return 0;
     }
-    store m = a[0];
-    for (store i = 1; i < n; i = i + 1) {
+    @mut store m = a[0];
+    for (@mut store i = 1; i < n; i = i + 1) {
         if (a[i] < m) { m = a[i]; }
     }
     return m;

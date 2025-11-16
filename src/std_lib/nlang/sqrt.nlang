@@ -1,11 +1,11 @@
 export def sqrt(x: float) -> float {
     if (x < 0.0) { return 0.0; }
     if (x == 0.0) { return 0.0; }
-    store guess = x;
+    @mut store guess = x;
     if (x < 1.0) { guess = 1.0; }
-    store i = 0;
+    @mut store i = 0;
     while (i < 50) {
-        store new_guess = 0.5 * (guess + (x / guess));
+        @mut store new_guess = 0.5 * (guess + (x / guess));
         if (abs_float(new_guess - guess) < 0.000000000001) { return new_guess; }
         guess = new_guess;
         i = i + 1;
@@ -15,8 +15,8 @@ export def sqrt(x: float) -> float {
 
 export def isqrt(n: int) -> int {
     if (n <= 0) { return 0; }
-    store x = n;
-    store y = (x + 1) / 2;
+    @mut store x = n;
+    @mut store y = (x + 1) / 2;
     while (y < x) {
         x = y;
         y = (x + (n / x)) / 2;

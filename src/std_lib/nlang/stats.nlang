@@ -1,14 +1,14 @@
 export def sum_float(a) -> float {
-    store s = 0.0;
-    for (store i = 0; i < len(a); i = i + 1) { s = s + a[i]; }
+    @mut store s = 0.0;
+    for (@mut store i = 0; i < len(a); i = i + 1) { s = s + a[i]; }
     return s;
 }
 
 export def mean_int(a) -> float {
     store n = len(a);
     if (n == 0) { return 0.0; }
-    store s = 0;
-    for (store i = 0; i < n; i = i + 1) { s = s + a[i]; }
+    @mut store s = 0;
+    for (@mut store i = 0; i < n; i = i + 1) { s = s + a[i]; }
     return float(str(s)) / float(str(n));
 }
 
@@ -52,8 +52,8 @@ export def variance_float(a) -> float {
     store n = len(a);
     if (n == 0) { return 0.0; }
     store m = mean_float(a);
-    store s = 0.0;
-    for (store i = 0; i < n; i = i + 1) {
+    @mut store s = 0.0;
+    for (@mut store i = 0; i < n; i = i + 1) {
         store d = a[i] - m;
         s = s + d * d;
     }

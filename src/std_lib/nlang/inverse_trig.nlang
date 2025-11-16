@@ -1,14 +1,14 @@
 export def atan(x: float) -> float {
     if (x == 0.0) { return 0.0; }
-    store ax = abs_float(x);
+    @mut store ax = abs_float(x);
     if (ax > 1.0) {
-        store t = atan(1.0 / ax);
+        @mut store t = atan(1.0 / ax);
         if (x > 0.0) { return (pi() / 2.0) - t; } else { return (0.0 - pi() / 2.0) + t; }
     }
-    store term = x;
-    store sum = x;
-    store x2 = x * x;
-    store k = 1;
+    @mut store term = x;
+    @mut store sum = x;
+    @mut store x2 = x * x;
+    @mut store k = 1;
     while (k <= 25) {
         term = term * (0.0 - 1.0) * x2;
         sum = sum + (term / float(str(2 * k + 1)));

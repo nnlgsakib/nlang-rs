@@ -100,7 +100,7 @@ impl Interpreter {
         
         // Load exported constants from the module with qualified names
         for statement in &module_program.statements {
-            if let Statement::LetDeclaration { name, initializer, var_type: _, is_exported } = statement {
+            if let Statement::LetDeclaration { name, initializer, var_type: _, is_mutable: _, is_exported } = statement {
                 if *is_exported {
                     if let Some(init_expr) = initializer {
                         let mut temp_env = self.global_env.clone();
@@ -142,7 +142,7 @@ impl Interpreter {
             
             // Look for exported constants
             for statement in &module_program.statements {
-                if let Statement::LetDeclaration { name, initializer, var_type: _, is_exported } = statement {
+                if let Statement::LetDeclaration { name, initializer, var_type: _, is_mutable: _, is_exported } = statement {
                     if name == item_name && *is_exported {
                         if let Some(init_expr) = initializer {
                             let mut temp_env = self.global_env.clone();
@@ -1383,6 +1383,7 @@ mod tests {
                     name: "x".to_string(),
                     initializer: Some(Expr::Literal(Literal::Integer(5))),
                     var_type: None,
+                    is_mutable: false,
                     is_exported: false,
                 },
                 Statement::Return {
@@ -1428,7 +1429,7 @@ mod tests {
                     name: "main".to_string(),
                     parameters: vec![],
                     body: vec![
-                        Statement::LetDeclaration { name: "a".to_string(), initializer: Some(Expr::ArrayLiteral { elements: vec![Expr::Literal(Literal::Integer(1)), Expr::Literal(Literal::Integer(2)), Expr::Literal(Literal::Integer(3))] }), var_type: Some(Type::Array(Box::new(Type::Integer), 3)), is_exported: false },
+                        Statement::LetDeclaration { name: "a".to_string(), initializer: Some(Expr::ArrayLiteral { elements: vec![Expr::Literal(Literal::Integer(1)), Expr::Literal(Literal::Integer(2)), Expr::Literal(Literal::Integer(3))] }), var_type: Some(Type::Array(Box::new(Type::Integer), 3)), is_mutable: false, is_exported: false },
                         Statement::Return { value: Some(Box::new(Expr::Call { callee: Box::new(Expr::Get { object: Box::new(Expr::Variable("a".to_string())), name: "len".to_string() }), arguments: vec![] })) },
                     ],
                     return_type: Some(Type::Integer),
@@ -1450,7 +1451,7 @@ mod tests {
                     name: "main".to_string(),
                     parameters: vec![],
                     body: vec![
-                        Statement::LetDeclaration { name: "users".to_string(), initializer: Some(Expr::Call { callee: Box::new(Expr::Variable("vault".to_string())), arguments: vec![] }), var_type: Some(Type::Vault(Box::new(Type::String), Box::new(Type::Unknown))), is_exported: false },
+                        Statement::LetDeclaration { name: "users".to_string(), initializer: Some(Expr::Call { callee: Box::new(Expr::Variable("vault".to_string())), arguments: vec![] }), var_type: Some(Type::Vault(Box::new(Type::String), Box::new(Type::Unknown))), is_mutable: false, is_exported: false },
                         Statement::Expression(Expr::AssignIndex { sequence: Box::new(Expr::Variable("users".to_string())), index: Box::new(Expr::Literal(Literal::String("Alice".to_string()))), value: Box::new(Expr::Literal(Literal::Integer(25))) }),
                         Statement::Return { value: Some(Box::new(Expr::Index { sequence: Box::new(Expr::Variable("users".to_string())), index: Box::new(Expr::Literal(Literal::String("Alice".to_string()))) })) },
                     ],
@@ -1473,7 +1474,7 @@ mod tests {
                     name: "main".to_string(),
                     parameters: vec![],
                     body: vec![
-                        Statement::LetDeclaration { name: "primes".to_string(), initializer: Some(Expr::Call { callee: Box::new(Expr::Variable("pool".to_string())), arguments: vec![Expr::Literal(Literal::Integer(2)), Expr::Literal(Literal::Integer(3)), Expr::Literal(Literal::Integer(5))] }), var_type: Some(Type::Pool(Box::new(Type::Integer))), is_exported: false },
+                        Statement::LetDeclaration { name: "primes".to_string(), initializer: Some(Expr::Call { callee: Box::new(Expr::Variable("pool".to_string())), arguments: vec![Expr::Literal(Literal::Integer(2)), Expr::Literal(Literal::Integer(3)), Expr::Literal(Literal::Integer(5))] }), var_type: Some(Type::Pool(Box::new(Type::Integer))), is_mutable: false, is_exported: false },
                         Statement::Expression(Expr::Call { callee: Box::new(Expr::Get { object: Box::new(Expr::Variable("primes".to_string())), name: "add".to_string() }), arguments: vec![Expr::Literal(Literal::Integer(7))] }),
                         Statement::Return { value: Some(Box::new(Expr::Literal(Literal::Integer(0)))) },
                     ],
@@ -1496,7 +1497,7 @@ mod tests {
                     name: "main".to_string(),
                     parameters: vec![],
                     body: vec![
-                        Statement::LetDeclaration { name: "family".to_string(), initializer: Some(Expr::Call { callee: Box::new(Expr::Variable("tree".to_string())), arguments: vec![Expr::Literal(Literal::String("root".to_string()))] }), var_type: Some(Type::Tree(Box::new(Type::String))), is_exported: false },
+                        Statement::LetDeclaration { name: "family".to_string(), initializer: Some(Expr::Call { callee: Box::new(Expr::Variable("tree".to_string())), arguments: vec![Expr::Literal(Literal::String("root".to_string()))] }), var_type: Some(Type::Tree(Box::new(Type::String))), is_mutable: false, is_exported: false },
                         Statement::Expression(Expr::Call { callee: Box::new(Expr::Get { object: Box::new(Expr::Variable("family".to_string())), name: "add".to_string() }), arguments: vec![Expr::Literal(Literal::String("child1".to_string()))] }),
                         Statement::Return { value: Some(Box::new(Expr::Literal(Literal::Integer(0)))) },
                     ],

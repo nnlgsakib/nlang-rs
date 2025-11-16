@@ -19,6 +19,60 @@ mod tests {
         
         assert!(analyzed_program.is_ok());
     }
+
+    #[test]
+    fn test_immutability_enforced() {
+        let source = "def main() { store x :i32 = 5; x = 10; }";
+        let tokens = tokenize(source).unwrap();
+        let program = parse(&tokens).unwrap();
+        let result = analyze(program);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_mutable_annotation_ok() {
+        let source = "def main() { @mut store x :i32 = 5; x = 10; }";
+        let tokens = tokenize(source).unwrap();
+        let program = parse(&tokens).unwrap();
+        let result = analyze(program);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_use_after_move_error() {
+        let source = "import std; def create_vector() { return [1,2,3]; } def main() { store vec = create_vector(); store vec2 = vec; println(vec); }";
+        let tokens = tokenize(source).unwrap();
+        let program = parse(&tokens).unwrap();
+        let result = analyze(program);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_borrow_rules_multiple_mut_error() {
+        let source = "def main() { @mut store x :i32 = 5; store ref1 = &@mut x; store ref2 = &@mut x; }";
+        let tokens = tokenize(source).unwrap();
+        let program = parse(&tokens).unwrap();
+        let result = analyze(program);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_borrow_rules_mut_and_immut_conflict() {
+        let source = "def main() { @mut store x :i32 = 5; store ref1 = &x; store ref2 = &@mut x; }";
+        let tokens = tokenize(source).unwrap();
+        let program = parse(&tokens).unwrap();
+        let result = analyze(program);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_dangling_reference_return_error() {
+        let source = "def get_reference() -> &i32 { store x :i32 = 5; return &x; }";
+        let tokens = tokenize(source).unwrap();
+        let program = parse(&tokens).unwrap();
+        let result = analyze(program);
+        assert!(result.is_err());
+    }
     
     #[test]
     fn test_undefined_variable() {
@@ -33,7 +87,7 @@ mod tests {
     
     #[test]
     fn test_variable_assignment() {
-        let source = "def main() { store x = 42; x = 10; }";
+        let source = "def main() { @mut store x = 42; x = 10; }";
         let tokens = tokenize(source).unwrap();
         let program = parse(&tokens).unwrap();
         let analyzed_program = analyze(program);
@@ -74,7 +128,7 @@ mod tests {
 
     #[test]
     fn test_repeat_until_statement_semantic_analysis() {
-        let source = "def main() { store x = 0; repeat { x = x + 1; } until x > 5; }";
+        let source = "def main() { @mut store x = 0; repeat { x = x + 1; } until x > 5; }";
         let tokens = tokenize(source).unwrap();
         let program = parse(&tokens).unwrap();
         let result = analyze(program);

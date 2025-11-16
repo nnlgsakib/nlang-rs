@@ -93,8 +93,13 @@ impl<'a> Parser<'a> {
             return self.export_declaration();
         }
         
+        if self.match_token(&TokenType::AtMut) {
+            self.consume(&TokenType::Store, "Expected 'store' after '@mut'")?;
+            return self.let_declaration_with_mut(true);
+        }
+        
         if self.match_token(&TokenType::Store) {
-            return self.let_declaration();
+            return self.let_declaration_with_mut(false);
         }
         
         if self.match_token(&TokenType::Def) {
@@ -116,7 +121,7 @@ impl<'a> Parser<'a> {
         self.statement()
     }
     
-    fn let_declaration(&mut self) -> Result<Statement, ParseError> {
+    fn let_declaration_with_mut(&mut self, is_mutable: bool) -> Result<Statement, ParseError> {
         let name = if let TokenType::Identifier(name) = &self.peek().token_type {
             name.clone()
         } else {
@@ -145,13 +150,14 @@ impl<'a> Parser<'a> {
             name, 
             initializer,
             var_type,
+            is_mutable,
             is_exported: false 
         })
     }
     
     fn export_declaration(&mut self) -> Result<Statement, ParseError> {
         if self.match_token(&TokenType::Store) {
-            let mut stmt = self.let_declaration()?;
+            let mut stmt = self.let_declaration_with_mut(false)?;
             if let Statement::LetDeclaration { ref mut is_exported, .. } = stmt {
                 *is_exported = true;
             }
@@ -263,6 +269,11 @@ impl<'a> Parser<'a> {
     }
     
     fn parse_type(&mut self) -> Result<Type, ParseError> {
+        // Reference types: &T
+        if self.match_token(&TokenType::BitAnd) {
+            let inner = self.parse_type()?;
+            return Ok(Type::Ref(Box::new(inner)));
+        }
         // Check for array type syntax: [T; N]
         if self.match_token(&TokenType::LeftBracket) {
             let element_type = self.parse_type()?;
@@ -571,6 +582,34 @@ impl<'a> Parser<'a> {
 
         let initializer = if self.match_token(&TokenType::Semicolon) {
             None
+        } else if self.match_token(&TokenType::AtMut) {
+            self.consume(&TokenType::Store, "Expected 'store' after '@mut' in for initializer")?;
+            let name = if let TokenType::Identifier(name) = &self.peek().token_type {
+                name.clone()
+            } else {
+                return Err(ParseError {
+                    message: "Expected variable name".to_string(),
+                    line: self.peek().line,
+                });
+            };
+            self.consume(&TokenType::Identifier(name.clone()), "Expected variable name")?;
+            let mut var_type = None;
+            if self.match_token(&TokenType::Colon) {
+                var_type = Some(self.parse_type()?);
+            }
+            let mut initializer_expr = None;
+            if self.match_token(&TokenType::Assign) {
+                initializer_expr = Some(self.expression()?);
+            }
+            self.consume(&TokenType::Semicolon, "Expected ';' after for loop initializer")?;
+            let let_stmt = Statement::LetDeclaration {
+                name,
+                initializer: initializer_expr,
+                var_type,
+                is_mutable: true,
+                is_exported: false,
+            };
+            Some(Box::new(let_stmt))
         } else if self.match_token(&TokenType::Store) {
             let name = if let TokenType::Identifier(name) = &self.peek().token_type {
                 name.clone()
@@ -598,6 +637,7 @@ impl<'a> Parser<'a> {
                 name,
                 initializer: initializer_expr,
                 var_type,
+                is_mutable: false,
                 is_exported: false,
             };
             Some(Box::new(let_stmt))
@@ -874,6 +914,11 @@ impl<'a> Parser<'a> {
                 operator: self.unary_operator_from_token(&operator)?,
                 operand: Box::new(right),
             });
+        }
+        if self.match_token(&TokenType::BitAnd) {
+            let mutable = if self.match_token(&TokenType::AtMut) { true } else { false };
+            let target = self.unary()?;
+            return Ok(Expr::Borrow { target: Box::new(target), mutable });
         }
         
         self.call()

@@ -1,16 +1,16 @@
 export def floor(x: float) -> int {
-    store i = int(x);
+    @mut store i = int(x);
     if (float(str(i)) <= x) { return i; } else { return i - 1; }
 }
 
 export def ceil(x: float) -> int {
-    store i = int(x);
+    @mut store i = int(x);
     if (float(str(i)) >= x) { return i; } else { return i + 1; }
 }
 
 export def round(x: float) -> int {
-    store f = floor(x);
-    store frac = x - float(str(f));
+    @mut store f = floor(x);
+    @mut store frac = x - float(str(f));
     if (frac >= 0.5) { return f + 1; } else { return f; }
 }
 
@@ -22,7 +22,7 @@ export def clamp(x: float, a: float, b: float) -> float {
 
 export def fmod(x: float, y: float) -> float {
     if (y == 0.0) { return 0.0; }
-    store q = int(x / y);
+    @mut store q = int(x / y);
     return x - float(str(q)) * y;
 }
 

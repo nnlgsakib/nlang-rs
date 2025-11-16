@@ -12,6 +12,7 @@ pub enum Statement {
         name: String,
         initializer: Option<Expr>,
         var_type: Option<Type>,
+        is_mutable: bool,
         is_exported: bool,
     },
     FunctionDeclaration {
@@ -114,6 +115,8 @@ pub enum Type {
     Vault(Box<Type>, Box<Type>),
     Pool(Box<Type>),
     Tree(Box<Type>),
+    Ref(Box<Type>),
+    RefMut(Box<Type>),
 }
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize)]
@@ -184,6 +187,10 @@ pub enum Expr {
     TreeLiteral {
         root: Box<Expr>,
         children: Vec<Expr>,
+    },
+    Borrow {
+        target: Box<Expr>,
+        mutable: bool,
     },
 }
 
@@ -292,6 +299,8 @@ impl fmt::Display for Type {
             Type::Vault(k, v) => write!(f, "vault<{}, {}>", k, v),
             Type::Pool(t) => write!(f, "pool<{}>", t),
             Type::Tree(t) => write!(f, "tree<{}>", t),
+            Type::Ref(inner) => write!(f, "&{}", inner),
+            Type::RefMut(inner) => write!(f, "&mut {}", inner),
         }
     }
 }

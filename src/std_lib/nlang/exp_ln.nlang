@@ -3,8 +3,8 @@ export def powi_float(base: float, exp: int) -> float {
     if (exp < 0) {
         return 1.0 / powi_float(base, 0 - exp);
     }
-    store result = 1.0;
-    store i = 0;
+    @mut store result = 1.0;
+    @mut store i = 0;
     while (i < exp) {
         result = result * base;
         i = i + 1;
@@ -18,21 +18,21 @@ export def exp(x: float) -> float {
     store n = int(x / ln2v);
     store nf = float(str(n));
     store r = x - nf * ln2v;
-    store term = 1.0;
-    store sum = 1.0;
-    store k = 1;
+    @mut store term = 1.0;
+    @mut store sum = 1.0;
+    @mut store k = 1;
     while (k <= 32) {
         term = term * (r / float(str(k)));
         sum = sum + term;
         if (abs_float(term) < 0.000000000001) { break; }
         k = k + 1;
     }
-    store scale = 1.0;
+    @mut store scale = 1.0;
     if (n >= 0) {
-        store i = 0;
+        @mut store i = 0;
         while (i < n) { scale = scale * 2.0; i = i + 1; }
     } else {
-        store i = 0;
+        @mut store i = 0;
         while (i < 0 - n) { scale = scale / 2.0; i = i + 1; }
     }
     return scale * sum;
@@ -41,15 +41,15 @@ export def exp(x: float) -> float {
 export def ln(x: float) -> float {
     if (x <= 0.0) { return 0.0; }
     store ln2v = ln2();
-    store k = 0;
-    store v = x;
+    @mut store k = 0;
+    @mut store v = x;
     while (v > 2.0) { v = v / 2.0; k = k + 1; }
     while (v < 0.5) { v = v * 2.0; k = k - 1; }
     store y = (v - 1.0) / (v + 1.0);
     store y2 = y * y;
-    store sum = 0.0;
-    store term = y;
-    store m = 1;
+    @mut store sum = 0.0;
+    @mut store term = y;
+    @mut store m = 1;
     while (m <= 81) {
         sum = sum + (term / float(str(m)));
         term = term * y2;

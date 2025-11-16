@@ -152,7 +152,7 @@ pub fn parse_factor(parser: &mut super::Parser) -> Result<Expr, ParseError> {
     Ok(expr)
 }
 
-/// Parses unary expressions (-, !)
+/// Parses unary expressions (-, !, &, &@mut)
 pub fn parse_unary(parser: &mut super::Parser) -> Result<Expr, ParseError> {
     if parser.match_token(&TokenType::Minus) || parser.match_token(&TokenType::Not) {
         let operator = parser.previous().clone();
@@ -161,6 +161,12 @@ pub fn parse_unary(parser: &mut super::Parser) -> Result<Expr, ParseError> {
             operator: parser.unary_operator_from_token(&operator)?,
             operand: Box::new(right),
         });
+    }
+    // Borrow operators
+    if parser.match_token(&TokenType::BitAnd) {
+        let mutable = if parser.match_token(&TokenType::AtMut) { true } else { false };
+        let target = parse_unary(parser)?;
+        return Ok(Expr::Borrow { target: Box::new(target), mutable });
     }
     
     parse_call(parser)

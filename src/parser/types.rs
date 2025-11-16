@@ -8,6 +8,11 @@ use super::ParseError;
 
 /// Parses type annotations and expressions
 pub fn parse_type(parser: &mut super::Parser) -> Result<Type, ParseError> {
+    // Reference types: &T
+    if parser.match_token(&TokenType::BitAnd) {
+        let inner = parse_type(parser)?;
+        return Ok(Type::Ref(Box::new(inner)));
+    }
     // Check for array type syntax: [T; N]
     if parser.match_token(&TokenType::LeftBracket) {
         let element_type = parse_type(parser)?;

@@ -1,8 +1,8 @@
 export def reverse(a) {
-    store i = 0;
-    store j = len(a) - 1;
+    @mut store i = 0;
+    @mut store j = len(a) - 1;
     while (i < j) {
-        store tmp = a[i];
+        @mut store tmp = a[i];
         a[i] = a[j];
         a[j] = tmp;
         i = i + 1;

@@ -26,6 +26,8 @@ pub enum TokenType {
     Repeat,
     Until,
     Loop,
+    // Annotation
+    AtMut,
     
     // Identifiers and literals
     Identifier(String),

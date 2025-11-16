@@ -1739,6 +1739,8 @@ fn type_to_c(&self, t: &Type) -> String {
         Type::Vault(_, _) => "void*".into(),
         Type::Pool(_) => "void*".into(),
         Type::Tree(_) => "void*".into(),
+        Type::Ref(_) => "void*".into(),
+        Type::RefMut(_) => "void*".into(),
     }
 }
 

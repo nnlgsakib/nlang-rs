@@ -1,10 +1,10 @@
 export def gcd(a: int, b: int) -> int {
-    store x = a;
-    store y = b;
+    @mut store x = a;
+    @mut store y = b;
     if (x < 0) { x = 0 - x; }
     if (y < 0) { y = 0 - y; }
     while (y != 0) {
-        store t = y;
+        @mut store t = y;
         y = x % y;
         x = t;
     }
@@ -13,8 +13,8 @@ export def gcd(a: int, b: int) -> int {
 
 export def lcm(a: int, b: int) -> int {
     if (a == 0 || b == 0) { return 0; }
-    store aa = a; if (aa < 0) { aa = 0 - aa; }
-    store bb = b; if (bb < 0) { bb = 0 - bb; }
+    @mut store aa = a; if (aa < 0) { aa = 0 - aa; }
+    @mut store bb = b; if (bb < 0) { bb = 0 - bb; }
     store g = gcd(aa, bb);
     return int((float(str(aa * bb)) / float(str(g))));
 }
@@ -22,8 +22,8 @@ export def lcm(a: int, b: int) -> int {
 export def factorial(n: int) -> int {
     if (n < 0) { return 0; }
     if (n == 0) { return 1; }
-    store r = 1;
-    store i = 2;
+    @mut store r = 1;
+    @mut store i = 2;
     while (i <= n) { r = r * i; i = i + 1; }
     return r;
 }
@@ -35,11 +35,11 @@ export def nPr(n: int, r: int) -> int {
 
 export def nCr(n: int, r: int) -> int {
     if (r < 0 || r > n) { return 0; }
-    store rr = r;
+    @mut store rr = r;
     if (rr > n - rr) { rr = n - rr; }
-    store num = 1;
-    store den = 1;
-    store i = 1;
+    @mut store num = 1;
+    @mut store den = 1;
+    @mut store i = 1;
     while (i <= rr) {
         num = num * (n - rr + i);
         den = den * i;
