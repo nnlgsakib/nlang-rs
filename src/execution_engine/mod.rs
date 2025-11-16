@@ -118,10 +118,14 @@ impl ExecutionEngine {
         std::fs::write(&c_file, c_code)?;
         
         // Compile C to executable using GCC
-        let gcc_output = Command::new("gcc")
-            .arg("-o")
+        let mut cmd = Command::new("gcc");
+        cmd.arg("-o")
             .arg(output_path)
-            .arg(&c_file)
+            .arg(&c_file);
+        if !cfg!(windows) {
+            cmd.arg("-lm");
+        }
+        let gcc_output = cmd
             .output()
             .map_err(|_| ExecutionError::NotImplemented {
                 message: "gcc not found".to_string(),
