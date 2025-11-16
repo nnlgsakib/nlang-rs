@@ -5,15 +5,26 @@ use nlang::lexer::tokenize;
 use nlang::parser::parse;
 use nlang::semantic::analyzer::SemanticAnalyzer;
 use nlang::diagnostics;
+use tower_lsp::{LspService, Server};
+use tracing_subscriber::EnvFilter;
+mod state;
+mod lsp;
+mod formatter;
+mod symbols;
+use state::State;
 
 #[derive(Parser)]
 #[command(name = "nscan")]
 #[command(about = "Static analyzer and diagnostics for Nlang code")] 
 struct NscanCli {
     #[arg(long, value_name = "FILE")]
-    code: PathBuf,
+    code: Option<PathBuf>,
     #[arg(long)]
     json: bool,
+    #[arg(long)]
+    lsp: bool,
+    #[arg(long, default_value_t=9257)]
+    port: u16,
 }
 
 #[derive(Serialize)]
@@ -57,7 +68,36 @@ fn file_uri(path: &Path) -> String {
 
 fn main() -> anyhow::Result<()> {
     let cli = NscanCli::parse();
-    let input = cli.code.clone();
+    if cli.lsp || cli.code.is_none() {
+        tracing_subscriber::fmt()
+            .with_env_filter(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")))
+            .with_target(false)
+            .init();
+        let rt = tokio::runtime::Runtime::new()?;
+        rt.block_on(async move {
+            let addr = format!("127.0.0.1:{}", cli.port);
+            let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
+            tracing::info!(%addr, "nscan LSP listening");
+            println!("nscan LSP server v{} listening at {}", env!("CARGO_PKG_VERSION"), addr);
+            println!("Capabilities: diagnostics, completion, goto-definition, hover, code-actions, workspace-symbols, rename, formatting");
+            println!("Transport: TCP JSON-RPC");
+            let state = State::new();
+            loop {
+                println!("Waiting for client connection...");
+                let (stream, peer) = match listener.accept().await { Ok(v) => v, Err(e) => { tracing::error!(error=%e, "accept failed"); continue } };
+                tracing::info!(?peer, "client connected");
+                println!("Client connected: {:?}", peer);
+                let (stdin, stdout) = stream.into_split();
+                let (service, socket) = LspService::new(|client| lsp::Backend { client, state: state.clone() });
+                tokio::spawn(async move {
+                    Server::new(stdin, stdout, socket).serve(service).await;
+                    tracing::info!("client session ended");
+                });
+            }
+        });
+        return Ok(());
+    }
+    let input = cli.code.clone().ok_or_else(|| anyhow::anyhow!("--code <FILE> required unless --lsp"))?;
     if !input.extension().map_or(false, |e| e == "nlang") { anyhow::bail!("Input must be a .nlang file"); }
     let source = std::fs::read_to_string(&input)?;
     let uri = file_uri(&input);

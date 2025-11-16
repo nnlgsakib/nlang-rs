@@ -72,6 +72,25 @@ fn analyze_line_for_call_errors(line_text: &str) -> Option<(usize, String)> {
             }
         }
     }
+    // Detect missing comma between arguments e.g., println("text" arg)
+    if let Some(first_quote) = line_text.find('"') {
+        if let Some(second_quote_rel) = line_text[first_quote + 1..].find('"') {
+            let close_pos = first_quote + 1 + second_quote_rel; // 0-based index of closing quote
+            if close_pos + 1 <= line_text.len() {
+                let after = &line_text[close_pos + 1..];
+                let after_trim = after.trim_start();
+                if !after_trim.is_empty() {
+                    let ch = after_trim.chars().next().unwrap_or('\0');
+                    if ch.is_ascii_alphabetic() || ch == '_' || ch == '(' {
+                        // If not starting with a comma, likely missing comma between args
+                        if !after_trim.starts_with(',') {
+                            return Some((close_pos + 1, "help: try adding a comma: ','".to_string()));
+                        }
+                    }
+                }
+            }
+        }
+    }
     None
 }
 
@@ -177,7 +196,18 @@ pub fn emit_basic(
     message: &str,
 ) -> String {
     let (line, column, rendered) = if let Some(sp) = span.as_ref() {
-        let line_text = get_line(source, sp.line).unwrap_or("");
+        let mut use_line = sp.line;
+        let ml = message.to_lowercase();
+        if sp.column == 0 {
+            if ml.contains("expected ';'") && use_line > 1 {
+                for idx in (1..use_line).rev() {
+                    if let Some(l) = get_line(source, idx) {
+                        if !l.trim().is_empty() { use_line = idx; break; }
+                    }
+                }
+            }
+        }
+        let line_text = get_line(source, use_line).unwrap_or("");
         let mut col = if sp.column == 0 {
             find_column_in_line(line_text, lexeme_hint)
         } else { sp.column };
@@ -198,8 +228,18 @@ pub fn emit_basic(
                     col = tcol;
                 }
             }
+            if ml.contains("expected ';'") {
+                let trimmed_len = line_text.trim_end().len();
+                col = if trimmed_len == 0 { 1 } else { trimmed_len };
+            } else if ml.contains("expected ')'") {
+                // Prefer specific call error heuristics (e.g., missing comma) if available
+                if analyze_line_for_call_errors(line_text).is_none() {
+                    let trimmed_len = line_text.trim_end().len();
+                    col = if trimmed_len == 0 { 1 } else { trimmed_len };
+                }
+            }
         }
-        (sp.line, col, render_caret(line_text, col))
+        (use_line, col, render_caret(line_text, col))
     } else {
         (1, 1, String::new())
     };
@@ -252,11 +292,21 @@ pub fn from_execution_error(
 ) -> String {
     match err {
         ExecutionError::ParserError(pe) => {
+            let mut line = pe.line.max(1);
+            let mut col = 0usize;
+            let ml = pe.message.to_lowercase();
+            if ml.contains("expected ';'") && line > 1 {
+                let prev = line - 1;
+                if let Some(prev_text) = get_line(source, prev) {
+                    let t = prev_text.trim_end();
+                    if !t.trim().is_empty() { line = prev; col = t.len().max(1); }
+                }
+            }
             emit_basic(
                 &format!("Parser error: {}", pe.message),
                 file_path,
                 source,
-                Some(Span { line: pe.line, column: 0 }),
+                Some(Span { line, column: col }),
                 None,
                 &pe.to_string(),
             )
@@ -720,6 +770,18 @@ pub fn resolve_span(
     message: &str,
 ) -> Span {
     if span.line == 0 { span.line = 1; }
+    // Special-case missing semicolon: point to end of previous non-empty line
+    let ml = message.to_lowercase();
+    if ml.contains("expected ';'") {
+        let mut idx = span.line.saturating_sub(1);
+        while idx > 0 {
+            if let Some(l) = get_line(source, idx) {
+                let t = l.trim_end();
+                if !t.trim().is_empty() { return Span { line: idx, column: t.len().max(1) } }
+            }
+            idx -= 1;
+        }
+    }
     let line_text = get_line(source, span.line).unwrap_or("");
     let mut col = if span.column == 0 { find_column_in_line(line_text, lexeme_hint) } else { span.column };
     if span.column == 0 {

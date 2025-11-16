@@ -16,6 +16,16 @@ sha2 = "0.10"
 hex = "0.4"
 rand = "0.8"
 regex = "1.10"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt","env-filter"] }
+
+[dependencies.tokio]
+version = "1"
+features = ["rt-multi-thread","macros","net","io-util"]
+
+[dependencies.tower-lsp]
+version = "0.20"
+
 
 [[bin]]
 name = "nscan"
