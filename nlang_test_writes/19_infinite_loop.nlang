@@ -2,7 +2,7 @@ import std;
 
 def main() {
     println("=== Basic Infinite Loop with Break ===");
-    store counter = 0;
+    @mut store counter = 0;
     
     // Basic infinite loop with break condition
     loop {
@@ -17,8 +17,8 @@ def main() {
     println("Basic loop completed!");
     
     println("\n=== Nested Loops ===");
-    store outer = 0;
-    store inner = 0;
+    @mut store outer = 0;
+    @mut store inner = 0;
     
     // Nested loops
     loop {
@@ -45,7 +45,7 @@ def main() {
     println("Nested loops completed!");
     
     println("\n=== Loop with Continue ===");
-    store odd_counter = 0;
+    @mut store odd_counter = 0;
     
     // Loop with continue statement
     loop {
@@ -66,7 +66,7 @@ def main() {
     
     println("\n=== Loop Inside Function ===");
     // Call function with loop
-    store result = process_with_loop(10);
+    @mut store result = process_with_loop(10);
     println("Result from function with loop: ", result);
     
     println("\n=== Recursive Function with Loop ===");
@@ -75,7 +75,7 @@ def main() {
     
     println("\n=== Loop with Function Calls ===");
     // Loop that calls functions
-    store func_counter = 0;
+    @mut store func_counter = 0;
     loop {
         func_counter = func_counter + 1;
         
@@ -100,8 +100,8 @@ def main() {
 
 // Function containing a loop
 def process_with_loop(n) {
-    store sum = 0;
-    store i = 0;
+    @mut store sum = 0;
+    @mut store i = 0;
     
     println("Processing with loop for n=", n);
     
@@ -128,7 +128,7 @@ def recursive_loop_example(level) {
     
     println("Recursive level ", level);
     
-    store counter = 0;
+    @mut store counter = 0;
     loop {
         counter = counter + 1;
         println("  Loop iteration ", counter, " at level ", level);
@@ -154,18 +154,18 @@ def cube_number(x) {
 
 // Complex example with nested loops and function calls
 def complex_nested_loop_example() {
-    store outer_count = 0;
+    @mut store outer_count = 0;
     
     loop {
         outer_count = outer_count + 1;
         println("Outer loop: ", outer_count);
         
-        store middle_count = 0;
+        @mut store middle_count = 0;
         loop {
             middle_count = middle_count + 1;
             println("  Middle loop: ", middle_count);
             
-            store inner_count = 0;
+            @mut store inner_count = 0;
             loop {
                 inner_count = inner_count + 1;
                 

@@ -10,7 +10,7 @@ def increment_and_check(num: int) -> bool {
 
 def main() {
     // Basic repeat-until loop
-    store counter = 0;
+    @mut store counter = 0;
     repeat {
         println("Counter: ", counter);
         counter = counter + 1;
@@ -19,7 +19,7 @@ def main() {
     println("Loop completed!");
 
     // Repeat-until with break statement
-    store i = 0;
+    @mut store i = 0;
     repeat {
         println("i: ", i);
         i = i + 1;
@@ -31,7 +31,7 @@ def main() {
     println("Break test completed!");
 
     // Repeat-until with continue statement
-    store j = 0;
+    @mut store j = 0;
     repeat {
         j = j + 1;
         if (j % 2 == 0) {
@@ -43,9 +43,9 @@ def main() {
     println("Continue test completed!");
 
     // Nested repeat-until loops
-    store outer = 1;
+    @mut store outer = 1;
     repeat {
-        store inner = 1;
+        @mut store inner = 1;
         repeat {
             println("Outer: ", outer, " Inner: ", inner);
             inner = inner + 1;
@@ -57,7 +57,7 @@ def main() {
 
     // Repeat-until with function calls
 
-    store num = 0;
+    @mut store num = 0;
     repeat {
         num = num + 1;
         println("Current num: ", num);
@@ -66,7 +66,7 @@ def main() {
     println("Function call test completed!");
 
     // Edge case: repeat-until that runs exactly once
-    store once = 0;
+    @mut store once = 0;
     repeat {
         println("This should run exactly once");
         once = once + 1;
@@ -75,7 +75,7 @@ def main() {
     println("Single execution test completed!");
 
     // Edge case: repeat-until with false condition initially
-    store flag = true;
+    @mut store flag = true;
     repeat {
         println("This should run once even though condition starts true");
         flag = false;

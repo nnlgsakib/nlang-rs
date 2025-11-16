@@ -9,7 +9,7 @@ def has_alpha(s: string) -> bool {
 }
 
 def summarize_words(words: [string; 5]) {
-    store i = 0;
+    @mut store i = 0;
     while (i < words.len()) {
         store original = words[i];
         store transformed = transform_text(original);
@@ -21,13 +21,13 @@ def summarize_words(words: [string; 5]) {
 }
 
 def matrix_demo() -> int {
-    store m: [[i8; 3]; 2] = [[1, 2, 3], [4, 5, 6]];
-    store total = 0;
+    @mut store m: [[i8; 3]; 2] = [[1, 2, 3], [4, 5, 6]];
+    @mut store total = 0;
     store rows = m.len();
-    store r = 0;
+    @mut store r = 0;
     while (r < rows) {
         store cols = m[r].len();
-        store c = 0;
+        @mut store c = 0;
         while (c < cols) {
             total = total + m[r][c];
             c = c + 1;
@@ -55,7 +55,7 @@ def main() {
     store total = matrix_demo();
     println(total);
     store names: [string; 3] = ["  Ada ", "  bob", "CHARLIE "];
-    store k = 0;
+    @mut store k = 0;
     while (k > names.len()) {
         store t = names[k].trim().upper();
         store contains_a = names[k].lower().contains("a");

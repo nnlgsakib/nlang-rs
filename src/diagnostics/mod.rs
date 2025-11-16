@@ -325,6 +325,8 @@ pub fn from_execution_error(
             let msg = se.to_string();
             // Try to enrich with span and suggestions for unknown symbol or method
             let (mut span_opt, mut extra_help) = enrich_undefined_symbol(source, &msg);
+            let (mm_span, mm_help) = enrich_memmanager_error(source, &msg);
+            if span_opt.is_none() { span_opt = mm_span; }
             let primary_msg = if let Some((kind, name)) = extract_undefined(&msg) {
                 match kind {
                     "function" => format!("function '{}' not found", name),
@@ -356,6 +358,10 @@ pub fn from_execution_error(
                 &primary_msg,
             );
             if let Some(help) = extra_help {
+                let msg = help.strip_prefix("help: ").unwrap_or(&help);
+                rendered.push_str(&format!("   = {} {}\n", color::help_tag(), msg));
+            }
+            if let Some(help) = mm_help {
                 let msg = help.strip_prefix("help: ").unwrap_or(&help);
                 rendered.push_str(&format!("   = {} {}\n", color::help_tag(), msg));
             }
@@ -825,4 +831,61 @@ pub fn semantic_extra_help(source: &str, message: &str) -> Option<String> {
         }
     }
     extra_help
+}
+
+fn extract_quoted_name(msg: &str) -> Option<String> {
+    if let Some(start) = msg.find('\'') { if let Some(end) = msg[start+1..].find('\'') { return Some(msg[start+1..start+1+end].to_string()); } }
+    if let Some(start) = msg.find('"') { if let Some(end) = msg[start+1..].find('"') { return Some(msg[start+1..start+1+end].to_string()); } }
+    None
+}
+
+fn enrich_memmanager_error(source: &str, message: &str) -> (Option<Span>, Option<String>) {
+    let lower = message.to_lowercase();
+    if lower.contains("cannot assign to immutable variable") {
+        if let Some(name) = extract_quoted_name(message) {
+            let sp = find_name_span(source, &name);
+            let help = format!("help: add '@mut' to declaration: @mut store {} = ...", name);
+            return (sp, Some(help));
+        }
+    }
+    if lower.contains("cannot mutate immutable variable") {
+        if let Some(name) = extract_quoted_name(message) {
+            let sp = find_name_span(source, &name);
+            let help = format!("help: make '{}' mutable with '@mut' to update it", name);
+            return (sp, Some(help));
+        }
+    }
+    if lower.contains("use of moved value") {
+        if let Some(name) = extract_quoted_name(message) {
+            let sp = find_name_span(source, &name);
+            let help = format!("help: '{}' was moved; use a Copy type or avoid moving before use", name);
+            return (sp, Some(help));
+        }
+    }
+    if lower.contains("cannot borrow") && lower.contains("mutably") {
+        if let Some(name) = extract_quoted_name(message) {
+            let sp = find_name_span(source, &name);
+            let help = format!("help: end existing borrows of '{}' before taking a mutable borrow", name);
+            return (sp, Some(help));
+        }
+    }
+    if lower.contains("cannot use") && lower.contains("mutably borrowed") {
+        if let Some(name) = extract_quoted_name(message) {
+            let sp = find_name_span(source, &name);
+            let help = format!("help: limit the '&@mut {}' borrow scope; use after borrow ends", name);
+            return (sp, Some(help));
+        }
+    }
+    if lower.contains("cannot return reference to local variable") {
+        if let Some(name) = extract_quoted_name(message) {
+            let sp = find_name_span(source, &name);
+            let help = format!("help: return an owned value or a reference derived from parameters (not local '{}')", name);
+            return (sp, Some(help));
+        }
+    }
+    if lower.contains("conditional move") && lower.contains("loop") {
+        let help = "help: ensure moves are consistent across iterations; restructure logic or clone when needed".to_string();
+        return (None, Some(help));
+    }
+    (None, None)
 }

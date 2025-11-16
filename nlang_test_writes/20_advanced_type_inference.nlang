@@ -107,8 +107,8 @@ def process_data(value: int, multiplier: float) -> string {
 // Function with array parameter and explicit return type
 def sum_array_elements(numbers: [int; 5]) -> int {
     // Local variable types inferred from initializers
-    store total = 0;      // Inferred as int from literal
-    store i = 0;          // Inferred as int from literal
+    @mut store total = 0;      // Inferred as int from literal
+    @mut store i = 0;          // Inferred as int from literal
 
     while (i < len(numbers)) {
         // Array indexing and arithmetic with inferred types
@@ -121,10 +121,10 @@ def sum_array_elements(numbers: [int; 5]) -> int {
 
 // Function working with different array types
 def process_string_list(words: [string; 3]) -> string {
-    store combined = "";   // Inferred as string from literal
-    store count = 0;       // Inferred as int from literal
+    @mut store combined = "";   // Inferred as string from literal
+    @mut store count = 0;       // Inferred as int from literal
 
-    store i = 0;
+    @mut store i = 0;
     while (i < len(words)) {
         // String concatenation with inferred types
         combined = combined + words[i] + " ";

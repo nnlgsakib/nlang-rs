@@ -437,6 +437,9 @@ fn emit_sha_helpers(&mut self) {
 fn emit_math_helpers(&mut self) {
     self.empty();
     self.line("// Math helpers for std lib mapping");
+    // Resolve helper dependencies before emission to avoid ordering issues
+    if self.need_variancef && !self.need_meanf { self.need_meanf = true; }
+    if self.need_stddevf && !self.need_variancef { self.need_variancef = true; }
     if self.need_isqrt {
         self.line("static long long nstd_isqrt(long long n){ if(n<=0) return 0; long long x=n; long long y=(x+1)/2; while(y<x){ x=y; y=(x + n/x)/2; } return x; }");
     }
@@ -461,20 +464,20 @@ fn emit_math_helpers(&mut self) {
     if self.need_sumf {
         self.line("static double nstd_sum_float(const double* a, size_t n){ double s=0.0; for(size_t i=0;i<n;i++){ s+=a[i]; } return s; }");
     }
-    if self.need_meanf {
-        if !self.need_sumf { self.need_sumf = true; }
-        self.line("static double nstd_mean_float(const double* a, size_t n){ if(n==0) return 0.0; return nstd_sum_float(a,n) / (double)n; }");
-    }
     if self.need_medianf {
         self.line("static int cmp_double(const void* a, const void* b){ double da=*(const double*)a; double db=*(const double*)b; return (da>db)-(da<db); }");
         self.line("static double nstd_median_float(const double* a, size_t n){ if(n==0) return 0.0; double* b=(double*)malloc(n*sizeof(double)); if(!b) return 0.0; for(size_t i=0;i<n;i++) b[i]=a[i]; qsort(b, n, sizeof(double), cmp_double); double m = (n%2==1)? b[n/2] : 0.5*(b[n/2-1] + b[n/2]); free(b); return m; }");
     }
     if self.need_variancef {
-        if !self.need_meanf { self.need_meanf = true; }
+        // mean already marked above, now emit mean before variance if required
+        if self.need_meanf {
+            if !self.need_sumf { self.need_sumf = true; }
+            self.line("static double nstd_mean_float(const double* a, size_t n){ if(n==0) return 0.0; return nstd_sum_float(a,n) / (double)n; }");
+        }
         self.line("static double nstd_variance_float(const double* a, size_t n){ if(n==0) return 0.0; double m = nstd_mean_float(a,n); double s=0.0; for(size_t i=0;i<n;i++){ double d=a[i]-m; s += d*d; } return s / (double)n; }");
     }
     if self.need_stddevf {
-        if !self.need_variancef { self.need_variancef = true; }
+        // variance already marked above
         self.line("static double nstd_stddev_float(const double* a, size_t n){ return sqrt(nstd_variance_float(a,n)); }");
     }
 }

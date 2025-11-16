@@ -31,8 +31,8 @@ def power(base: int, exponent: int) -> int {
         return 1;
     }
     
-    store result = 1;
-    store i = 0;
+    @mut store result = 1;
+    @mut store i = 0;
     while (i < exponent) {
         result = result * base;
         i = i + 1;
@@ -51,10 +51,10 @@ def sqrt_approx(number: int) -> float {
         return 0.0;
     }
     
-    store guess = float(str(number)) / 2.0;
+    @mut store guess = float(str(number)) / 2.0;
     store precision = 0.001;
     
-    store iterations = 0;
+    @mut store iterations = 0;
     while (iterations < 20) {
         store new_guess = (guess + float(str(number)) / guess) / 2.0;
         store difference = abs_float(new_guess - guess);
@@ -84,7 +84,7 @@ def is_prime(n: int) -> bool {
         return false;
     }
     
-    store i = 5;
+    @mut store i = 5;
     while (i * i <= n) {
         if (n % i == 0 || n % (i + 2) == 0) {
             return false;
@@ -97,12 +97,14 @@ def is_prime(n: int) -> bool {
 
 // Function to calculate GCD (Greatest Common Divisor)
 def gcd(a: int, b: int) -> int {
-    while (b != 0) {
-        store temp = b;
-        b = a % b;
-        a = temp;
+    @mut store x = a;
+    @mut store y = b;
+    while (y != 0) {
+        store temp = y;
+        y = x % y;
+        x = temp;
     }
-    return a;
+    return x;
 }
 
 // Function to display a number with label
@@ -158,7 +160,7 @@ def main() -> void {
     // Prime number checking
     println("Prime Number Checking:");
     store numbers_to_check = 17;
-    store i = 2;
+    @mut store i = 2;
     while (i <= numbers_to_check) {
         store prime_result = is_prime(i);
         if (prime_result) {
@@ -180,9 +182,9 @@ def main() -> void {
     
     // Complex calculations
     println("Complex Calculations:");
-    store a = 12;
-    store b = 8;
-    store c = 5;
+    @mut store a = 12;
+    @mut store b = 8;
+    @mut store c = 5;
     
     store complex_result = add(multiply(a, b), int(divide(c, 2)));
     print("(12 * 8) + (5 / 2) = ");

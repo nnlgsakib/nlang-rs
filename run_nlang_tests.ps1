@@ -18,7 +18,7 @@ foreach ($file in $nlangFiles) {
     Write-Host "Compiling $($file.Name)..."
 
     # Run the compiler
-    $compile = & cargo run --manifest-path "D:\projects\rust\nlang\Cargo.toml" -- compile $file.FullName 2>&1
+    $compile = & cargo run --bin nlang --manifest-path "D:\projects\rust\nlang\Cargo.toml" -- compile $file.FullName 2>&1
 
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✅ Compiled successfully: $($file.Name)"

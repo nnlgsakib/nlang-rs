@@ -3,7 +3,7 @@ use crate::symbols;
 use nlang::diagnostics;
 use nlang::lexer::tokenize;
 use nlang::parser::parse;
-use nlang::semantic::analyzer::SemanticAnalyzer;
+use nlang::semantic::analyze_with_file_path;
 use nlang::std_lib::StdLib;
 use tower_lsp::jsonrpc::Result as LspResult;
 use tower_lsp::lsp_types::*;
@@ -140,8 +140,7 @@ impl Backend {
                         return out;
                     }
                     Ok(program) => {
-                        let mut analyzer = SemanticAnalyzer::new_with_file_path(Some(&Self::uri_to_path(uri)));
-                        match analyzer.analyze_program(program, false) {
+                        match analyze_with_file_path(program, Some(&Self::uri_to_path(uri))) {
                             Err(se) => {
                                 let msg = se.to_string();
                                 let sp = if let Some(name) = Self::extract_undefined_function(&msg) {
@@ -210,8 +209,8 @@ impl LanguageServer for Backend {
 
     async fn completion(&self, params: CompletionParams) -> LspResult<Option<CompletionResponse>> {
         info!(pos=?params.text_document_position.position, "completion");
-        let mut items = Vec::new();
-        let keys = ["def","store","import","from","as","if","else","while","for","return","break","continue","pick","when","default","repeat","until","loop","true","false","null"];
+            let mut items = Vec::new();
+        let keys = ["def","store","@mut","import","from","as","if","else","while","for","return","break","continue","pick","when","default","repeat","until","loop","true","false","null"];
         for k in keys { items.push(CompletionItem::new_simple(k.into(), String::new())); }
         let s = self.state.0.lock().unwrap();
         if let Some(doc) = s.documents.get(&params.text_document_position.text_document.uri) {
@@ -303,6 +302,19 @@ impl LanguageServer for Backend {
                                 let edit = WorkspaceEdit { changes: Some([(doc.uri.clone(), vec![TextEdit { range: Range { start: Position { line: 0, character: 0 }, end: Position { line: 0, character: 0 } }, new_text: "import std;\n".into() }])].into()), document_changes: None, change_annotations: None };
                                 actions.push(CodeActionOrCommand::CodeAction(CodeAction { title: format!("Add import std for {}", fname), kind: Some(CodeActionKind::QUICKFIX), diagnostics: Some(vec![d.clone()]), edit: Some(edit), command: None, is_preferred: Some(true), disabled: None, data: None }));
                             }
+                        }
+                    }
+                }
+                // Quick fix: add '@mut' to variable declaration when immutability violation occurs
+                let lm2 = d.message.to_lowercase();
+                if lm2.contains("cannot assign to immutable variable") || lm2.contains("cannot mutate immutable variable") {
+                    if let Some(name) = extract_quoted(&d.message) {
+                        if let Some((line_idx, col_store)) = find_store_decl(&doc.text, &name) {
+                            let start = Position { line: line_idx, character: col_store };
+                            let end = Position { line: line_idx, character: col_store + 5 }; // length of 'store'
+                            let r = Range { start, end };
+                            let edit = WorkspaceEdit { changes: Some([(doc.uri.clone(), vec![TextEdit { range: r, new_text: "@mut store".into() }])].into()), document_changes: None, change_annotations: None };
+                            actions.push(CodeActionOrCommand::CodeAction(CodeAction { title: format!("Make '{}' mutable (@mut)", name), kind: Some(CodeActionKind::QUICKFIX), diagnostics: Some(vec![d.clone()]), edit: Some(edit), command: None, is_preferred: Some(true), disabled: None, data: None }));
                         }
                     }
                 }
@@ -413,4 +425,31 @@ impl LanguageServer for Backend {
         }
         for (u, t) in to_recheck { self.publish(u, t).await; }
     }
+}
+
+fn extract_quoted(msg: &str) -> Option<String> {
+    if let Some(pos) = msg.find('\'') {
+        let tail = &msg[pos+1..];
+        if let Some(end) = tail.find('\'') { return Some(tail[..end].to_string()); }
+    }
+    if let Some(pos) = msg.find('"') {
+        let tail = &msg[pos+1..];
+        if let Some(end) = tail.find('"') { return Some(tail[..end].to_string()); }
+    }
+    None
+}
+
+fn find_store_decl(text: &str, name: &str) -> Option<(u32, u32)> {
+    for (i, line) in text.lines().enumerate() {
+        let trimmed = line.trim_start();
+        if trimmed.starts_with("store ") || trimmed.starts_with("@mut store ") {
+            if let Some(_pos_name) = trimmed.find(&format!(" {}", name)) {
+                // compute original column accounting for leading whitespace
+                let leading = line.len() - trimmed.len();
+                let pos_store = trimmed.find("store ").unwrap_or(0) as u32;
+                return Some((i as u32, (leading as u32) + pos_store));
+            }
+        }
+    }
+    None
 }

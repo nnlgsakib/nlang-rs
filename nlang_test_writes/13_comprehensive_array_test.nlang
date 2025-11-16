@@ -50,7 +50,7 @@ def main() {
     println("\n4. Multi-dimensional Arrays:");
     
     // 2D array declaration and initialization
-    store matrix: [[int; 2]; 2] = [[1, 2], [3, 4]];
+    @mut store matrix: [[int; 2]; 2] = [[1, 2], [3, 4]];
     
     print("2D array: ");
     print(matrix[0][0]); print(", "); print(matrix[0][1]); print(" | ");
@@ -140,7 +140,7 @@ def main() {
     println("\n8. Array Assignment Operations:");
     
     // Test array assignment operations
-    store test_arr: [int; 3] = [10, 20, 30];
+    @mut store test_arr: [int; 3] = [10, 20, 30];
     
     print("Original array: ");
     print(test_arr[0]); print(", "); print(test_arr[1]); print(", "); print(test_arr[2]);
@@ -156,7 +156,7 @@ def main() {
     println("");
     
     // Test with float arrays
-    store float_arr: [f64; 2] = [1.1, 2.2];
+    @mut store float_arr: [f64; 2] = [1.1, 2.2];
     
     print("Original float array: ");
     print(float_arr[0]); print(", "); print(float_arr[1]);

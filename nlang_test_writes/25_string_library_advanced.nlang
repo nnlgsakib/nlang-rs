@@ -3,7 +3,7 @@ import std;
 def show_split_join() {
     println("-- split / join --");
     store s = "alpha,beta,gamma,delta";
-    store parts = s.split(",");
+    @mut store parts = s.split(",");
     println("parts[0..3]:", parts[0], parts[1], parts[2], parts[3]);
     store joined = parts.join(" | ");
     println("joined:", joined);
@@ -35,9 +35,9 @@ def show_pipeline() {
     // Trim, replace separators, split, uppercase, then join
     store text = "  Alpha, Beta; Gamma  ";
     store t = text.trim().replace(";", ",");
-    store parts = t.split(",");
+    @mut store parts = t.split(",");
     // Normalize whitespace and uppercase
-    for (store i = 0; i < len(parts); i = i + 1) {
+    for (@mut store i = 0; i < len(parts); i = i + 1) {
         parts[i] = parts[i].trim().upper();
     }
     store out = parts.join(" :: ");
@@ -48,8 +48,8 @@ def show_tokenize_and_counts() {
     println("-- tokenize and count with vault --");
     store text = "alpha beta gamma alpha beta alpha";
     store toks = text.split(" ");
-    store counts = vault();
-    for (store i = 0; i < len(toks); i = i + 1) {
+    @mut store counts = vault();
+    for (@mut store i = 0; i < len(toks); i = i + 1) {
         store k = toks[i];
         counts[k] = counts[k] + 1;
     }

@@ -40,7 +40,7 @@ def is_even(number: int) -> bool {
 
 // Function to find maximum of three numbers (manual implementation)
 def max_of_three(a: int, b: int, c: int) -> int {
-    store temp_max = a;
+    @mut store temp_max = a;
     if (b > temp_max) {
         temp_max = b;
     }

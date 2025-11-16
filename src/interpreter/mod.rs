@@ -3,6 +3,7 @@ use crate::interpreter::value::{SimpleValue, TreeNode};
 use crate::lexer::Lexer;
 use crate::parser::Parser;
 use std::fs;
+use std::collections::HashMap;
 use crate::std_lib::nlang::std_module;
 use crate::std_lib::string as string_lib;
 pub use self::error::InterpreterError;
@@ -15,12 +16,14 @@ pub mod value;
 
 pub struct Interpreter {
     global_env: Environment,
+    module_cache: HashMap<String, Program>,
 }
 
 impl Interpreter {
     pub fn new() -> Self {
         Interpreter {
             global_env: Environment::new(),
+            module_cache: HashMap::new(),
         }
     }
     
@@ -81,40 +84,8 @@ impl Interpreter {
     
     fn load_module(&mut self, module_path: &str, alias: Option<&str>, importing_file: Option<&str>) -> Result<(), InterpreterError> {
         let module_program = self.parse_module(module_path, importing_file)?;
-        let namespace = alias.unwrap_or(module_path);
-        
-        // Load exported functions from the module with qualified names
-        for statement in &module_program.statements {
-            if let Statement::FunctionDeclaration { name, parameters, body, return_type, is_exported } = statement {
-                if *is_exported {
-                    let qualified_name = format!("{}.{}", namespace, name);
-                    let func_ns = Function { name: qualified_name.clone(), parameters: parameters.clone(), body: body.clone(), return_type: return_type.clone() };
-                    self.global_env.define_function(func_ns);
-                    if module_path == "std" && alias.is_none() {
-                        let func_direct = Function { name: name.clone(), parameters: parameters.clone(), body: body.clone(), return_type: return_type.clone() };
-                        self.global_env.define_function(func_direct);
-                    }
-                }
-            }
-        }
-        
-        // Load exported constants from the module with qualified names
-        for statement in &module_program.statements {
-            if let Statement::LetDeclaration { name, initializer, var_type: _, is_mutable: _, is_exported } = statement {
-                if *is_exported {
-                    if let Some(init_expr) = initializer {
-                        let mut temp_env = self.global_env.clone();
-                        let value = self.evaluate_expression(init_expr, &mut temp_env)?;
-                        let qualified_name = format!("{}.{}", namespace, name);
-                        self.global_env.define_variable(qualified_name, value.clone());
-                        if module_path == "std" && alias.is_none() {
-                            self.global_env.define_variable(name.clone(), value);
-                        }
-                    }
-                }
-            }
-        }
-        
+        let namespace = alias.unwrap_or(module_path).to_string();
+        self.module_cache.insert(namespace, module_program);
         Ok(())
     }
     
@@ -156,6 +127,45 @@ impl Interpreter {
         }
         
         Ok(())
+    }
+
+    fn ensure_function_loaded(&mut self, name: &str) -> bool {
+        if self.global_env.get_function(name).is_ok() { return true; }
+        let parts: Vec<&str> = name.split('.').collect();
+        if parts.len() == 2 { return self.ensure_function_loaded_qualified(parts[0], parts[1]); }
+        self.ensure_function_loaded_direct(name)
+    }
+
+    fn ensure_function_loaded_direct(&mut self, func_name: &str) -> bool {
+        for (ns, prog) in self.module_cache.clone() {
+            for stmt in &prog.statements {
+                if let Statement::FunctionDeclaration { name, parameters, body, return_type, is_exported } = stmt {
+                    if *is_exported && name == func_name {
+                        let f = Function { name: func_name.to_string(), parameters: parameters.clone(), body: body.clone(), return_type: return_type.clone() };
+                        self.global_env.define_function(f);
+                        return true;
+                    }
+                }
+            }
+            let _ = ns;
+        }
+        false
+    }
+
+    fn ensure_function_loaded_qualified(&mut self, namespace: &str, func_name: &str) -> bool {
+        if let Some(prog) = self.module_cache.get(namespace) {
+            for stmt in &prog.statements {
+                if let Statement::FunctionDeclaration { name, parameters, body, return_type, is_exported } = stmt {
+                    if *is_exported && name == func_name {
+                        let qualified = format!("{}.{}", namespace, func_name);
+                        let f = Function { name: qualified.clone(), parameters: parameters.clone(), body: body.clone(), return_type: return_type.clone() };
+                        self.global_env.define_function(f);
+                        return true;
+                    }
+                }
+            }
+        }
+        false
     }
     
     fn parse_module(&self, module_path: &str, importing_file: Option<&str>) -> Result<Program, InterpreterError> {
@@ -570,7 +580,7 @@ impl Interpreter {
                 };
 
                 // Handle built-in and constructors
-                match func_name.as_str() {
+        match func_name.as_str() {
                         "vault" => {
                             if arguments.len() > 1 { return Err(InterpreterError::InvalidOperation { message: "vault() takes 0 or 1 arguments".to_string() }); }
                             let map = std::collections::HashMap::new();
@@ -932,9 +942,10 @@ impl Interpreter {
                             }
                         }
                         _ => {
-                            // User-defined function
-                            
-                            // First try to find the function as-is
+                            if !self.ensure_function_loaded(&func_name) {
+                                let parts: Vec<&str> = func_name.split('.').collect();
+                                if parts.len() == 2 { let _ = self.ensure_function_loaded_qualified(parts[0], parts[1]); } else { let _ = self.ensure_function_loaded_direct(&func_name); }
+                            }
                             if let Ok(func) = env.get_function(&func_name) {
                                 let func = func.clone();
                                 let mut args = Vec::new();
@@ -943,19 +954,15 @@ impl Interpreter {
                                 }
                                 return self.execute_function(&func, &args);
                             }
-                            
-                            // If not found, try to find it in the math namespace (for recursive calls)
-                            let qualified_name = format!("math.{}", func_name);
-                            if let Ok(func) = env.get_function(&qualified_name) {
+                            if let Ok(func) = self.global_env.get_function(&func_name) {
                                 let func = func.clone();
+                                env.define_function(func.clone());
                                 let mut args = Vec::new();
                                 for arg_expr in arguments {
                                     args.push(self.evaluate_expression(arg_expr, env)?);
                                 }
                                 return self.execute_function(&func, &args);
                             }
-                            
-                            // If still not found, return error
                             Err(InterpreterError::FunctionNotFound { name: func_name })
                         }
                     }

@@ -11,7 +11,7 @@ $results = @()
 foreach ($file in $files) {
     Write-Host "Testing $($file.Name)..."
     try {
-        cargo run -- run $file.FullName | Out-Null
+        cargo run --bin nlang -- run $file.FullName | Out-Null
         if ($LASTEXITCODE -eq 0) {
             Write-Host "Passed: $($file.Name)" -ForegroundColor Green
             $results += [pscustomobject]@{ File = $file.Name; Status = "Passed" }

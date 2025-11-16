@@ -41,9 +41,9 @@ export def is_leap_year(year) {
 
 // Export a function to calculate compound interest
 export def compound_interest(principal, rate, time) {
-    store amount = float(str(principal));
+    @mut store amount = float(str(principal));
     store rate_float = float(str(rate));
-    store i = 0;
+    @mut store i = 0;
     
     while (i < time) {
         amount = amount * (1.0 + rate_float / 100.0);
@@ -63,9 +63,9 @@ export def fibonacci(n) {
         return 1;
     }
     
-    store a = 0;
-    store b = 1;
-    store i = 2;
+    @mut store a = 0;
+    @mut store b = 1;
+    @mut store i = 2;
     
     while (i <= n) {
         store temp = a + b;
@@ -79,8 +79,8 @@ export def fibonacci(n) {
 
 // Export a function to reverse a number
 export def reverse_number(num) {
-    store reversed = 0;
-    store temp = num;
+    @mut store reversed = 0;
+    @mut store temp = num;
     
     while (temp > 0) {
         store digit = temp % 10;
@@ -97,8 +97,8 @@ export def count_digits(num) {
         return 1;
     }
     
-    store count = 0;
-    store temp = abs(num);
+    @mut store count = 0;
+    @mut store temp = abs(num);
     
     while (temp > 0) {
         count = count + 1;
@@ -110,8 +110,8 @@ export def count_digits(num) {
 
 // Export a function to calculate the sum of digits
 export def sum_of_digits(num) {
-    store sum = 0;
-    store temp = abs(num);
+    @mut store sum = 0;
+    @mut store temp = abs(num);
     
     while (temp > 0) {
         store digit = temp % 10;

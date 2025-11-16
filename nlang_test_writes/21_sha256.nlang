@@ -3,8 +3,8 @@ import std;
 
 def pow2(n: int) -> int {
     // 2^n
-    store result = 1;
-    store i = 0;
+    @mut store result = 1;
+    @mut store i = 0;
     while (i < n) {
         result = result * 2;
         i = i + 1;
@@ -25,7 +25,7 @@ def from_bits32(b0: int, b1: int, b2: int, b3: int, b4: int, b5: int, b6: int, b
                 b8: int, b9: int, b10: int, b11: int, b12: int, b13: int, b14: int, b15: int,
                 b16: int, b17: int, b18: int, b19: int, b20: int, b21: int, b22: int, b23: int,
                 b24: int, b25: int, b26: int, b27: int, b28: int, b29: int, b30: int, b31: int) -> int {
-    store v = 0;
+    @mut store v = 0;
     v = v + b0  * pow2(0);
     v = v + b1  * pow2(1);
     v = v + b2  * pow2(2);
@@ -68,10 +68,10 @@ def rotr32(x: int, n: int) -> int {
 def shr32(x: int, n: int) -> int { return mask32(x >> n); }
 
 def bitxor32(a: int, b: int) -> int {
-    store i = 0;
-    store res = 0;
+    @mut store i = 0;
+    @mut store res = 0;
     while (i < 32) {
-        store bit = (get_bit(a, i) + get_bit(b, i)) % 2;
+        @mut store bit = (get_bit(a, i) + get_bit(b, i)) % 2;
         res = res + bit * pow2(i);
         i = i + 1;
     }
@@ -79,10 +79,10 @@ def bitxor32(a: int, b: int) -> int {
 }
 
 def bitand32(a: int, b: int) -> int {
-    store i = 0;
-    store res = 0;
+    @mut store i = 0;
+    @mut store res = 0;
     while (i < 32) {
-        store bit = get_bit(a, i) * get_bit(b, i);
+        @mut store bit = get_bit(a, i) * get_bit(b, i);
         res = res + bit * pow2(i);
         i = i + 1;
     }
@@ -90,11 +90,11 @@ def bitand32(a: int, b: int) -> int {
 }
 
 def bitor32(a: int, b: int) -> int {
-    store i = 0;
-    store res = 0;
+    @mut store i = 0;
+    @mut store res = 0;
     while (i < 32) {
         store sum = get_bit(a, i) + get_bit(b, i);
-        store bit = 0;
+        @mut store bit = 0;
         if (sum > 0) { bit = 1; }
         res = res + bit * pow2(i);
         i = i + 1;
@@ -103,10 +103,10 @@ def bitor32(a: int, b: int) -> int {
 }
 
 def bitnot32(x: int) -> int {
-    store i = 0;
-    store res = 0;
+    @mut store i = 0;
+    @mut store res = 0;
     while (i < 32) {
-        store bit = 1 - get_bit(x, i);
+        @mut store bit = 1 - get_bit(x, i);
         res = res + bit * pow2(i);
         i = i + 1;
     }
@@ -128,9 +128,9 @@ def maj(x: int, y: int, z: int) -> int { return mask32((x & y) ^ (x & z) ^ (y & 
 
 // Convert 32-bit int to 8-char lowercase hex string
 def hex8(x: int) -> string {
-    store hex = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
-    store s = "";
-    store i = 7;
+    @mut store hex = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
+    @mut store s = "";
+    @mut store i = 7;
     while (i >= 0) {
         store shift = i * 4;
         store nibble = (x >> shift) & 0xF;
@@ -172,27 +172,27 @@ def k_at(i: int) -> int {
 def sha256_bytes(bytes: [int;64], n: int) -> string {
     // n is actual message length in bytes (<=64*1024 for demo). Processes streaming blocks.
     // Initial hash values
-    store H:[int;8] = [1779033703, 3144134277, 1013904242, 2773480762, 1359893119, 2600822924, 528734635, 1541445756];
+    @mut store H:[int;8] = [1779033703, 3144134277, 1013904242, 2773480762, 1359893119, 2600822924, 528734635, 1541445756];
 
     // Process full blocks
     store total = n;
-    store idx = 0;
+    @mut store idx = 0;
     store blocks = int((total * 1.0) / 64.0);
     store rem = total % 64;
-    store block:[int;64] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    @mut store block:[int;64] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                              0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-    store W:[int;64] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    @mut store W:[int;64] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                          0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 
-    store b = 0;
+    @mut store b = 0;
     while (b < blocks) {
-        store j = 0;
+        @mut store j = 0;
         while (j < 64) {
             block[j] = bytes[idx + j];
             j = j + 1;
         }
         // Compress block
-        store t2 = 0; while (t2 < 64) { W[t2] = 0; t2 = t2 + 1; }
+        @mut store t2 = 0; while (t2 < 64) { W[t2] = 0; t2 = t2 + 1; }
         t2 = 0;
         while (t2 < 16) {
             store j2 = t2 * 4;
@@ -206,8 +206,8 @@ def sha256_bytes(bytes: [int;64], n: int) -> string {
             t2 = t2 + 1;
         }
 
-        store a2 = H[0]; store b2 = H[1]; store c2 = H[2]; store d2 = H[3];
-        store e2 = H[4]; store f2 = H[5]; store g2 = H[6]; store h2 = H[7];
+        @mut store a2 = H[0]; @mut store b2 = H[1]; @mut store c2 = H[2]; @mut store d2 = H[3];
+        @mut store e2 = H[4]; @mut store f2 = H[5]; @mut store g2 = H[6]; @mut store h2 = H[7];
         t2 = 0;
         while (t2 < 64) {
             store T1b = add32_5(h2, CAP_SIGMA1(e2), ch(e2,f2,g2), k_at(t2), W[t2]);
@@ -223,7 +223,7 @@ def sha256_bytes(bytes: [int;64], n: int) -> string {
     }
 
     // Build final one or two blocks with padding
-    store j = 0;
+    @mut store j = 0;
     while (j < 64) { block[j] = 0; j = j + 1; }
     j = 0;
     while (j < rem) { block[j] = bytes[idx + j]; j = j + 1; }
@@ -243,19 +243,19 @@ def sha256_bytes(bytes: [int;64], n: int) -> string {
         block[62] = byte_at32(low, 2);
         block[63] = byte_at32(low, 3);
         // Compress padded block
-        store t3 = 0;
+        @mut store t3 = 0;
         while (t3 < 16) { store j3 = t3 * 4; W[t3] = be32(block[j3], block[(j3 + 1)], block[(j3 + 2)], block[(j3 + 3)]); t3 = t3 + 1; }
         while (t3 < 64) { W[t3] = add32_4(W[(t3 - 16)], sigma0(W[(t3 - 15)]), W[(t3 - 7)], sigma1(W[(t3 - 2)])); t3 = t3 + 1; }
-        store a3 = H[0]; store b3 = H[1]; store c3 = H[2]; store d3 = H[3]; store e3 = H[4]; store f3 = H[5]; store g3 = H[6]; store h3 = H[7];
+        @mut store a3 = H[0]; @mut store b3 = H[1]; @mut store c3 = H[2]; @mut store d3 = H[3]; @mut store e3 = H[4]; @mut store f3 = H[5]; @mut store g3 = H[6]; @mut store h3 = H[7];
         t3 = 0; while (t3 < 64) { store T1c = add32_5(h3, CAP_SIGMA1(e3), ch(e3,f3,g3), k_at(t3), W[t3]); store T2c = add32(CAP_SIGMA0(a3), maj(a3,b3,c3)); h3 = g3; g3 = f3; f3 = e3; e3 = add32(d3, T1c); d3 = c3; c3 = b3; b3 = a3; a3 = add32(T1c, T2c); t3 = t3 + 1; }
         H[0] = add32(H[0], a3); H[1] = add32(H[1], b3); H[2] = add32(H[2], c3); H[3] = add32(H[3], d3);
         H[4] = add32(H[4], e3); H[5] = add32(H[5], f3); H[6] = add32(H[6], g3); H[7] = add32(H[7], h3);
     } else {
         // process first pad block
         // First pad block
-        store t4 = 0; while (t4 < 16) { store j4 = t4 * 4; W[t4] = be32(block[j4], block[(j4 + 1)], block[(j4 + 2)], block[(j4 + 3)]); t4 = t4 + 1; }
+        @mut store t4 = 0; while (t4 < 16) { store j4 = t4 * 4; W[t4] = be32(block[j4], block[(j4 + 1)], block[(j4 + 2)], block[(j4 + 3)]); t4 = t4 + 1; }
         while (t4 < 64) { W[t4] = add32_4(W[(t4 - 16)], sigma0(W[(t4 - 15)]), W[(t4 - 7)], sigma1(W[(t4 - 2)])); t4 = t4 + 1; }
-        store a4 = H[0]; store b4 = H[1]; store c4 = H[2]; store d4 = H[3]; store e4 = H[4]; store f4 = H[5]; store g4 = H[6]; store h4 = H[7];
+        @mut store a4 = H[0]; @mut store b4 = H[1]; @mut store c4 = H[2]; @mut store d4 = H[3]; @mut store e4 = H[4]; @mut store f4 = H[5]; @mut store g4 = H[6]; @mut store h4 = H[7];
         t4 = 0; while (t4 < 64) { store T1d = add32_5(h4, CAP_SIGMA1(e4), ch(e4,f4,g4), k_at(t4), W[t4]); store T2d = add32(CAP_SIGMA0(a4), maj(a4,b4,c4)); h4 = g4; g4 = f4; f4 = e4; e4 = add32(d4, T1d); d4 = c4; c4 = b4; b4 = a4; a4 = add32(T1d, T2d); t4 = t4 + 1; }
         H[0] = add32(H[0], a4); H[1] = add32(H[1], b4); H[2] = add32(H[2], c4); H[3] = add32(H[3], d4);
         H[4] = add32(H[4], e4); H[5] = add32(H[5], f4); H[6] = add32(H[6], g4); H[7] = add32(H[7], h4);
@@ -272,9 +272,9 @@ def sha256_bytes(bytes: [int;64], n: int) -> string {
         block[62] = byte_at32(low2, 2);
         block[63] = byte_at32(low2, 3);
         // Second pad block
-        store t5 = 0; while (t5 < 16) { store j5 = t5 * 4; W[t5] = be32(block[j5], block[(j5 + 1)], block[(j5 + 2)], block[(j5 + 3)]); t5 = t5 + 1; }
+        @mut store t5 = 0; while (t5 < 16) { store j5 = t5 * 4; W[t5] = be32(block[j5], block[(j5 + 1)], block[(j5 + 2)], block[(j5 + 3)]); t5 = t5 + 1; }
         while (t5 < 64) { W[t5] = add32_4(W[(t5 - 16)], sigma0(W[(t5 - 15)]), W[(t5 - 7)], sigma1(W[(t5 - 2)])); t5 = t5 + 1; }
-        store a5 = H[0]; store b5 = H[1]; store c5 = H[2]; store d5 = H[3]; store e5 = H[4]; store f5 = H[5]; store g5 = H[6]; store h5 = H[7];
+        @mut store a5 = H[0]; @mut store b5 = H[1]; @mut store c5 = H[2]; @mut store d5 = H[3]; @mut store e5 = H[4]; @mut store f5 = H[5]; @mut store g5 = H[6]; @mut store h5 = H[7];
         t5 = 0; while (t5 < 64) { store T1e = add32_5(h5, CAP_SIGMA1(e5), ch(e5,f5,g5), k_at(t5), W[t5]); store T2e = add32(CAP_SIGMA0(a5), maj(a5,b5,c5)); h5 = g5; g5 = f5; f5 = e5; e5 = add32(d5, T1e); d5 = c5; c5 = b5; b5 = a5; a5 = add32(T1e, T2e); t5 = t5 + 1; }
         H[0] = add32(H[0], a5); H[1] = add32(H[1], b5); H[2] = add32(H[2], c5); H[3] = add32(H[3], d5);
         H[4] = add32(H[4], e5); H[5] = add32(H[5], f5); H[6] = add32(H[6], g5); H[7] = add32(H[7], h5);
@@ -287,7 +287,7 @@ def main() {
     println("=== SHA-256 Pure Nlang (bitwise-enabled) ===");
 
     // Test vector: "abc"
-    store msg:[int;64] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    @mut store msg:[int;64] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                           0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
     msg[0] = 97; msg[1] = 98; msg[2] = 99;
     store digest = sha256_bytes(msg, 3);
@@ -298,7 +298,7 @@ def main() {
     println("abc bytes (builtin) -> " + digest_builtin_bytes);
 
     // Test vector: empty string
-    store msg2:[int;64] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+    @mut store msg2:[int;64] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
     store digest2 = sha256_bytes(msg2, 0);
     println("empty -> " + digest2);
     store digest2_builtin = sha256("");

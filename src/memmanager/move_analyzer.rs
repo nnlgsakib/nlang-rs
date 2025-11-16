@@ -19,7 +19,10 @@ impl MoveAnalyzer {
         ownership.ensure_alive(name)
     }
 
-    pub fn handle_initial_assignment(&self, _target: &str, _expr: &Expr, _ty: &Type, _ownership: &mut OwnershipTracker) -> Result<(), SemanticError> { Ok(()) }
+    pub fn handle_initial_assignment(&self, _target: &str, expr: &Expr, ty: &Type, ownership: &mut OwnershipTracker) -> Result<(), SemanticError> {
+        if let Expr::Variable(src_name) = expr { if !is_copy_type(ty) { ownership.set_state(src_name, OwnershipState::Moved); } }
+        Ok(())
+    }
 
     pub fn ensure_assign_allowed(&self, name: &str, ownership: &mut OwnershipTracker) -> Result<(), SemanticError> {
         if let Some(info) = ownership.get(name) {

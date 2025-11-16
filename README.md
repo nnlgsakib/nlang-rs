@@ -1,282 +1,182 @@
-# Nlang - A Modern Systems Programming Language
+# Nlang – Production-Ready Systems Language
 
-Nlang is a statically-typed, compiled programming language that combines Python-like syntax with the performance and safety of systems programming. Built with Rust and powered by LLVM, Nlang offers multiple compilation targets including native machine code and C transpilation.
+Nlang is a statically-typed language with Python-like clarity and systems-level performance. It features a compile-time memory safety system, a robust type checker, an interpreter for fast iteration, and a C transpiler for portable binaries.
 
-## 🚀 Key Features
+## Key Features
 
-- **Intuitive Syntax**: Python-inspired syntax with explicit block delimiters for clarity
-- **Static Type System**: Strong typing with intelligent type inference
-- **Multiple Backends**: LLVM IR generation and C code transpilation
-- **Memory Safety**: Rust-powered compiler with compile-time safety guarantees
-- **Modular Design**: Comprehensive import system for code organization
-- **Standard Library**: Built-in functions for I/O, mathematics, and data manipulation
-- **Control Flow**: Full support for loops, conditionals, and control statements (`break`, `continue`)
+- Intuitive syntax and clear blocks
+- Static typing with practical inference
+- Compile-time memory safety with immutability-by-default, ownership, borrowing, lifetimes, and move semantics
+- Standard library for I/O, strings, math, and data structures
+- Multiple execution modes: interpreter and C code generation
+- LSP tooling with diagnostics, quick fixes, completion, and formatting
 
-## 📦 Installation
+## Installation
 
-### Prerequisites
-- Rust 1.70+ (for building the compiler)
-- LLVM 14+ (optional, for LLVM backend)
-- GCC or Clang (optional, for C backend compilation)
+Prerequisites:
+- Rust 1.70+
+- GCC or Clang (for compiling generated C)
 
-### Build from Source
+Build:
 ```bash
-# Clone the repository
-git clone https://github.com/nnlgsakib/nlang.git
-cd nlang-rs
-
-# Build the compiler
 cargo build --release
-
-# Verify installation
 cargo test
 ```
 
-## 🛠️ Usage
+## Usage
 
-Nlang provides multiple compilation modes to suit different development needs:
-
-### Direct Execution
+Direct execution (interpreter):
 ```bash
-# Run a program directly (interpreter mode)
-cargo run -- run program.nlang
+cargo run --bin nlang -- run path/to/program.nlang
 ```
 
-### LLVM Compilation
+C code generation and compilation:
 ```bash
-# Generate LLVM IR
-cargo run -- generate-ir program.nlang -o program.ll
-
-# Compile to executable (requires LLVM tools)
-cargo run -- compile program.nlang -o program.exe
-```
-
-### C Code Generation
-```bash
-# Generate C code
-cargo run -- generate-c program.nlang -o program.c
-
-# Compile with GCC
+cargo run --bin nlang -- generate-c path/to/program.nlang -o program.c
 gcc program.c -o program.exe
+
+# Or compile directly via the CLI wrapper
+cargo run --bin nlang -- compile path/to/program.nlang
 ```
 
-## 📝 Language Syntax
+## Language Essentials
 
-### Basic Program Structure
+Variables:
 ```nlang
-def main() {
-    println("Hello, World!");
-    return 0;
-}
+store x :i32 = 42;       // immutable by default
+@mut store y :i32 = 5;   // mutable variable
+y = y + 1;               // ok
+x = 10;                  // error: x is immutable
 ```
 
-### Variables and Types
+Ownership and borrowing:
 ```nlang
-def example() {
-    store x = 42;           // Integer
-    store y = 3.14;         // Float  
-    store name = "Alice";   // String
-    store active = true;    // Boolean
-    
-    // Type inference works automatically
-    store result = x * 2;   // Inferred as Integer
-}
+store v = create_vector();
+store v2 = v;            // v moved; use-after-move is a compile error
+
+@mut store a :i32 = 5;
+store r1 = &a;           // immutable borrow
+store r2 = &@mut a;      // mutable borrow; error if r1 is active
 ```
 
-### Functions
+References and lifetimes:
 ```nlang
-def calculate(a, b) {
-    store sum = a + b;
-    store product = a * b;
-    return product;
-}
+// Reference types can appear in signatures
+def head(xs: [int; 3]) -> &int { return &xs[0]; }
 
-def main() {
-    store result = calculate(5, 3);
-    println(result);
+def bad() -> &int {
+    store x :i32 = 5;
+    return &x;          // error: returns reference to local
 }
 ```
 
-### Control Flow
+Arrays and indexing:
 ```nlang
-def control_example() {
-    store counter = 0;
-    
-    // While loops with break/continue
-    while (counter < 10) {
-        counter = counter + 1;
-        
-        if (counter == 3) {
-            continue;  // Skip iteration
-        }
-        
-        if (counter == 7) {
-            break;     // Exit loop
-        }
-        
-        println(counter);
-    }
-    
-    // Conditional statements
-    if (counter > 5) {
-        println("Counter is large");
-    } else {
-        println("Counter is small");
-    }
-}
+@mut store arr: [int; 3] = [1, 2, 3];
+arr[0] = 100;            // ok: arr is mutable
+store first = arr[1];    // reading is always fine
 ```
 
-### Import System
+Control flow:
 ```nlang
-import math;              // Import entire module
-import io as input_output; // Import with alias
-
-// Import specific functions
-from string { upper, lower, length }
-from math { sqrt, pow }
-
-def main() {
-    store text = "hello";
-    println(upper(text));  // Outputs: HELLO
-}
+@mut store i = 0;
+while (i < 3) { i = i + 1; }
+for (@mut store j = 2; j >= 0; j = j - 1) { println(j); }
+repeat { i = i + 1; } until i >= 10;
+loop { break; }
 ```
 
-## 🏗️ Architecture
-
-Nlang features a robust, multi-stage compilation pipeline:
-
-```
-Source Code (.nlang)
-        ↓
-    Lexical Analysis (Tokenization)
-        ↓
-    Syntax Analysis (AST Generation)
-        ↓
-    Semantic Analysis (Type Checking)
-        ↓
-    ┌─────────────────┬─────────────────┐
-    ↓                 ↓                 ↓
-Interpreter      LLVM Codegen      C Codegen
-    ↓                 ↓                 ↓
-Direct Execution  Machine Code      C Source
-                     ↓                 ↓
-                 Executable        GCC/Clang
-                                      ↓
-                                  Executable
+Imports:
+```nlang
+import std;                 // lazy-loads only called std functions
+from std { sin, cos, tan }  // eager import of specific functions
 ```
 
-### Project Structure
+## Memory Safety System
+
+- Immutability by default; `@mut` required for mutation
+- Single ownership; moves invalidate the source binding
+- Borrowing rules:
+  - Multiple immutable borrows
+  - One mutable borrow; no other borrows concurrently
+- Lifetimes inferred; references cannot outlive their data
+- Move semantics tracked across control flow
+- All checks happen at compile time (no GC, no ref-count overhead)
+
+## Tooling
+
+LSP (`src/nscan/`):
+- Diagnostics include memory-safety hints and spans
+- Quick fix to convert `store` → `@mut store` on immutability errors
+- Completion includes `@mut`, std functions, and string/array methods
+- Formatting, goto-definition, rename, and workspace symbols
+
+Syntax Highlighting:
+- TextMate grammar (`nscan-ext/syntaxes/nlang.tmLanguage.json`) supports `@mut`, borrows (`&`, `&@mut`), and bitwise operators
+
+## Standard Library
+
+Location: `src/std_lib/`
+- I/O: `print`, `println`, `input`
+- Conversions: `str`, `int`, `float`
+- Strings: `upper`, `lower`, `trim`, `contains`, `split`, `replace`, `substring`, `regex`
+- Math: `pi`, `e`, `exp`, `ln`, `log10`, `log2`, `sqrt`, `pow_float`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, stats (`sum_float`, `mean_float`, `median_float`, `variance_float`, `stddev_float`)
+- Collections: `reverse`, `sort`
+- Crypto: `sha256`, `sha256_random`
+
+## Compilation Pipeline
+
+```
+Source (.nlang)
+  ↓
+Lexer → Parser → Semantic (type checking)
+  ↓
+MemManager (immutability/ownership/borrowing/lifetimes/moves)
+  ↓
+Interpreter         C Codegen
+  ↓                    ↓
+Direct run          C source → GCC/Clang → Executable
+```
+
+## Project Structure
+
 ```
 src/
-├── ast/              # Abstract Syntax Tree definitions
-├── lexer/            # Tokenization and lexical analysis
-├── parser/           # Syntax parsing and AST construction
-├── semantic/         # Type checking and semantic validation
-├── interpreter/      # Direct code execution engine
-├── llvm_codegen/     # LLVM IR generation backend
-├── c_codegen/        # C code transpilation backend
-├── execution_engine/ # Unified compilation interface
-├── std_lib/          # Standard library implementation
-├── cli.rs            # Command-line interface
+├── ast/              # AST definitions
+├── lexer/            # Tokenizer and errors
+├── parser/           # Declarations, statements, expressions, types
+├── semantic/         # Type checking and analysis
+├── memmanager/       # Ownership, borrowing, lifetimes, moves, drops
+├── interpreter/      # Execution engine
+├── c_codegen/        # C transpiler (portable runtime helpers)
+├── execution_engine/ # Unified orchestration for run/compile
+├── std_lib/          # Built-in functions and packaged nlang modules
+├── nscan/            # LSP server and tooling
+├── cli.rs            # CLI subcommands
 ├── lib.rs            # Public API exports
 └── main.rs           # Application entry point
 ```
 
-## ✅ Implementation Status
+## Examples
 
-### Core Language Features
-- ✅ **Lexer**: Complete tokenization with all language constructs
-- ✅ **Parser**: Full syntax parsing with error recovery
-- ✅ **AST**: Comprehensive abstract syntax tree representation
-- ✅ **Semantic Analysis**: Type checking, scope validation, and error reporting
-- ✅ **Type System**: Static typing with inference for primitives and expressions
+See `nlang_test_writes/` for runnable samples:
+- Hello world, loops, control flow, functions
+- Arrays and multi-dimensional arrays (`13_comprehensive_array_test.nlang`)
+- String library demos (`25_string_library_advanced.nlang`)
+- Math std lib demo (`26_math_std_lib_demo.nlang`)
+- SHA-256 (pure nlang and built-in) (`21_sha256.nlang`)
 
-### Execution Backends
-- ✅ **Interpreter**: Direct AST execution for development and testing
-- ✅ **LLVM Backend**: Optimized machine code generation
-- ✅ **C Backend**: Portable C code transpilation
-
-### Language Constructs
-- ✅ **Variables**: Declaration, initialization, and assignment
-- ✅ **Functions**: Definition, parameters, return values, and recursion
-- ✅ **Control Flow**: `if`/`else` conditionals, `while` loops
-- ✅ **Loop Control**: `break` and `continue` statements
-- ✅ **Expressions**: Arithmetic, logical, and comparison operations
-- ✅ **Data Types**: Integer, Float, String, Boolean, and Null
-- ✅ **Standard Library**: I/O operations, string manipulation, math functions
-
-### Development Tools
-- ✅ **CLI Interface**: Multiple compilation modes and options
-- ✅ **Error Reporting**: Detailed syntax and semantic error messages
-- ✅ **Testing Suite**: Comprehensive unit and integration tests
-- ✅ **Import System**: Module loading and namespace management
-
-## 🧪 Testing
-
-Run the comprehensive test suite:
+## Testing
 
 ```bash
-# Run all tests
 cargo test
-
-# Run specific test modules
-cargo test lexer
-cargo test parser
-cargo test semantic
-
-# Test with verbose output
-cargo test -- --nocapture
 ```
 
-## 🎯 Performance
+## License
 
-Nlang is designed for performance across multiple execution modes:
+MIT License. See [LICENSE](LICENSE).
 
-- **Interpreter**: Fast startup for development and scripting
-- **LLVM Backend**: Optimized machine code with LLVM's world-class optimizations
-- **C Backend**: Portable code that leverages mature C compiler optimizations
+## Acknowledgments
 
-Benchmark results show competitive performance with other compiled languages while maintaining memory safety and developer productivity.
-
-## 🤝 Contributing
-
-We welcome contributions to Nlang! Areas where you can help:
-
-### Language Features
-- Advanced type system features (generics, traits)
-- Additional control flow constructs (`for` loops, pattern matching)
-- Memory management primitives
-- Concurrency and parallelism support
-
-### Standard Library
-- File system operations
-- Network programming utilities
-- Data structure implementations
-- Algorithm libraries
-
-### Tooling
-- Language server protocol (LSP) implementation
-- Syntax highlighting for popular editors
-- Package manager and build system
-- Debugging support
-
-### Getting Started
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes with tests
-4. Ensure all tests pass (`cargo test`)
-5. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **LLVM Project**: For providing the excellent compilation infrastructure
-- **Rust Community**: For the robust systems programming foundation
-- **Contributors**: Everyone who has contributed to making Nlang better
-
----
-
-**Nlang** - *Bridging the gap between productivity and performance*
+- Rust community
+- Contributors and users of Nlang
