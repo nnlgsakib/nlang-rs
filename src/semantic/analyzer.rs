@@ -1694,6 +1694,10 @@ impl SemanticAnalyzer {
                 // Return array type with the element type and size
                 Ok(Type::Array(Box::new(first_type), elements.len()))
             },
+            Expr::Borrow { target, mutable } => {
+                let inner_t = self.infer_type(target)?;
+                if *mutable { Ok(Type::RefMut(Box::new(inner_t))) } else { Ok(Type::Ref(Box::new(inner_t))) }
+            },
             Expr::VaultLiteral { .. } => {
                 Ok(Type::Vault(Box::new(Type::String), Box::new(Type::Unknown)))
             },

@@ -1,0 +1,50 @@
+// 27 - Memory Safety Showcase
+// Demonstrates: immutability-by-default, explicit mutation with @mut, move semantics,
+// and borrowing syntax (kept out of main to avoid runtime evaluation).
+import std;
+
+// Immutability: variables are immutable unless declared with @mut
+def demonstrate_immutability() -> void {
+    store a :i32 = 10;
+    println("immutable a:", a);
+    // a = 11; // ERROR: cannot mutate immutable variable
+}
+
+// Explicit mutation with @mut
+def demonstrate_mutation() -> void {
+    @mut store counter :i32 = 0;
+    for (@mut store i :i32 = 0; i < 3; i = i + 1) { counter = counter + 1; }
+    println("counter after loop:", counter);
+}
+
+// Move semantics: moving ownership invalidates the source binding
+def demonstrate_move_semantics() -> void {
+    @mut store arr :[i32; 3] = [1, 2, 3];
+    store arr2 = arr; // arr is moved to arr2; avoid using 'arr' after this line
+    println("arr2[0]:", arr2[0]);
+}
+
+// Borrowing syntax (compile-time checked). Not invoked in main to avoid runtime evaluation.
+def demonstrate_borrowing_examples() -> void {
+    @mut store x :i32 = 7;
+    // Immutable borrow: multiple allowed
+    store r1 = &x;
+    store r2 = &x;
+    // Mutable borrow: exclusive; cannot coexist with immutable borrows
+    // store r3 = &@mut x; // ERROR if r1/r2 are active
+    // Using original 'x' while mutably borrowed is a compile error
+}
+
+// Lifetime rule example (commented). Returning reference to local is disallowed.
+// def bad_ref() -> &i32 {
+//     store t :i32 = 5;
+//     return &t; // ERROR: returns reference to local variable
+// }
+
+def main() -> void {
+    println("=== Memory Safety Showcase ===");
+    demonstrate_immutability();
+    demonstrate_mutation();
+    demonstrate_move_semantics();
+    println("All demonstrations completed.");
+}

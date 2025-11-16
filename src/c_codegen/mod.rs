@@ -854,7 +854,9 @@ fn emit_stmt(&mut self, stmt: &Statement) -> Result<(), CCodeGenError> {
            
             // Store the element type for arrays (and pointer for array literals), not the full array type
             let var_type_to_store = if let Some(Type::Array(element_type, _)) = var_type {
-                self.type_to_c(element_type)
+                // Keep array info in type string to help index inference
+                let elem = self.type_to_c(element_type);
+                if let Some(Type::Array(_, size)) = var_type { format!("{}[{}]", elem, size) } else { elem }
             } else if let Some(init) = initializer {
                 if let Expr::ArrayLiteral { elements } = init {
                     if elements.is_empty() { ty.clone() } else {
@@ -924,6 +926,21 @@ fn emit_stmt(&mut self, stmt: &Statement) -> Result<(), CCodeGenError> {
                     }
                 }
                 let init_code = self.emit_expr(init)?;
+                // If initializer is an array variable, bind a pointer to it
+                let mut printed = false;
+                if let Expr::Variable(src_name) = init {
+                    if let Some(tstr) = self.vars.get(src_name.as_str()) {
+                        if tstr.contains('[') {
+                            // Array variable: decay to pointer
+                            let base = tstr.split('[').next().unwrap_or("int");
+                            let pty = format!("{}*", base);
+                            self.vars.insert(name.clone(), pty.clone());
+                            self.line(&format!("{pty} {name} = {init_code};"));
+                            printed = true;
+                        }
+                    }
+                }
+                if printed { return Ok(()); }
                 
                 // Handle array types specially - in C, arrays are declared as "type name[size1][size2]..."
             if let Some(array_type) = var_type {
@@ -1132,6 +1149,11 @@ fn emit_expr(&mut self, e: &Expr) -> Result<String, CCodeGenError> {
     Ok(match e {
         Expr::Literal(l) => self.emit_lit(l)?,
         Expr::Variable(n) => n.clone(),
+        Expr::Borrow { target, mutable: _ } => {
+            // Represent borrows as void* pointers to the lvalue
+            let inner = self.emit_expr(target)?;
+            format!("(void*)&({})", inner)
+        }
         Expr::Binary { left, right, operator, .. } => {
             let l = self.emit_expr(left)?;
             let r = self.emit_expr(right)?;
@@ -1957,6 +1979,10 @@ fn infer_type(&self, e: &Expr) -> String {
             } else {
                 self.infer_type(&elements[0])
             }
+        },
+        Expr::Borrow { .. } => {
+            // References are represented as opaque pointers in C backend
+            "void*".into()
         },
         Expr::Binary { left, right, operator, .. } => {
             if *operator == BinaryOperator::Plus {
