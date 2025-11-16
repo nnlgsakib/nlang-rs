@@ -9,6 +9,7 @@ use crate::std_lib::string as string_lib;
 pub use self::error::InterpreterError;
 pub use self::value::{Value, Function};
 pub use self::environment::Environment;
+use chrono::{Datelike, Timelike, TimeZone};
 
 pub mod environment;
 pub mod error;
@@ -940,6 +941,156 @@ impl Interpreter {
                                     actual: arg.type_name().to_string(),
                                 }),
                             }
+                        }
+                        "timestamp" => {
+                            if !arguments.is_empty() { return Err(InterpreterError::InvalidOperation { message: "timestamp() takes 0 arguments".into() }); }
+                            let secs = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs() as i64;
+                            Ok(Value::Integer(secs))
+                        }
+                        "timestamp_ms" => {
+                            let ms = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis() as i64;
+                            Ok(Value::Integer(ms))
+                        }
+                        "timestamp_us" => {
+                            let us = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_micros() as i64;
+                            Ok(Value::Integer(us))
+                        }
+                        "timestamp_ns" => {
+                            let ns = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos() as i64;
+                            Ok(Value::Integer(ns))
+                        }
+                        "sleep" => {
+                            if arguments.len()!=1 { return Err(InterpreterError::InvalidOperation { message: "sleep(seconds) expects 1 argument".into() }); }
+                            let s = self.evaluate_expression(&arguments[0], env)?; let secs = match s { Value::Integer(i) => i, _ => return Err(InterpreterError::InvalidOperation{ message: "sleep expects integer".into() }) };
+                            std::thread::sleep(std::time::Duration::from_secs(secs.max(0) as u64));
+                            Ok(Value::Integer(0))
+                        }
+                        "sleep_ms" => {
+                            if arguments.len()!=1 { return Err(InterpreterError::InvalidOperation { message: "sleep_ms(ms) expects 1 argument".into() }); }
+                            let s = self.evaluate_expression(&arguments[0], env)?; let ms = match s { Value::Integer(i) => i, _ => return Err(InterpreterError::InvalidOperation{ message: "sleep_ms expects integer".into() }) };
+                            std::thread::sleep(std::time::Duration::from_millis(ms.max(0) as u64));
+                            Ok(Value::Integer(0))
+                        }
+                        "sleep_ns" => {
+                            if arguments.len()!=1 { return Err(InterpreterError::InvalidOperation { message: "sleep_ns(ns) expects 1 argument".into() }); }
+                            let s = self.evaluate_expression(&arguments[0], env)?; let ns = match s { Value::Integer(i) => i, _ => return Err(InterpreterError::InvalidOperation{ message: "sleep_ns expects integer".into() }) };
+                            std::thread::sleep(std::time::Duration::from_nanos(ns.max(0) as u64));
+                            Ok(Value::Integer(0))
+                        }
+                        "now" | "now_local" => {
+                            let dt = chrono::Local::now();
+                            Ok(Value::String(dt.format("%Y-%m-%d %H:%M:%S").to_string()))
+                        }
+                        "now_utc" => {
+                            let dt = chrono::Utc::now();
+                            Ok(Value::String(dt.format("%Y-%m-%d %H:%M:%S").to_string()))
+                        }
+                        "year" => { Ok(Value::Integer(chrono::Local::now().year() as i64)) }
+                        "month" => { Ok(Value::Integer(chrono::Local::now().month() as i64)) }
+                        "day" => { Ok(Value::Integer(chrono::Local::now().day() as i64)) }
+                        "weekday" => { Ok(Value::Integer(chrono::Local::now().weekday().num_days_from_monday() as i64)) }
+                        "hour" => { Ok(Value::Integer(chrono::Local::now().hour() as i64)) }
+                        "minute" => { Ok(Value::Integer(chrono::Local::now().minute() as i64)) }
+                        "second" => { Ok(Value::Integer(chrono::Local::now().second() as i64)) }
+                        "nanosecond" => { Ok(Value::Integer(chrono::Local::now().nanosecond() as i64)) }
+                        "format" => {
+                            if arguments.len()!=1 { return Err(InterpreterError::InvalidOperation { message: "format(fmt) expects 1 argument".into() }); }
+                            let fmtv = self.evaluate_expression(&arguments[0], env)?; let fmt = match fmtv { Value::String(s) => s, _ => return Err(InterpreterError::InvalidOperation { message: "format expects string".into() }) };
+                            Ok(Value::String(chrono::Local::now().format(&fmt).to_string()))
+                        }
+                        "time_to_string" => {
+                            Ok(Value::String(chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string()))
+                        }
+                        "to_local" => {
+                            if arguments.len()!=1 { return Err(InterpreterError::InvalidOperation { message: "to_local(secs) expects 1 argument".into() }); }
+                            let sv = self.evaluate_expression(&arguments[0], env)?; let secs = match sv { Value::Integer(i) => i, _ => return Err(InterpreterError::InvalidOperation { message: "to_local expects seconds".into() }) };
+                            let dt = chrono::Local.timestamp_opt(secs,0).single().ok_or(InterpreterError::InvalidOperation{ message: "invalid epoch".into() })?;
+                            Ok(Value::String(dt.format("%Y-%m-%d %H:%M:%S").to_string()))
+                        }
+                        "to_utc" => {
+                            if arguments.len()!=1 { return Err(InterpreterError::InvalidOperation { message: "to_utc(secs) expects 1 argument".into() }); }
+                            let sv = self.evaluate_expression(&arguments[0], env)?; let secs = match sv { Value::Integer(i) => i, _ => return Err(InterpreterError::InvalidOperation { message: "to_utc expects seconds".into() }) };
+                            let dt = chrono::Utc.timestamp_opt(secs,0).single().ok_or(InterpreterError::InvalidOperation{ message: "invalid epoch".into() })?;
+                            Ok(Value::String(dt.format("%Y-%m-%d %H:%M:%S").to_string()))
+                        }
+                        "from_timestamp" => {
+                            if arguments.len()!=1 { return Err(InterpreterError::InvalidOperation { message: "from_timestamp(secs) expects 1 argument".into() }); }
+                            let sv = self.evaluate_expression(&arguments[0], env)?; let secs = match sv { Value::Integer(i) => i, _ => return Err(InterpreterError::InvalidOperation { message: "from_timestamp expects seconds".into() }) };
+                            let dt = chrono::Utc.timestamp_opt(secs,0).single().ok_or(InterpreterError::InvalidOperation{ message: "invalid epoch".into() })?;
+                            Ok(Value::String(dt.format("%Y-%m-%d %H:%M:%S").to_string()))
+                        }
+                        "from_timestamp_ms" => {
+                            if arguments.len()!=1 { return Err(InterpreterError::InvalidOperation { message: "from_timestamp_ms(ms) expects 1 argument".into() }); }
+                            let sv = self.evaluate_expression(&arguments[0], env)?; let ms = match sv { Value::Integer(i) => i, _ => return Err(InterpreterError::InvalidOperation { message: "from_timestamp_ms expects integer".into() }) };
+                            let secs = ms/1000; let dt = chrono::Utc.timestamp_opt(secs,0).single().ok_or(InterpreterError::InvalidOperation{ message: "invalid epoch".into() })?;
+                            Ok(Value::String(dt.format("%Y-%m-%d %H:%M:%S").to_string()))
+                        }
+                        "parse" => {
+                            if arguments.len()!=1 { return Err(InterpreterError::InvalidOperation { message: "parse(date) expects 1 argument".into() }); }
+                            let sv = self.evaluate_expression(&arguments[0], env)?; let s = match sv { Value::String(t) => t, _ => return Err(InterpreterError::InvalidOperation { message: "parse expects string".into() }) };
+                            let dt = chrono::NaiveDate::parse_from_str(&s, "%Y-%m-%d").map_err(|e| InterpreterError::InvalidOperation { message: e.to_string() })?;
+                            let dt = dt.and_hms_opt(0,0,0).ok_or(InterpreterError::InvalidOperation{ message: "invalid time".into() })?;
+                            let ts = chrono::Local.from_local_datetime(&dt).single().ok_or(InterpreterError::InvalidOperation{ message: "invalid local".into() })?.timestamp();
+                            Ok(Value::Integer(ts))
+                        }
+                        "parse_rfc3339" => {
+                            if arguments.len()!=1 { return Err(InterpreterError::InvalidOperation { message: "parse_rfc3339(s) expects 1 argument".into() }); }
+                            let sv = self.evaluate_expression(&arguments[0], env)?; let s = match sv { Value::String(t) => t, _ => return Err(InterpreterError::InvalidOperation { message: "parse_rfc3339 expects string".into() }) };
+                            let dt = chrono::DateTime::parse_from_rfc3339(&s).map_err(|e| InterpreterError::InvalidOperation { message: e.to_string() })?;
+                            Ok(Value::Integer(dt.timestamp()))
+                        }
+                        "parse_rfc2822" => {
+                            if arguments.len()!=1 { return Err(InterpreterError::InvalidOperation { message: "parse_rfc2822(s) expects 1 argument".into() }); }
+                            let sv = self.evaluate_expression(&arguments[0], env)?; let s = match sv { Value::String(t) => t, _ => return Err(InterpreterError::InvalidOperation { message: "parse_rfc2822 expects string".into() }) };
+                            let dt = chrono::DateTime::parse_from_rfc2822(&s).map_err(|e| InterpreterError::InvalidOperation { message: e.to_string() })?;
+                            Ok(Value::Integer(dt.timestamp()))
+                        }
+                        "duration_from_seconds" => {
+                            if arguments.len()!=1 { return Err(InterpreterError::InvalidOperation { message: "duration_from_seconds(x) expects 1 argument".into() }); }
+                            let sv = self.evaluate_expression(&arguments[0], env)?; let s = match sv { Value::Integer(i) => i, _ => return Err(InterpreterError::InvalidOperation { message: "expects integer".into() }) };
+                            let mut map = std::collections::HashMap::new(); map.insert("nanos".to_string(), Value::Integer(s * 1_000_000_000));
+                            Ok(Value::Vault(map))
+                        }
+                        "duration_from_millis" => {
+                            if arguments.len()!=1 { return Err(InterpreterError::InvalidOperation { message: "duration_from_millis(x) expects 1 argument".into() }); }
+                            let sv = self.evaluate_expression(&arguments[0], env)?; let ms = match sv { Value::Integer(i) => i, _ => return Err(InterpreterError::InvalidOperation { message: "expects integer".into() }) };
+                            let mut map = std::collections::HashMap::new(); map.insert("nanos".to_string(), Value::Integer(ms * 1_000_000));
+                            Ok(Value::Vault(map))
+                        }
+                        "duration_from_nanos" => {
+                            if arguments.len()!=1 { return Err(InterpreterError::InvalidOperation { message: "duration_from_nanos(x) expects 1 argument".into() }); }
+                            let sv = self.evaluate_expression(&arguments[0], env)?; let ns = match sv { Value::Integer(i) => i, _ => return Err(InterpreterError::InvalidOperation { message: "expects integer".into() }) };
+                            let mut map = std::collections::HashMap::new(); map.insert("nanos".to_string(), Value::Integer(ns));
+                            Ok(Value::Vault(map))
+                        }
+                        "duration_as_secs" => {
+                            if arguments.len()!=1 { return Err(InterpreterError::InvalidOperation { message: "duration_as_secs(d) expects 1 argument".into() }); }
+                            let sv = self.evaluate_expression(&arguments[0], env)?; if let Value::Vault(map) = sv { if let Some(Value::Integer(ns)) = map.get("nanos") { Ok(Value::Integer(ns / 1_000_000_000)) } else { Err(InterpreterError::InvalidOperation{ message: "duration missing nanos".into() }) } } else { Err(InterpreterError::InvalidOperation{ message: "expects duration vault".into() }) }
+                        }
+                        "duration_as_millis" => {
+                            if arguments.len()!=1 { return Err(InterpreterError::InvalidOperation { message: "duration_as_millis(d) expects 1 argument".into() }); }
+                            let sv = self.evaluate_expression(&arguments[0], env)?; if let Value::Vault(map) = sv { if let Some(Value::Integer(ns)) = map.get("nanos") { Ok(Value::Integer(ns / 1_000_000)) } else { Err(InterpreterError::InvalidOperation{ message: "duration missing nanos".into() }) } } else { Err(InterpreterError::InvalidOperation{ message: "expects duration vault".into() }) }
+                        }
+                        "duration_add" => {
+                            if arguments.len()!=2 { return Err(InterpreterError::InvalidOperation { message: "duration_add(a,b) expects 2 arguments".into() }); }
+                            let a = self.evaluate_expression(&arguments[0], env)?; let b = self.evaluate_expression(&arguments[1], env)?;
+                            if let (Value::Vault(ma), Value::Vault(mb)) = (a,b) { let na = if let Some(Value::Integer(v)) = ma.get("nanos") { *v } else { 0 }; let nb = if let Some(Value::Integer(v)) = mb.get("nanos") { *v } else { 0 }; let mut map = std::collections::HashMap::new(); map.insert("nanos".to_string(), Value::Integer(na + nb)); Ok(Value::Vault(map)) } else { Err(InterpreterError::InvalidOperation{ message: "expects duration vaults".into() }) }
+                        }
+                        "duration_sub" => {
+                            if arguments.len()!=2 { return Err(InterpreterError::InvalidOperation { message: "duration_sub(a,b) expects 2 arguments".into() }); }
+                            let a = self.evaluate_expression(&arguments[0], env)?; let b = self.evaluate_expression(&arguments[1], env)?;
+                            if let (Value::Vault(ma), Value::Vault(mb)) = (a,b) { let na = if let Some(Value::Integer(v)) = ma.get("nanos") { *v } else { 0 }; let nb = if let Some(Value::Integer(v)) = mb.get("nanos") { *v } else { 0 }; let mut map = std::collections::HashMap::new(); map.insert("nanos".to_string(), Value::Integer(na - nb)); Ok(Value::Vault(map)) } else { Err(InterpreterError::InvalidOperation{ message: "expects duration vaults".into() }) }
+                        }
+                        "timer_start" => {
+                            let ns = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos() as i64; let mut map = std::collections::HashMap::new(); map.insert("start_ns".to_string(), Value::Integer(ns)); Ok(Value::Vault(map))
+                        }
+                        "timer_elapsed" => {
+                            if arguments.len()!=1 { return Err(InterpreterError::InvalidOperation { message: "timer_elapsed(timer) expects 1 argument".into() }); }
+                            let tv = self.evaluate_expression(&arguments[0], env)?; if let Value::Vault(map) = tv { if let Some(Value::Integer(start)) = map.get("start_ns") { let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos() as i64; Ok(Value::Integer((now - start) / 1_000_000)) } else { Err(InterpreterError::InvalidOperation{ message: "timer missing start_ns".into() }) } } else { Err(InterpreterError::InvalidOperation{ message: "expects timer vault".into() }) }
+                        }
+                        "timer_reset" => {
+                            if arguments.len()!=1 { return Err(InterpreterError::InvalidOperation { message: "timer_reset(timer) expects 1 argument".into() }); }
+                            let _ = self.evaluate_expression(&arguments[0], env)?; let ns = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos() as i64; let mut map = std::collections::HashMap::new(); map.insert("start_ns".to_string(), Value::Integer(ns)); Ok(Value::Vault(map))
                         }
                         _ => {
                             if !self.ensure_function_loaded(&func_name) {

@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::fmt::Write;
 use std::rc::Rc;
 use thiserror::Error;
+mod time_lib;
 #[derive(Error, Debug)]
 pub enum CCodeGenError {
     #[error("Unsupported: {0}")]
@@ -61,6 +62,7 @@ pub struct CCodeGenerator {
     need_medianf: bool,
     need_variancef: bool,
     need_stddevf: bool,
+    need_time_helpers: bool,
 }
 impl CCodeGenerator {
     pub fn new() -> Self {
@@ -107,6 +109,7 @@ impl CCodeGenerator {
             need_medianf: false,
             need_variancef: false,
             need_stddevf: false,
+            need_time_helpers: false,
         };
         generator.line("#include <stdio.h>");
         generator.line("#include <string.h>");
@@ -245,6 +248,7 @@ pub fn generate_program(mut self, prog: &Program) -> Result<String, CCodeGenErro
     self.extract_function_return_types(prog);
     self.emit_string_consts()?;
     if self.need_sha_helpers { self.emit_sha_helpers(); }
+    if self.need_time_helpers { self.emit_time_helpers(); }
     if self.need_vault { self.emit_vault_runtime(); }
     if self.need_pool { self.emit_pool_runtime(); }
     if self.need_tree { self.emit_tree_runtime(); }
@@ -367,8 +371,14 @@ fn scan_expr(&mut self, e: &Expr) {
                     "median_float" => { self.need_medianf = true; }
                     "variance_float" => { self.need_variancef = true; }
                     "stddev_float" => { self.need_stddevf = true; }
+                    "timestamp" | "timestamp_ms" | "timestamp_us" | "timestamp_ns" | "now" | "now_utc" | "now_local" | "time_to_string" | "sleep" | "sleep_ms" | "sleep_ns" | "year" | "month" | "day" | "weekday" | "hour" | "minute" | "second" | "nanosecond" | "format" | "to_local" | "to_utc" | "from_timestamp" | "from_timestamp_ms" | "duration_from_seconds" | "duration_from_millis" | "duration_from_nanos" | "duration_as_secs" | "duration_as_millis" | "duration_add" | "duration_sub" | "timer_start" | "timer_elapsed" | "timer_reset" | "parse" | "parse_rfc3339" | "parse_rfc2822" => { self.need_time_helpers = true; }
                     _ => {}
                 }
+                if matches!(name.as_str(),
+                    "duration_from_seconds" | "duration_from_millis" | "duration_from_nanos" |
+                    "duration_as_secs" | "duration_as_millis" | "duration_add" | "duration_sub" |
+                    "timer_start" | "timer_elapsed" | "timer_reset"
+                ) { self.need_vault = true; }
             }
             if let Expr::Get { object: _, name } = callee.as_ref() {
                 match name.as_str() {
@@ -390,6 +400,9 @@ fn scan_expr(&mut self, e: &Expr) {
                         "contains" => { self.need_str_contains = true; }
                         _ => {}
                     }
+                }
+                if let Expr::Variable(ns) = object.as_ref() {
+                    if ns == "time" || ns == "Duration" || ns == "timer" { self.need_time_helpers = true; }
                 }
             }
             for a in arguments { self.scan_expr(a); }
@@ -1254,11 +1267,8 @@ fn emit_expr(&mut self, e: &Expr) -> Result<String, CCodeGenError> {
                     }
                     // Namespace function calls: std.fn -> fn
                     if let Expr::Variable(ns) = object.as_ref() {
-                        if ns == "std" {
-                            return Ok(name.clone());
-                        }
+                        if ns == "std" { return Ok(name.clone()); }
                     }
-                    // Unsupported complex callee
                     return Err(CCodeGenError::Unsupported("complex callee".into()));
                 } else {
                     return Err(CCodeGenError::Unsupported("complex callee".into()));
@@ -1571,6 +1581,42 @@ fn emit_expr(&mut self, e: &Expr) -> Result<String, CCodeGenError> {
                 "median_float" => { self.need_medianf=true; let arr=self.emit_expr(&arguments[0])?; let len=format!("(sizeof({})/sizeof({}[0]))", arr, arr); return Ok(format!("nstd_median_float({}, {})", arr, len)); }
                 "variance_float" => { self.need_variancef=true; let arr=self.emit_expr(&arguments[0])?; let len=format!("(sizeof({})/sizeof({}[0]))", arr, arr); return Ok(format!("nstd_variance_float({}, {})", arr, len)); }
                 "stddev_float" => { self.need_stddevf=true; let arr=self.emit_expr(&arguments[0])?; let len=format!("(sizeof({})/sizeof({}[0]))", arr, arr); return Ok(format!("nstd_stddev_float({}, {})", arr, len)); }
+                "timestamp" => { return Ok("nstd_timestamp()".into()); }
+                "timestamp_ms" => { return Ok("nstd_timestamp_ms()".into()); }
+                "timestamp_us" => { return Ok("nstd_timestamp_us()".into()); }
+                "timestamp_ns" => { return Ok("nstd_timestamp_ns()".into()); }
+                "nanosecond" => { return Ok("(long long)(nstd_timestamp_ns()%1000000000LL)".into()); }
+                "now" | "now_local" => { return Ok("nstd_now_str(0)".into()); }
+                "now_utc" => { return Ok("nstd_now_str(1)".into()); }
+                "time_to_string" => { return Ok("nstd_now_str(0)".into()); }
+                "sleep" => { let s=self.emit_expr(&arguments[0])?; return Ok(format!("nstd_sleep_ms((long long)({})*1000LL)", s)); }
+                "sleep_ms" => { let ms=self.emit_expr(&arguments[0])?; return Ok(format!("nstd_sleep_ms((long long)({}))", ms)); }
+                "sleep_ns" => { let ns=self.emit_expr(&arguments[0])?; return Ok(format!("nstd_sleep_ms((long long)({})/1000000LL)", ns)); }
+                "year" => { return Ok("nstd_year_local()".into()); }
+                "month" => { return Ok("nstd_month_local()".into()); }
+                "day" => { return Ok("nstd_day_local()".into()); }
+                "weekday" => { return Ok("nstd_weekday_local()".into()); }
+                "hour" => { return Ok("nstd_hour_local()".into()); }
+                "minute" => { return Ok("nstd_minute_local()".into()); }
+                "second" => { return Ok("nstd_second_local()".into()); }
+                "format" => { let f=self.emit_expr(&arguments[0])?; return Ok(format!("nstd_format_now_local({})", f)); }
+                "to_local" => { let s=self.emit_expr(&arguments[0])?; return Ok(format!("nstd_to_local_from_secs((long long)({}))", s)); }
+                "to_utc" => { let s=self.emit_expr(&arguments[0])?; return Ok(format!("nstd_to_utc_from_secs((long long)({}))", s)); }
+                "from_timestamp" => { let s=self.emit_expr(&arguments[0])?; return Ok(format!("nstd_to_utc_from_secs((long long)({}))", s)); }
+                "from_timestamp_ms" => { let ms=self.emit_expr(&arguments[0])?; return Ok(format!("nstd_to_utc_from_secs((long long)({})/1000LL)", ms)); }
+                "parse" => { let s=self.emit_expr(&arguments[0])?; return Ok(format!("nstd_parse_ymd({})", s)); }
+                "parse_rfc3339" => { let s=self.emit_expr(&arguments[0])?; return Ok(format!("nstd_parse_rfc3339({})", s)); }
+                "parse_rfc2822" => { let s=self.emit_expr(&arguments[0])?; return Ok(format!("nstd_parse_rfc2822({})", s)); }
+                "timer_start" => { self.need_vault=true; return Ok("({ void* t=vault(); vault_set_int(t, \"start_ns\", (long)nstd_timestamp_ns()); t; })".into()); }
+                "timer_elapsed" => { let t=self.emit_expr(&arguments[0])?; return Ok(format!("((nstd_timestamp_ns() - (long long)vault_get_int({}, \"start_ns\"))/1000000LL)", t)); }
+                "timer_reset" => { let t=self.emit_expr(&arguments[0])?; self.need_vault=true; return Ok(format!("({{ vault_set_int({}, \"start_ns\", (long)nstd_timestamp_ns()); {}; }})", t, t)); }
+                "duration_from_seconds" => { let x=self.emit_expr(&arguments[0])?; self.need_vault=true; return Ok(format!("({{ void* d=vault(); vault_set_int(d, \"nanos\", (long)(({})*1000000000LL)); d; }})", x)); }
+                "duration_from_millis" => { let x=self.emit_expr(&arguments[0])?; self.need_vault=true; return Ok(format!("({{ void* d=vault(); vault_set_int(d, \"nanos\", (long)(({})*1000000LL)); d; }})", x)); }
+                "duration_from_nanos" => { let x=self.emit_expr(&arguments[0])?; self.need_vault=true; return Ok(format!("({{ void* d=vault(); vault_set_int(d, \"nanos\", (long)({})); d; }})", x)); }
+                "duration_as_secs" => { let d=self.emit_expr(&arguments[0])?; return Ok(format!("(vault_get_int({}, \"nanos\")/1000000000LL)", d)); }
+                "duration_as_millis" => { let d=self.emit_expr(&arguments[0])?; return Ok(format!("(vault_get_int({}, \"nanos\")/1000000LL)", d)); }
+                "duration_add" => { let a=self.emit_expr(&arguments[0])?; let b=self.emit_expr(&arguments[1])?; self.need_vault=true; return Ok(format!("({{ void* d=vault(); long long na=vault_get_int({}, \"nanos\"); long long nb=vault_get_int({}, \"nanos\"); vault_set_int(d, \"nanos\", (long)(na+nb)); d; }})", a, b)); }
+                "duration_sub" => { let a=self.emit_expr(&arguments[0])?; let b=self.emit_expr(&arguments[1])?; self.need_vault=true; return Ok(format!("({{ void* d=vault(); long long na=vault_get_int({}, \"nanos\"); long long nb=vault_get_int({}, \"nanos\"); long long r=na-nb; vault_set_int(d, \"nanos\", (long)(r)); d; }})", a, b)); }
                 _ => {}
             }
             if fname == "vault" {
@@ -1950,6 +1996,8 @@ fn infer_type(&self, e: &Expr) -> String {
                         "isqrt" | "floor" | "ceil" | "round" | "sign" => "int64_t".into(),
                         "gcd" | "lcm" | "factorial" | "nPr" | "nCr" => "int64_t".into(),
                         "sum_float" | "mean_float" | "median_float" | "variance_float" | "stddev_float" => "double".into(),
+                        "timestamp" | "timestamp_ms" | "timestamp_us" | "timestamp_ns" | "year" | "month" | "day" | "weekday" | "hour" | "minute" | "second" | "nanosecond" => "int".into(),
+                        "now" | "now_local" | "now_utc" | "format" | "to_local" | "to_utc" | "from_timestamp" | "from_timestamp_ms" | "time_to_string" => "char*".into(),
                         _ => (*self.function_return_types).get(func_name)
                             .map(|s| s.as_str())
                             .unwrap_or("int")

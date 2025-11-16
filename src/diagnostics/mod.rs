@@ -572,6 +572,7 @@ fn enrich_undefined_symbol(source: &str, message: &str) -> (Option<Span>, Option
 
 fn known_std_functions() -> std::collections::HashSet<&'static str> {
     [
+        // Math
         "pi","tau","e","ln2","ln10",
         "exp","ln","log2","log10","pow_float","powi_float",
         "sqrt","isqrt",
@@ -579,7 +580,20 @@ fn known_std_functions() -> std::collections::HashSet<&'static str> {
         "floor","ceil","round","clamp","fmod","sign",
         "gcd","lcm","factorial","nPr","nCr",
         "sum_float","mean_float","median_float","variance_float","stddev_float",
-        "sum","min","max","pow","sort","reverse"
+        "sum","min","max","pow","sort","reverse",
+        // Core I/O and conversion (common std)
+        "print","println","input","len","int","float","str","sha256","sha256_random",
+        // Time
+        "now","now_utc","now_local","time_to_string",
+        "timestamp","timestamp_ms","timestamp_us","timestamp_ns",
+        "sleep","sleep_ms","sleep_ns",
+        "year","month","day","weekday","hour","minute","second","nanosecond",
+        "to_local","to_utc","from_timestamp","from_timestamp_ms","format",
+        "parse","parse_rfc3339","parse_rfc2822",
+        // Duration and Timer (std helpers)
+        "duration_from_seconds","duration_from_millis","duration_from_nanos",
+        "duration_as_secs","duration_as_millis","duration_add","duration_sub",
+        "timer_start","timer_elapsed","timer_reset",
     ].iter().cloned().collect()
 }
 

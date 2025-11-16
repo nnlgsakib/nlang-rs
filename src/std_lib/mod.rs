@@ -5,6 +5,7 @@ pub mod functions;
 pub mod types;
 pub mod nlang;
 pub mod string;
+pub mod time_lib;
 
 use crate::ast::{Expr, Type};
 use self::functions::*;
@@ -252,6 +253,43 @@ impl StdLib {
                     return_type: Type::Boolean,
                     implementation: builtin_bool,
                 },
+                BuiltInFunction { name: "now".to_string(), parameters: vec![], return_type: Type::String, implementation: time_lib::builtin_now },
+                BuiltInFunction { name: "now_utc".to_string(), parameters: vec![], return_type: Type::String, implementation: time_lib::builtin_now_utc },
+                BuiltInFunction { name: "now_local".to_string(), parameters: vec![], return_type: Type::String, implementation: time_lib::builtin_now_local },
+                BuiltInFunction { name: "timestamp".to_string(), parameters: vec![], return_type: Type::Integer, implementation: time_lib::builtin_timestamp },
+                BuiltInFunction { name: "timestamp_ms".to_string(), parameters: vec![], return_type: Type::Integer, implementation: time_lib::builtin_timestamp_ms },
+                BuiltInFunction { name: "timestamp_us".to_string(), parameters: vec![], return_type: Type::Integer, implementation: time_lib::builtin_timestamp_us },
+                BuiltInFunction { name: "timestamp_ns".to_string(), parameters: vec![], return_type: Type::Integer, implementation: time_lib::builtin_timestamp_ns },
+                BuiltInFunction { name: "sleep".to_string(), parameters: vec![Type::Integer], return_type: Type::Void, implementation: time_lib::builtin_sleep },
+                BuiltInFunction { name: "sleep_ms".to_string(), parameters: vec![Type::Integer], return_type: Type::Void, implementation: time_lib::builtin_sleep_ms },
+                BuiltInFunction { name: "sleep_ns".to_string(), parameters: vec![Type::Integer], return_type: Type::Void, implementation: time_lib::builtin_sleep_ns },
+                BuiltInFunction { name: "year".to_string(), parameters: vec![], return_type: Type::Integer, implementation: time_lib::builtin_year },
+                BuiltInFunction { name: "month".to_string(), parameters: vec![], return_type: Type::Integer, implementation: time_lib::builtin_month },
+                BuiltInFunction { name: "day".to_string(), parameters: vec![], return_type: Type::Integer, implementation: time_lib::builtin_day },
+                BuiltInFunction { name: "weekday".to_string(), parameters: vec![], return_type: Type::Integer, implementation: time_lib::builtin_weekday },
+                BuiltInFunction { name: "hour".to_string(), parameters: vec![], return_type: Type::Integer, implementation: time_lib::builtin_hour },
+                BuiltInFunction { name: "minute".to_string(), parameters: vec![], return_type: Type::Integer, implementation: time_lib::builtin_minute },
+                BuiltInFunction { name: "second".to_string(), parameters: vec![], return_type: Type::Integer, implementation: time_lib::builtin_second },
+                BuiltInFunction { name: "nanosecond".to_string(), parameters: vec![], return_type: Type::Integer, implementation: time_lib::builtin_nanosecond },
+                BuiltInFunction { name: "to_local".to_string(), parameters: vec![Type::Integer], return_type: Type::String, implementation: time_lib::builtin_to_local },
+                BuiltInFunction { name: "to_utc".to_string(), parameters: vec![Type::Integer], return_type: Type::String, implementation: time_lib::builtin_to_utc },
+                BuiltInFunction { name: "from_timestamp".to_string(), parameters: vec![Type::Integer], return_type: Type::String, implementation: time_lib::builtin_from_timestamp },
+                BuiltInFunction { name: "from_timestamp_ms".to_string(), parameters: vec![Type::Integer], return_type: Type::String, implementation: time_lib::builtin_from_timestamp_ms },
+                BuiltInFunction { name: "format".to_string(), parameters: vec![Type::String], return_type: Type::String, implementation: time_lib::builtin_format_now_local },
+                BuiltInFunction { name: "time_to_string".to_string(), parameters: vec![], return_type: Type::String, implementation: time_lib::builtin_to_string_now_local },
+                BuiltInFunction { name: "parse".to_string(), parameters: vec![Type::String], return_type: Type::Integer, implementation: time_lib::builtin_parse_date },
+                BuiltInFunction { name: "parse_rfc3339".to_string(), parameters: vec![Type::String], return_type: Type::Integer, implementation: time_lib::builtin_parse_rfc3339 },
+                BuiltInFunction { name: "parse_rfc2822".to_string(), parameters: vec![Type::String], return_type: Type::Integer, implementation: time_lib::builtin_parse_rfc2822 },
+                BuiltInFunction { name: "duration_from_seconds".to_string(), parameters: vec![Type::Integer], return_type: Type::Vault(Box::new(Type::String), Box::new(Type::Integer)), implementation: time_lib::builtin_duration_from_seconds },
+                BuiltInFunction { name: "duration_from_millis".to_string(), parameters: vec![Type::Integer], return_type: Type::Vault(Box::new(Type::String), Box::new(Type::Integer)), implementation: time_lib::builtin_duration_from_millis },
+                BuiltInFunction { name: "duration_from_nanos".to_string(), parameters: vec![Type::Integer], return_type: Type::Vault(Box::new(Type::String), Box::new(Type::Integer)), implementation: time_lib::builtin_duration_from_nanos },
+                BuiltInFunction { name: "duration_as_secs".to_string(), parameters: vec![Type::Vault(Box::new(Type::String), Box::new(Type::Integer))], return_type: Type::Integer, implementation: time_lib::builtin_duration_as_secs },
+                BuiltInFunction { name: "duration_as_millis".to_string(), parameters: vec![Type::Vault(Box::new(Type::String), Box::new(Type::Integer))], return_type: Type::Integer, implementation: time_lib::builtin_duration_as_millis },
+                BuiltInFunction { name: "duration_add".to_string(), parameters: vec![Type::Vault(Box::new(Type::String), Box::new(Type::Integer)), Type::Vault(Box::new(Type::String), Box::new(Type::Integer))], return_type: Type::Vault(Box::new(Type::String), Box::new(Type::Integer)), implementation: time_lib::builtin_duration_add },
+                BuiltInFunction { name: "duration_sub".to_string(), parameters: vec![Type::Vault(Box::new(Type::String), Box::new(Type::Integer)), Type::Vault(Box::new(Type::String), Box::new(Type::Integer))], return_type: Type::Vault(Box::new(Type::String), Box::new(Type::Integer)), implementation: time_lib::builtin_duration_sub },
+                BuiltInFunction { name: "timer_start".to_string(), parameters: vec![], return_type: Type::Vault(Box::new(Type::String), Box::new(Type::Integer)), implementation: time_lib::builtin_timer_start },
+                BuiltInFunction { name: "timer_elapsed".to_string(), parameters: vec![Type::Vault(Box::new(Type::String), Box::new(Type::Integer))], return_type: Type::Integer, implementation: time_lib::builtin_timer_elapsed },
+                BuiltInFunction { name: "timer_reset".to_string(), parameters: vec![Type::Vault(Box::new(Type::String), Box::new(Type::Integer))], return_type: Type::Vault(Box::new(Type::String), Box::new(Type::Integer)), implementation: time_lib::builtin_timer_reset },
             ],
             types: vec![
                 BuiltInType {

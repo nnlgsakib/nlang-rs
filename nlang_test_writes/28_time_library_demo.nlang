@@ -1,0 +1,75 @@
+// 28 - Time Library Demo
+// Demonstrates use of all time functions in std_lib/time_lib.rs
+import std;
+
+def main() -> void {
+    println("=== Time Library Demo ===");
+
+    // Current time
+    println("now()           ", now());
+    println("now_local()     ", now_local());
+    println("now_utc()       ", now_utc());
+    println("time_to_string()", time_to_string());
+
+    // Timestamps
+    store ts     = timestamp();
+    store ts_ms  = timestamp_ms();
+    store ts_us  = timestamp_us();
+    store ts_ns  = timestamp_ns();
+    println("epoch secs      ", ts);
+    println("epoch millis    ", ts_ms);
+    println("epoch micros    ", ts_us);
+    println("epoch nanos     ", ts_ns);
+
+    // Date components (local)
+    println("year: ", year());
+    println("month:", month());
+    println("day:  ", day());
+    println("weekday (0=Mon):", weekday());
+    println("hour: ", hour());
+    println("minute:", minute());
+    println("second:", second());
+    println("nanosecond:", nanosecond());
+
+    // Conversions and formatting
+    println("to_local(ts)    ", to_local(ts));
+    println("to_utc(ts)      ", to_utc(ts));
+    println("from_timestamp(ts)", from_timestamp(ts));
+    println("from_timestamp_ms(ts_ms)", from_timestamp_ms(ts_ms));
+    println("format('%Y-%m-%d %H:%M:%S')", format("%Y-%m-%d %H:%M:%S"));
+
+    // Parsing
+    store p1 = parse("2025-11-16");
+    println("parse '2025-11-16' -> secs:", p1);
+    store p2 = parse_rfc3339("2025-11-16T12:34:00Z");
+    println("parse_rfc3339 -> secs:", p2);
+    store p3 = parse_rfc2822("Sun, 16 Nov 2025 12:34:00 +0000");
+    println("parse_rfc2822 -> secs:", p3);
+
+    // Durations
+    store d1 = duration_from_seconds(2);
+    store d2 = duration_from_millis(500);
+    store d3 = duration_from_nanos(750000000);
+    println("d1 secs   ", duration_as_secs(d1));
+    println("d2 millis ", duration_as_millis(d2));
+    store d_sum = duration_add(d1, d2);
+    store d_diff = duration_sub(d3, d2);
+    println("sum millis", duration_as_millis(d_sum));
+    println("diff secs ", duration_as_secs(d_diff));
+
+    // Sleep (short delays)
+    println("sleep 0.1s...");
+    sleep_ms(100);
+    println("sleep 1ms via ns...");
+    sleep_ns(1000000);
+
+    // Timer / stopwatch
+    @mut store t = timer_start();
+    sleep_ms(50);
+    println("elapsed(ms)", timer_elapsed(t));
+    t = timer_reset(t);
+    sleep_ms(25);
+    println("elapsed after reset(ms)", timer_elapsed(t));
+
+    println("=== End Time Demo ===");
+}
