@@ -11,3 +11,4 @@ nscan-ext/
 .crates.toml
 .crates2.json
 bin/
+gcc/
