@@ -686,8 +686,6 @@ impl Default for TypeInferenceEngine {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::lexer::Lexer;
-    use crate::parser::Parser;
 
     fn create_test_engine() -> TypeInferenceEngine {
         TypeInferenceEngine::new()
