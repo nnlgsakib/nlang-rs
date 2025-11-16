@@ -50,10 +50,13 @@ pub fn compile(input: PathBuf, output: Option<PathBuf>, generate_lex: bool, gene
         .and_then(|s| s.to_str())
         .unwrap_or("main");
     
-    // Determine output path
     let output_path = output.unwrap_or_else(|| {
         let mut path = input.clone();
-        path.set_extension("exe");
+        if cfg!(windows) {
+            path.set_extension("exe");
+        } else {
+            path.set_extension("");
+        }
         path
     });
     
