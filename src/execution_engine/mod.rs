@@ -3,7 +3,7 @@ use crate::parser::parse;
 use crate::semantic::{analyze, analyze_with_file_path, SemanticError};
 use crate::interpreter::{Interpreter, InterpreterError};
 use crate::c_codegen::{CCodeGenerator, CCodeGenError};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use thiserror::Error;
 
@@ -28,13 +28,26 @@ pub enum ExecutionError {
 
 pub struct ExecutionEngine {
     interpreter: Interpreter,
+    gcc_path: Option<PathBuf>,
 }
 
 impl ExecutionEngine {
     pub fn new() -> Self {
         ExecutionEngine {
             interpreter: Interpreter::new(),
+            gcc_path: None,
         }
+    }
+    
+    pub fn new_with_gcc_path<P: AsRef<Path>>(path: P) -> Self {
+        ExecutionEngine {
+            interpreter: Interpreter::new(),
+            gcc_path: Some(path.as_ref().to_path_buf()),
+        }
+    }
+    
+    pub fn set_gcc_path<P: AsRef<Path>>(&mut self, path: P) {
+        self.gcc_path = Some(path.as_ref().to_path_buf());
     }
     
     /// Execute a nlang program from source code
@@ -118,7 +131,8 @@ impl ExecutionEngine {
         std::fs::write(&c_file, c_code)?;
         
         // Compile C to executable using GCC
-        let mut cmd = Command::new("gcc");
+        let gcc_cmd = self.resolve_gcc_path();
+        let mut cmd = Command::new(&gcc_cmd);
         cmd.arg("-o")
             .arg(output_path)
             .arg(&c_file);
@@ -127,8 +141,8 @@ impl ExecutionEngine {
         }
         let gcc_output = cmd
             .output()
-            .map_err(|_| ExecutionError::NotImplemented {
-                message: "gcc not found".to_string(),
+            .map_err(|e| ExecutionError::NotImplemented {
+                message: format!("gcc not found or cannot execute: {} ({})", gcc_cmd.display(), e),
             })?;
             
         if !gcc_output.status.success() {
@@ -142,6 +156,19 @@ impl ExecutionEngine {
         // Clean up temporary file
         let _ = std::fs::remove_file(&c_file);
         Ok(())
+    }
+    
+    fn resolve_gcc_path(&self) -> PathBuf {
+        if let Some(p) = &self.gcc_path {
+            return p.clone();
+        }
+        if let Some(p) = std::env::var_os("NLANG_GCC") {
+            return PathBuf::from(p);
+        }
+        if let Some(p) = std::env::var_os("CC") {
+            return PathBuf::from(p);
+        }
+        PathBuf::from("gcc")
     }
     
     /// Generate C code representation (fallback for GCC compilation)
@@ -196,6 +223,25 @@ mod tests {
         assert!(result.is_ok());
         // Main function returns 0 by default when no explicit return
         assert_eq!(result.unwrap(), 0);
+    }
+    
+    #[test]
+    fn test_custom_gcc_path_selection() {
+        let engine = ExecutionEngine::new_with_gcc_path("nonexistent_gcc_binary");
+        let source = r#"
+            def main() {
+            }
+        "#;
+        let output = std::env::temp_dir().join("nlang_test_bin");
+        let res = engine.compile_to_executable(source, "test_module", &output);
+        assert!(res.is_err());
+        match res {
+            Err(ExecutionError::NotImplemented { message }) => {
+                assert!(message.contains("nonexistent_gcc_binary"));
+            }
+            _ => panic!("unexpected result"),
+        }
+        let _ = std::fs::remove_file(output);
     }
     
 

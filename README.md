@@ -15,7 +15,7 @@ Nlang is a statically-typed language with Python-like clarity and systems-level 
 
 Prerequisites:
 - Rust 1.70+
-- GCC or Clang (for compiling generated C)
+- GCC or Clang (for compiling generated C; path configurable via env or API)
 
 Build:
 ```bash
@@ -38,6 +38,30 @@ gcc program.c -o program.exe
 # Or compile directly via the CLI wrapper
 cargo run --bin nlang -- compile path/to/program.nlang
 ```
+
+### Compiler Selection (custom GCC/Clang path)
+
+- Via environment variables (resolution order: `NLANG_GCC` → `CC` → system `gcc`):
+  - Windows PowerShell:
+    ```powershell
+    $env:NLANG_GCC = 'C:\\msys64\\usr\\bin\\gcc.exe'
+    cargo run --bin nlang -- compile path\to\program.nlang
+    ```
+  - Unix shells:
+    ```bash
+    NLANG_GCC=/usr/local/bin/gcc cargo run --bin nlang -- compile path/to/program.nlang
+    ```
+- Via the Rust API:
+  ```rust
+  use nlang::execution_engine::ExecutionEngine;
+  use std::path::Path;
+
+  let engine = ExecutionEngine::new_with_gcc_path("C\\msys64\\usr\\bin\\gcc.exe");
+  // or set later
+  // let mut engine = ExecutionEngine::new();
+  // engine.set_gcc_path("C\\mingw64\\bin\\gcc.exe");
+  engine.compile_to_executable("def main() {}", "demo", Path::new("demo.exe")).unwrap();
+  ```
 
 ## Language Essentials
 

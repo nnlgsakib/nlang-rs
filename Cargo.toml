@@ -32,3 +32,9 @@ version = "0.20"
 name = "nscan"
 path = "src/nscan/main.rs"
 
+[profile.release]
+debug = false
+strip = true
+lto = true
+codegen-units = 1
+
