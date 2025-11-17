@@ -63,6 +63,7 @@ pub struct CCodeGenerator {
     need_variancef: bool,
     need_stddevf: bool,
     need_time_helpers: bool,
+    bool_array_vars: std::collections::HashSet<String>,
 }
 impl CCodeGenerator {
     pub fn new() -> Self {
@@ -110,6 +111,7 @@ impl CCodeGenerator {
             need_variancef: false,
             need_stddevf: false,
             need_time_helpers: false,
+            bool_array_vars: Default::default(),
         };
         generator.line("#include <stdio.h>");
         generator.line("#include <string.h>");
@@ -169,7 +171,7 @@ impl CCodeGenerator {
     generator.line("char* float_to_str(double value) {");
     generator.push();
     generator.line("static char buffer[50];");
-    generator.line("snprintf(buffer, sizeof(buffer), \"%f\", value);");
+    generator.line("snprintf(buffer, sizeof(buffer), \"%g\", value);");
     generator.line("return buffer;");
     generator.pop();
     generator.line("}");
@@ -884,6 +886,11 @@ fn emit_stmt(&mut self, stmt: &Statement) -> Result<(), CCodeGenError> {
                     Type::Vault(_, _) => { self.var_kinds.insert(name.clone(), "vault".to_string()); self.need_vault = true; },
                     Type::Pool(_) => { self.var_kinds.insert(name.clone(), "pool".to_string()); self.need_pool = true; },
                     Type::Tree(_) => { self.var_kinds.insert(name.clone(), "tree".to_string()); self.need_tree = true; },
+                    Type::Array(inner, _) => {
+                        if matches!(**inner, Type::Boolean) {
+                            self.bool_array_vars.insert(name.clone());
+                        }
+                    }
                     _ => {}
                 }
             } else if let Some(init) = initializer {
@@ -1917,6 +1924,12 @@ fn is_boolean_expression(&self, expr: &Expr) -> bool {
             } else { false }
         }
         Expr::Variable(name) => self.bool_vars.get(name).copied().unwrap_or(false),
+        Expr::Index { sequence, .. } => {
+            if let Expr::Variable(var_name) = sequence.as_ref() {
+                return self.bool_array_vars.contains(var_name);
+            }
+            false
+        }
         _ => false,
     }
 }
@@ -2066,8 +2079,12 @@ fn infer_type(&self, e: &Expr) -> String {
                     full_type.into()
                 }
             } else {
-                // For other sequence types, recursively infer the type
-                self.infer_type(sequence)
+                // For non-variable sequences (e.g., matrix[0]), unwrap one level of pointer/array
+                let seq_ty = self.infer_type(sequence);
+                if let Some(open_bracket) = seq_ty.find('[') { seq_ty[..open_bracket].to_string() }
+                else if seq_ty.ends_with("**") { format!("{}*", seq_ty.trim_end_matches('*')) }
+                else if seq_ty.ends_with('*') { seq_ty.trim_end_matches('*').to_string() }
+                else { seq_ty }
             }
         },
         Expr::Variable(var_name) => {
@@ -2127,10 +2144,18 @@ fn print_fmt(&self, e: &Expr, code: &str) -> Result<(String, String), CCodeGenEr
                 "uint8_t" | "uint16_t" | "uint32_t" => ("%u".into(), code.into()),
                 "uint64_t" => ("%lu".into(), code.into()),
                 "size_t" => ("%zu".into(), code.into()),
-                "float" => ("%f".into(), code.into()),
-                "double" => ("%f".into(), code.into()),
+                "float" => ("%g".into(), code.into()),
+                "double" => ("%g".into(), code.into()),
                 "const char*" | "char*" => ("%s".into(), code.into()),
-                _ => ("%p".into(), code.into()), // Default to pointer for unknown types
+                _ => {
+                    if let Expr::Index { sequence, .. } = e {
+                        if let Expr::Variable(var_name) = sequence.as_ref() {
+                            if let Some(t) = self.vars.get(var_name) {
+                                if t.contains("double") || t.contains("float") { ("%g".into(), code.into()) } else { ("%lld".into(), code.into()) }
+                            } else { ("%lld".into(), code.into()) }
+                        } else { ("%lld".into(), code.into()) }
+                    } else { ("%lld".into(), code.into()) }
+                }
 }
 
         }
