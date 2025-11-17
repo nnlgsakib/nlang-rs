@@ -1,6 +1,6 @@
 # Nlang – Production-Ready Systems Language
 
-# Nlang – Production-Ready Systems Language
+
 
 <p align="center"><img src="icons/nlang.jpeg" alt="Nlang logo" width="180"></p>
 
