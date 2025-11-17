@@ -1,0 +1,61 @@
+name: Release
+on:
+  push:
+    tags:
+      - v*
+jobs:
+  build-linux-macos:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            archive: nlang-linux-x86_64.tar.gz
+          - os: macos-latest
+            archive: nlang-macos-x86_64.tar.gz
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release
+      - run: mkdir -p dist
+      - run: cp target/release/nlang dist/
+      - run: cp target/release/nscan dist/
+      - run: tar -czf ${{ matrix.archive }} -C dist .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.archive }}
+          path: ${{ matrix.archive }}
+
+  build-windows-installer:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release
+        shell: pwsh
+      - run: cargo release-bin
+        shell: pwsh
+      - run: choco install nsis -y
+        shell: pwsh
+      - run: makensis installer\nlang_installer.nsi
+        shell: pwsh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NlangSetup.exe
+          path: NlangSetup.exe
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: [build-linux-macos, build-windows-installer]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

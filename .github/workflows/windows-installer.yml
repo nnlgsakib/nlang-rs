@@ -1,0 +1,25 @@
+name: Windows Installer
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - v*
+jobs:
+  build-installer:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release
+        shell: pwsh
+      - run: cargo release-bin
+        shell: pwsh
+      - run: choco install nsis -y
+        shell: pwsh
+      - run: makensis installer\nlang_installer.nsi
+        shell: pwsh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NlangSetup
+          path: NlangSetup.exe
