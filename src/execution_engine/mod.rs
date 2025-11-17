@@ -1,6 +1,7 @@
 use crate::lexer::tokenize;
 use crate::parser::parse;
 use crate::semantic::{analyze, analyze_with_file_path, SemanticError};
+use crate::memmanager::MemManager;
 use crate::interpreter::{Interpreter, InterpreterError};
 use crate::c_codegen::{CCodeGenerator, CCodeGenError};
 use std::path::{Path, PathBuf};
@@ -69,6 +70,10 @@ impl ExecutionEngine {
         } else {
             analyze(program)?
         };
+        {
+            let mut mm = MemManager::new();
+            mm.analyze(&analyzed_program)?;
+        }
         
         // Execute with interpreter
         let result = if let Some(path) = file_path {
@@ -242,6 +247,24 @@ mod tests {
             _ => panic!("unexpected result"),
         }
         let _ = std::fs::remove_file(output);
+    }
+
+    #[test]
+    fn codegen_emits_scope_frees_for_owned_values() {
+        let engine = ExecutionEngine::new();
+        let source = r#"
+            import std;
+            def main() {
+                store msg = "Hello".upper();
+                store parts = "a,b,c".split(",");
+                println(parts.join("-"));
+            }
+        "#;
+        let c = engine.compile_to_c(source, "test_module").expect("compile to C");
+        assert!(c.contains("free(msg)"), "expected free(msg) in generated C, got:\n{}", c);
+        assert!(c.contains("parts_len"), "expected parts_len tracking for split result, got:\n{}", c);
+        assert!(c.contains("free(parts[i])"), "expected per-element free for parts, got:\n{}", c);
+        assert!(c.contains("free(parts)"), "expected free(parts) after element frees, got:\n{}", c);
     }
     
 

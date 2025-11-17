@@ -64,6 +64,9 @@ pub struct CCodeGenerator {
     need_stddevf: bool,
     need_time_helpers: bool,
     bool_array_vars: std::collections::HashSet<String>,
+    scope_vars: Vec<Vec<String>>,
+    drop_kinds: std::collections::HashMap<String, u8>,
+    moved_vars: std::collections::HashSet<String>,
 }
 impl CCodeGenerator {
     pub fn new() -> Self {
@@ -112,6 +115,9 @@ impl CCodeGenerator {
             need_stddevf: false,
             need_time_helpers: false,
             bool_array_vars: Default::default(),
+            scope_vars: Vec::new(),
+            drop_kinds: Default::default(),
+            moved_vars: Default::default(),
         };
         generator.line("#include <stdio.h>");
         generator.line("#include <string.h>");
@@ -302,7 +308,10 @@ fn pop(&mut self) { self.indent = self.indent.saturating_sub(1); }
 fn block(&mut self, f: impl FnOnce(&mut Self)) {
     self.line("{");
     self.push();
+    self.scope_vars.push(Vec::new());
     f(self);
+    self.emit_scope_drops();
+    self.scope_vars.pop();
     self.pop();
     self.line("}");
 }
@@ -417,6 +426,59 @@ fn scan_expr(&mut self, e: &Expr) {
         Expr::AssignIndex { sequence, index, value } => { self.scan_expr(sequence); self.scan_expr(index); self.scan_expr(value); }
         Expr::Index { sequence, index } => { self.scan_expr(sequence); self.scan_expr(index); }
         _ => {}
+    }
+}
+fn mark_var_decl(&mut self, name: &str) {
+    if let Some(cur) = self.scope_vars.last_mut() { cur.push(name.to_string()); }
+}
+fn set_drop_kind(&mut self, name: &str, kind: u8) { self.drop_kinds.insert(name.to_string(), kind); }
+fn mark_moved(&mut self, name: &str) { self.moved_vars.insert(name.to_string()); }
+fn drop_kind_for_initializer(&self, e: &Expr) -> u8 {
+    match e {
+        Expr::Literal(Literal::String(_)) => 0,
+        Expr::Variable(_) => 0,
+        Expr::Binary { left, right, operator, .. } => {
+            if *operator == BinaryOperator::Plus {
+                if self.is_string_expression(left) || self.is_string_expression(right) { return 1; }
+            }
+            0
+        }
+        Expr::Get { object: _, name } => {
+            match name.as_str() { "upper" | "lower" | "trim" | "substring" | "replace" => 1, _ => 0 }
+        }
+        Expr::Call { callee, .. } => {
+            if let Expr::Variable(n) = callee.as_ref() {
+                match n.as_str() {
+                    "str" | "int_to_str" | "float_to_str" | "input" | "sha256" | "sha256_random" | "now" | "now_local" | "now_utc" | "format" | "to_local" | "to_utc" | "from_timestamp" | "from_timestamp_ms" | "time_to_string" => 1,
+                    "vault" => 2,
+                    "pool" => 3,
+                    "tree" => 4,
+                    _ => 0,
+                }
+            } else if let Expr::Get { name, .. } = callee.as_ref() {
+                match name.as_str() { "upper" | "lower" | "trim" | "substring" | "replace" | "join" => 1, _ => 0 }
+            } else { 0 }
+        }
+        _ => 0,
+    }
+}
+fn emit_scope_drops(&mut self) {
+    let vars = self.scope_vars.last().cloned().unwrap_or_default();
+    for name in &vars {
+        if self.moved_vars.contains(name) { continue; }
+        let kind = *self.drop_kinds.get(name).unwrap_or(&0);
+        match kind {
+            1 => { self.line(&format!("if({} ) free({});", name, name)); }
+            5 => {
+                if let Some(lenv) = self.arr_len_vars.get(name).cloned() {
+                    self.line(&format!("if({} ){{ for(size_t i=0;i<(size_t)({});i++) free({}[i]); free({}); }}", name, lenv, name, name));
+                }
+            }
+            2 => { self.line(&format!("vault_free({});", name)); }
+            3 => { self.line(&format!("pool_free({});", name)); }
+            4 => { self.line(&format!("tree_free({});", name)); }
+            _ => {}
+        }
     }
 }
 fn emit_sha_helpers(&mut self) {
@@ -842,6 +904,16 @@ fn emit_function(&mut self, stmt: &Statement) -> Result<(), CCodeGenError> {
 fn emit_stmt(&mut self, stmt: &Statement) -> Result<(), CCodeGenError> {
     match stmt {
         Statement::Expression(e) => {
+            if let Expr::Assign { name, value } = e {
+                let dk = *self.drop_kinds.get(name).unwrap_or(&0);
+                if dk == 1 {
+                    self.line(&format!("if({}) free({});", name, name));
+                    let vcode = self.emit_expr(value)?;
+                    self.line(&format!("{} = {};", name, vcode));
+                    if let Expr::Variable(srcn) = value.as_ref() { if let Some(sdk) = self.drop_kinds.get(srcn) { if *sdk != 0 { self.mark_moved(srcn); } } }
+                    return Ok(())
+                }
+            }
             let code = self.emit_expr(e)?;
             self.line(&format!("{code};"));
         }
@@ -931,6 +1003,8 @@ fn emit_stmt(&mut self, stmt: &Statement) -> Result<(), CCodeGenError> {
                             self.need_str_split = true;
                             self.vars.insert(name.clone(), "char**".to_string());
                             self.line(&format!("size_t {len_var}; char** {var} = str_split_alloc({obj}, {delim}, &{len_var});", len_var=len_var, var=name, obj=obj_code, delim=delim_code));
+                            self.mark_var_decl(name);
+                            self.set_drop_kind(name, 5);
                             return Ok(());
                         } else if meth == "regex" {
                             let obj_code = self.emit_expr(object)?;
@@ -941,6 +1015,8 @@ fn emit_stmt(&mut self, stmt: &Statement) -> Result<(), CCodeGenError> {
                             self.need_str_regex = true;
                             self.vars.insert(name.clone(), "char**".to_string());
                             self.line(&format!("size_t {len_var}; char** {var} = str_regex_matches({obj}, {pat}, &{len_var});", len_var=len_var, var=name, obj=obj_code, pat=pat_code));
+                            self.mark_var_decl(name);
+                            self.set_drop_kind(name, 5);
                             return Ok(());
                         }
                     }
@@ -956,11 +1032,19 @@ fn emit_stmt(&mut self, stmt: &Statement) -> Result<(), CCodeGenError> {
                             let pty = format!("{}*", base);
                             self.vars.insert(name.clone(), pty.clone());
                             self.line(&format!("{pty} {name} = {init_code};"));
+                            self.mark_var_decl(name);
+                            self.set_drop_kind(name, 0);
+                            self.mark_moved(src_name);
                             printed = true;
                         }
                     }
                 }
-                if printed { return Ok(()); }
+                if printed {
+                    let dk = self.drop_kind_for_initializer(init);
+                    self.mark_var_decl(name);
+                    self.set_drop_kind(name, dk);
+                    return Ok(());
+                }
                 
                 // Handle array types specially - in C, arrays are declared as "type name[size1][size2]..."
             if let Some(array_type) = var_type {
@@ -968,6 +1052,14 @@ fn emit_stmt(&mut self, stmt: &Statement) -> Result<(), CCodeGenError> {
                 self.line(&format!("{c_decl} = {init_code};"));
             } else {
                 self.line(&format!("{ty} {name} = {init_code};"));
+            }
+            self.mark_var_decl(name);
+            let dk = self.drop_kind_for_initializer(init);
+            self.set_drop_kind(name, dk);
+            if let Expr::Variable(srcn) = init {
+                if let Some(sdk) = { self.drop_kinds.get(srcn).copied() } {
+                    if sdk != 0 { self.mark_moved(srcn); self.set_drop_kind(name, sdk); }
+                }
             }
             } else {
                 // Handle array types specially - in C, arrays are declared as "type name[size1][size2]..."
@@ -977,6 +1069,7 @@ fn emit_stmt(&mut self, stmt: &Statement) -> Result<(), CCodeGenError> {
                 } else {
                     self.line(&format!("{ty} {name};"));
                 }
+                self.mark_var_decl(name);
             }
         }
         Statement::If { condition, then_branch, else_branch } => {
@@ -1773,8 +1866,19 @@ fn emit_lit(&self, l: &Literal) -> Result<String, CCodeGenError> {
         Literal::U64(i) => i.to_string(),
         Literal::USize(i) => i.to_string(),
         Literal::Float(f) => f.to_string(),
-        Literal::String(s) => self.str_consts.get(s).cloned()
-            .ok_or_else(|| CCodeGenError::Unsupported(format!("string not collected: '{}'", s)))?,
+        Literal::String(s) => {
+            if let Some(name) = self.str_consts.get(s) { name.clone() } else {
+                let escaped: String = s.chars().flat_map(|c| match c {
+                    '"' => "\\\"".chars().collect::<Vec<_>>(),
+                    '\\' => "\\\\".chars().collect::<Vec<_>>(),
+                    '\n' => "\\n".chars().collect::<Vec<_>>(),
+                    '\r' => "\\r".chars().collect::<Vec<_>>(),
+                    '\t' => "\\t".chars().collect::<Vec<_>>(),
+                    c => c.to_string().chars().collect::<Vec<_>>()
+                }).collect();
+                format!("\"{}\"", escaped)
+            }
+        },
         Literal::Boolean(b) => (if *b { "1" } else { "0" }).to_string(),
         Literal::Null => "NULL".to_string(),
     })
@@ -2107,6 +2211,7 @@ fn emit_vault_runtime(&mut self) {
     self.line("static long vault_get_int(void* vp, const char* key){ Vault* v=(Vault*)vp; int idx=vault_find(v,key); if(idx<0) return 0; if(v->items[idx].tag==0) return v->items[idx].ival; return 0; }");
     self.line("static const char* vault_get_str(void* vp, const char* key){ Vault* v=(Vault*)vp; int idx=vault_find(v,key); if(idx<0) return \"\"; if(v->items[idx].tag==1) return v->items[idx].sval; return \"\"; }");
     self.line("static int vault_get_tag(void* vp, const char* key){ Vault* v=(Vault*)vp; int idx=vault_find(v,key); if(idx<0) return -1; return v->items[idx].tag; }");
+    self.line("static void vault_free(void* vp){ Vault* v=(Vault*)vp; if(!v) return; for(size_t i=0;i<v->size;i++){ if(v->items[i].key) free((void*)v->items[i].key); } free(v->items); free(v); }");
 }
 
 fn emit_pool_runtime(&mut self) {
@@ -2115,6 +2220,7 @@ fn emit_pool_runtime(&mut self) {
     self.line("typedef struct { int tag; long ival; double fval; const char* sval; } PoolItem;");
     self.line("typedef struct { PoolItem* items; size_t size; size_t cap; } Pool;");
     self.line("static void* pool(int count, ...){ Pool* p=(Pool*)malloc(sizeof(Pool)); p->items=NULL; p->size=0; p->cap=0; va_list ap; va_start(ap,count); for(int i=0;i<count;i++){ int tag = va_arg(ap,int); PoolItem it; it.tag=tag; if(tag==0){ it.ival = va_arg(ap,long); } else if(tag==1){ it.fval = va_arg(ap,double); } else if(tag==3){ it.sval = va_arg(ap,const char*); } if(p->size>=p->cap){ size_t nc=p->cap? p->cap*2:8; p->items=(PoolItem*)realloc(p->items,nc*sizeof(PoolItem)); p->cap=nc; } p->items[p->size++]=it; } va_end(ap); return p; }");
+    self.line("static void pool_free(void* pp){ Pool* p=(Pool*)pp; if(!p) return; free(p->items); free(p); }");
 }
 
 fn emit_tree_runtime(&mut self) {
@@ -2123,6 +2229,7 @@ fn emit_tree_runtime(&mut self) {
     self.line("typedef struct { const char* root; } Tree;");
     self.line("static void* tree(const char* root){ Tree* t=(Tree*)malloc(sizeof(Tree)); t->root=root; return t; }");
     self.line("static char* tree_to_str(void* tp){ Tree* t=(Tree*)tp; const char* r = t? t->root : \"\"; size_t n = strlen(r)+7; char* out=(char*)malloc(n); if(!out) return NULL; snprintf(out,n,\"tree(%s)\", r); return out; }");
+    self.line("static void tree_free(void* tp){ Tree* t=(Tree*)tp; if(!t) return; free(t); }");
 }
 fn print_fmt(&self, e: &Expr, code: &str) -> Result<(String, String), CCodeGenError> {
     Ok(match e {
