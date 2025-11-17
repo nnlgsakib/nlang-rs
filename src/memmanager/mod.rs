@@ -10,12 +10,14 @@ use ownership_tracker::OwnershipTracker;
 use borrow_checker::BorrowChecker;
 use lifetime_analyzer::LifetimeAnalyzer;
 use move_analyzer::MoveAnalyzer;
+use drop_analyzer::DropAnalyzer;
 
 pub struct MemManager {
     ownership: OwnershipTracker,
     borrows: BorrowChecker,
     lifetimes: LifetimeAnalyzer,
     moves: MoveAnalyzer,
+    drops: DropAnalyzer,
 }
 
 impl MemManager {
@@ -25,6 +27,7 @@ impl MemManager {
             borrows: BorrowChecker::new(),
             lifetimes: LifetimeAnalyzer::new(),
             moves: MoveAnalyzer::new(),
+            drops: DropAnalyzer::new(),
         }
     }
 
@@ -49,6 +52,12 @@ impl MemManager {
                     self.analyze_expr(init)?;
                     // Moves on initialization
                     self.moves.handle_initial_assignment(name, init, &ty, &mut self.ownership)?;
+                    if let Expr::Borrow { target, mutable } = init {
+                        if let Expr::Variable(src) = target.as_ref() {
+                            if *mutable { let _ = self.borrows.borrow_mut(src); } else { let _ = self.borrows.borrow_immut(src); }
+                            self.lifetimes.record_borrow_assignment(name, src)?;
+                        }
+                    }
                 }
             }
             Statement::Block { statements } => {
@@ -59,6 +68,7 @@ impl MemManager {
                 self.lifetimes.end_scope();
                 self.borrows.end_scope()?;
                 self.ownership.end_scope();
+                self.drops.on_scope_end()?;
             }
             Statement::FunctionDeclaration { name: _, parameters, body, return_type, .. } => {
                 // Function-level scope
@@ -74,6 +84,7 @@ impl MemManager {
                 self.lifetimes.end_function()?;
                 self.borrows.end_scope()?;
                 self.ownership.end_scope();
+                self.drops.on_function_end()?;
             }
             Statement::If { condition, then_branch, else_branch } => {
                 self.analyze_expr(condition)?;
@@ -154,11 +165,7 @@ impl MemManager {
             Expr::Borrow { target, mutable } => {
                 // Resolve variable name
                 if let Expr::Variable(name) = target.as_ref() {
-                    if *mutable {
-                        self.borrows.borrow_mut(name)?;
-                    } else {
-                        self.borrows.borrow_immut(name)?;
-                    }
+                    if *mutable { self.borrows.borrow_mut_ephemeral(name)?; } else { self.borrows.borrow_immut_ephemeral(name)?; }
                     self.lifetimes.add_borrow(name.clone(), *mutable);
                 }
             }
@@ -168,6 +175,14 @@ impl MemManager {
                 self.analyze_expr(value)?;
                 self.moves.handle_assignment(name, value, &mut self.ownership)?;
                 self.borrows.ensure_not_borrowed_for_mutation(name)?;
+                // Lifetime: if assigning a borrow into a variable, validate scopes
+                if let Expr::Borrow { target, .. } = value.as_ref() {
+                    if let Expr::Variable(src) = target.as_ref() {
+                        // Persist borrow for assignment
+                        if let Expr::Borrow { mutable, .. } = value.as_ref() { if *mutable { let _ = self.borrows.borrow_mut(src); } else { let _ = self.borrows.borrow_immut(src); } }
+                        self.lifetimes.record_borrow_assignment(name, src)?;
+                    }
+                }
             }
             Expr::AssignIndex { sequence, value, .. } => {
                 if let Expr::Variable(name) = sequence.as_ref() {
@@ -176,18 +191,18 @@ impl MemManager {
                 }
                 self.analyze_expr(value)?;
             }
-            Expr::Binary { left, right, .. } => { self.analyze_expr(left)?; self.analyze_expr(right)?; }
-            Expr::Unary { operand, .. } => { self.analyze_expr(operand)?; }
+            Expr::Binary { left, right, .. } => { self.borrows.begin_expr(); self.analyze_expr(left)?; self.borrows.end_expr(); self.borrows.begin_expr(); self.analyze_expr(right)?; self.borrows.end_expr(); }
+            Expr::Unary { operand, .. } => { self.borrows.begin_expr(); self.analyze_expr(operand)?; self.borrows.end_expr(); }
             Expr::Call { callee, arguments } => {
-                self.analyze_expr(callee)?;
-                for a in arguments { self.analyze_expr(a)?; }
+                self.borrows.begin_expr(); self.analyze_expr(callee)?; self.borrows.end_expr();
+                for a in arguments { self.borrows.begin_expr(); self.analyze_expr(a)?; self.borrows.end_expr(); }
             }
-            Expr::Get { object, .. } => { self.analyze_expr(object)?; }
-            Expr::Index { sequence, index } => { self.analyze_expr(sequence)?; self.analyze_expr(index)?; }
-            Expr::ArrayLiteral { elements } => { for e in elements { self.analyze_expr(e)?; } }
-            Expr::Tuple { elements } => { for e in elements { self.analyze_expr(e)?; } }
+            Expr::Get { object, .. } => { self.borrows.begin_expr(); self.analyze_expr(object)?; self.borrows.end_expr(); }
+            Expr::Index { sequence, index } => { self.borrows.begin_expr(); self.analyze_expr(sequence)?; self.borrows.end_expr(); self.borrows.begin_expr(); self.analyze_expr(index)?; self.borrows.end_expr(); }
+            Expr::ArrayLiteral { elements } => { for e in elements { self.borrows.begin_expr(); self.analyze_expr(e)?; self.borrows.end_expr(); } }
+            Expr::Tuple { elements } => { for e in elements { self.borrows.begin_expr(); self.analyze_expr(e)?; self.borrows.end_expr(); } }
             Expr::IfExpression { condition, then_branch, else_branch } => {
-                self.analyze_expr(condition)?;
+                self.borrows.begin_expr(); self.analyze_expr(condition)?; self.borrows.end_expr();
                 let mut before = self.ownership.snapshot();
                 let mut bor_before = self.borrows.snapshot();
                 self.analyze_expr(then_branch)?;

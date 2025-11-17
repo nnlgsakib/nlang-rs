@@ -1,7 +1,7 @@
 # test_all.ps1
 # Run all .nlang test files that start with numbers (like 01_, 02_...) and check for errors.
 
-$testDir = ".\nlang_test_writes"
+$testDir = ".\nlang_examples"
 
 # Get files starting with digits and underscore
 $files = Get-ChildItem $testDir -Filter "*.nlang" | Where-Object { $_.Name -match "^\d+_" }

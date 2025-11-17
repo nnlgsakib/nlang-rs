@@ -2,7 +2,7 @@
 # and delete generated .exe files after execution
 
 # Directory containing the .nlang test files
-$testDir = "D:\projects\rust\nlang\nlang_test_writes"
+$testDir = "D:\projects\rust\nlang\nlang_examples"
 Set-Location $testDir
 
 # Collect test files
