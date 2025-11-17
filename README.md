@@ -1,5 +1,9 @@
 # Nlang – Production-Ready Systems Language
 
+# Nlang – Production-Ready Systems Language
+
+<p align="center"><img src="icons/nlang.jpeg" alt="Nlang logo" width="180"></p>
+
 Nlang is a statically-typed language with Python-like clarity and systems-level performance. It features a compile-time memory safety system, a robust type checker, an interpreter for fast iteration, and a C transpiler for portable binaries.
 
 ## Key Features
