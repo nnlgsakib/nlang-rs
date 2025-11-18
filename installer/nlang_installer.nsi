@@ -1,6 +1,8 @@
 Unicode true
 Name "Nlang"
 OutFile "NlangSetup.exe"
+Icon "D:\projects\rust\nlang\icons\nlang.ico"
+UninstallIcon "D:\projects\rust\nlang\icons\nlang.ico"
 InstallDir "$LocalAppData\Nlang"
 RequestExecutionLevel user
 !include "WinMessages.nsh"
