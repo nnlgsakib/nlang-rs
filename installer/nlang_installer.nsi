@@ -16,17 +16,35 @@ UninstPage instfiles
 Section "Install"
   SetOutPath "$InstDir\bin"
   File /nonfatal /a /r "D:\projects\rust\nlang\bin\*.exe"
-  nsExec::ExecToStack 'cmd /C gcc --version'
+  nsExec::ExecToStack 'cmd /C gcc -dumpversion'
   Pop $0
   Pop $1
-  StrCmp $0 0 +7 0
+  ; If gcc not found, install bundled gcc
+  StrCmp $0 0 +12 0
+    SetOutPath "$InstDir\gcc"
+    File /r "D:\projects\rust\nlang\gcc\*"
+    StrCpy $GCCPath "$InstDir\gcc\bin\gcc.exe"
+    StrCpy $InstalledGCC 1
+    Goto +28
+  ; Parse version X.Y.Z and require >= 8.1.0
+  System::Call 'msvcrt::sscanf(t r1, t "%d.%d.%d", *i .r2, *i .r3, *i .r4)'
+  ; $2=major, $3=minor, $4=patch (defaults to 0 if missing)
+  IntCmp $2 8 +3 0 +10
+    ; major > 8 is OK
+    StrCpy $GCCPath "gcc"
+    StrCpy $InstalledGCC 0
+    Goto +16
+  IntCmp $3 1 +2 0 +7
+    ; minor >= 1 is OK for major==8
+    StrCpy $GCCPath "gcc"
+    StrCpy $InstalledGCC 0
+    Goto +11
+  ; Otherwise install bundled gcc
   SetOutPath "$InstDir\gcc"
   File /r "D:\projects\rust\nlang\gcc\*"
   StrCpy $GCCPath "$InstDir\gcc\bin\gcc.exe"
   StrCpy $InstalledGCC 1
-  Goto +3
-  StrCpy $GCCPath "gcc"
-  StrCpy $InstalledGCC 0
+  ; Only nlang uses bundled gcc via NLANG_GCC; do not add gcc to PATH
   WriteRegStr HKCU "Environment" "NLANG_GCC" "$GCCPath"
   System::Call 'Kernel32::SetEnvironmentVariableW(w "NLANG_GCC", w "$GCCPath")'
   System::Call 'USER32::SendMessageTimeoutW(p 0xFFFF, i ${WM_SETTINGCHANGE}, i 0, t "Environment", i 0, i 1000, *i .r0)'
