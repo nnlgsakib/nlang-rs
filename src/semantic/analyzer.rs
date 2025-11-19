@@ -1,5 +1,5 @@
 use crate::ast::{Program, Statement, Expr, Type, Literal, BinaryOperator, WhenCase, MatchCase};
-use crate::std_lib::StdLib;
+use crate::nlang_libs::std_lib::StdLib;
 use crate::lexer::Lexer;
 use crate::parser::Parser;
 use std::collections::HashMap;
@@ -1821,7 +1821,7 @@ impl SemanticAnalyzer {
     }
 
     fn load_std_module(&mut self) -> Result<ModuleInfo, SemanticError> {
-        let source = crate::std_lib::nlang::std_module();
+        let source = crate::nlang_libs::std_lib::nlang::std_module();
         let mut lexer = Lexer::new(source);
         let tokens = lexer.tokenize().map_err(|e| SemanticError { message: format!("Lexer error in std module: {}", e) })?;
         let mut parser = Parser::new(&tokens);

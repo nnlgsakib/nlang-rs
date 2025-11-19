@@ -4,7 +4,7 @@ use nlang::diagnostics;
 use nlang::lexer::tokenize;
 use nlang::parser::parse;
 use nlang::semantic::analyze_with_file_path;
-use nlang::std_lib::StdLib;
+use nlang::nlang_libs::std_lib::StdLib;
 use tower_lsp::jsonrpc::Result as LspResult;
 use tower_lsp::lsp_types::*;
 use tower_lsp::{LanguageServer, Client};

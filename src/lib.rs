@@ -6,6 +6,6 @@ pub mod memmanager;
 pub mod c_codegen;
 pub mod interpreter;
 pub mod execution_engine;
-pub mod std_lib;
+pub mod nlang_libs;
 pub mod cli;
 pub mod diagnostics;
