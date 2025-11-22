@@ -1,0 +1,37 @@
+import std;
+from env_man import get, set, unset, list, os;
+
+def main() {
+    println("=== env_man Test ===");
+    
+    store os_name = os();
+    println("OS: []", os_name);
+    
+    println("Setting TEST_VAR...");
+    set("TEST_VAR", "Hello Nlang");
+    
+    store val = get("TEST_VAR");
+    println("TEST_VAR: []", val);
+    
+    if (val == "Hello Nlang") {
+        println("PASS: Set/Get working");
+    } else {
+        println("FAIL: Set/Get failed");
+    }
+    
+    println("Unsetting TEST_VAR...");
+    unset("TEST_VAR");
+    
+    store val_after = get("TEST_VAR");
+    println("TEST_VAR after unset: '[]'", val_after);
+    
+    if (val_after == "") {
+        println("PASS: Unset working");
+    } else {
+        println("FAIL: Unset failed");
+    }
+    
+    println("Listing vars...");
+    store all_vars = list();
+    println("List returned successfully.");
+}

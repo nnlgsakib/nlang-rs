@@ -251,11 +251,28 @@ impl CCodeGenerator {
         generator
     }
     // --------------------------------------------------------------------- //
-    // Public API
-    // --------------------------------------------------------------------- //
     pub fn generate_program(mut self, prog: &Program) -> Result<String, CCodeGenError> {
         // Generate C for user program; std math is mapped to C helpers
         self.scan_features(prog);
+
+        // Inject C implementation from registered libraries
+        let libs_to_inject: Vec<(String, String)> = self
+            .registry
+            .get_registered_libs()
+            .into_iter()
+            .filter_map(|name| {
+                self.registry
+                    .get_library(&name)
+                    .and_then(|lib| lib.c_implementation.as_ref().map(|c| (name, c.clone())))
+            })
+            .collect();
+
+        for (lib_name, c_impl) in libs_to_inject {
+            self.line(&format!("// Library: {}", lib_name));
+            self.line(&c_impl);
+            self.empty();
+        }
+
         self.collect_strings(prog);
         self.extract_function_return_types(prog);
         self.emit_string_consts()?;
@@ -317,11 +334,11 @@ impl CCodeGenerator {
                 self.line("static char* str_substring_range(const char* s, size_t start, size_t end){ size_t n=strlen(s); if(start> end) return strdup(\"\"); if(end>n) end=n; size_t m=(end>start)?(end-start):0; char* out=(char*)malloc(m+1); if(!out) return NULL; memcpy(out, s+start, m); out[m]=0; return out; }");
             }
             if self.need_str_replace {
-                self.line("static char* str_replace_all(const char* s, const char* from, const char* to){ size_t sl=strlen(s), fl=strlen(from), tl=strlen(to); if(fl==0) return strdup(s); // count
-            size_t count=0; const char* p=s; while((p=strstr(p,from))) { count++; p+=fl; }
-            size_t newl = sl + count*(tl>fl? (tl-fl): (tl-fl)); char* out=(char*)malloc(newl+1); if(!out) return NULL; out[0]='\0';
-            const char* cur=s; const char* hit; while((hit=strstr(cur,from))) { strncat(out, cur, (size_t)(hit-cur)); strcat(out, to); cur=hit+fl; }
-            strcat(out, cur); return out; }");
+                self.line("static char* str_replace_all(const char* s, const char* from, const char* to){ size_t sl=strlen(s), fl=strlen(from), tl=strlen(to); if(fl==0) return strdup(s); // count");
+                self.line("            size_t count=0; const char* p=s; while((p=strstr(p,from))) { count++; p+=fl; }");
+                self.line("            size_t newl = sl + count*(tl>fl? (tl-fl): (tl-fl)); char* out=(char*)malloc(newl+1); if(!out) return NULL; out[0]='\\0';");
+                self.line("            const char* cur=s; const char* hit; while((hit=strstr(cur,from))) { strncat(out, cur, (size_t)(hit-cur)); strcat(out, to); cur=hit+fl; }");
+                self.line("            strcat(out, cur); return out; }");
             }
             if self.need_str_split {
                 self.line("static char** str_split_alloc(const char* s, const char* delim, size_t* out_n){ size_t n=0; size_t cap=8; char** arr=(char**)malloc(cap*sizeof(char*)); if(!arr) return NULL; if(!*delim){ for(const char* p=s; *p; ++p){ if(n>=cap){ cap*=2; arr=(char**)realloc(arr, cap*sizeof(char*)); } char buf[2]={*p,0}; arr[n++]=strdup(buf);} *out_n=n; return arr;} const char* start=s; const char* pos; size_t dlen=strlen(delim); while((pos=strstr(start,delim))){ size_t m=(size_t)(pos-start); char* t=(char*)malloc(m+1); if(!t) break; memcpy(t,start,m); t[m]=0; if(n>=cap){ cap*=2; arr=(char**)realloc(arr, cap*sizeof(char*)); } arr[n++]=t; start=pos+dlen; } char* tail=strdup(start); if(n>=cap){ cap*=2; arr=(char**)realloc(arr, cap*sizeof(char*)); } arr[n++]=tail; *out_n=n; return arr; }");
@@ -1781,6 +1798,21 @@ impl CCodeGenerator {
                     }
                 }
 
+                // Special handling for string comparison
+                if *operator == BinaryOperator::EqualEqual || *operator == BinaryOperator::NotEqual
+                {
+                    let left_is_string = self.is_string_expression(left);
+                    let right_is_string = self.is_string_expression(right);
+
+                    if left_is_string && right_is_string {
+                        if *operator == BinaryOperator::EqualEqual {
+                            return Ok(format!("(strcmp({}, {}) == 0)", l, r));
+                        } else {
+                            return Ok(format!("(strcmp({}, {}) != 0)", l, r));
+                        }
+                    }
+                }
+
                 match operator {
                     BinaryOperator::BitAnd
                     | BinaryOperator::BitOr
@@ -1819,6 +1851,23 @@ impl CCodeGenerator {
                                         code = code.replace(&format!("{{{}}}", i), &arg_code);
                                     }
                                     return Ok(code);
+                                }
+                            }
+                        }
+                    } else if parts.len() == 1 {
+                        // Check all registered libraries for this function
+                        for lib_name in self.registry.get_registered_libs() {
+                            if let Some(lib) = self.registry.get_library(&lib_name) {
+                                if let Some(func) = lib.functions.iter().find(|f| f.name == *fname)
+                                {
+                                    if let Some(c_impl) = &func.c_implementation {
+                                        let mut code = c_impl.clone();
+                                        for (i, arg) in arguments.iter().enumerate() {
+                                            let arg_code = self.emit_expr(arg)?;
+                                            code = code.replace(&format!("{{{}}}", i), &arg_code);
+                                        }
+                                        return Ok(code);
+                                    }
                                 }
                             }
                         }

@@ -1,3 +1,4 @@
+use crate::nlang_libs::env_man::create_env_man_lib;
 use crate::nlang_libs::common::LibraryDefinition;
 use crate::nlang_libs::test_lib::create_test_lib_lib;
 use std::collections::HashMap;
@@ -51,6 +52,7 @@ pub fn get_default_registry() -> LibraryRegistry {
     // Here we would register any default libraries if we had any others.
     // For example:
     // registry.register_library(create_fs_lib());
+    registry.register_library(create_env_man_lib());
     registry.register_library(create_test_lib_lib());
 
     registry
