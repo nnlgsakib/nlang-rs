@@ -1,5 +1,5 @@
-use thiserror::Error;
 use super::value::Value;
+use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum InterpreterError {
@@ -21,4 +21,6 @@ pub enum InterpreterError {
     Continue,
     #[error("Index out of bounds: index {index}, length {length}")]
     IndexOutOfBounds { index: i64, length: usize },
+    #[error("Runtime error: {message}")]
+    RuntimeError { message: String },
 }

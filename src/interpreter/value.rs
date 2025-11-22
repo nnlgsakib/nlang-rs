@@ -1,9 +1,9 @@
-use crate::ast::{Parameter, Statement, Type, Expr};
-use std::fmt;
 use super::error::InterpreterError;
-use std::sync::Arc;
+use crate::ast::{Expr, Parameter, Statement, Type};
 use std::collections::{HashMap, HashSet};
+use std::fmt;
 use std::hash::{Hash, Hasher};
+use std::sync::Arc;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Value {
@@ -44,7 +44,11 @@ impl fmt::Display for Value {
                 write!(f, "vault{{")?;
                 let mut first = true;
                 for (k, v) in map.iter() {
-                    if !first { write!(f, ", ")?; } else { first = false; }
+                    if !first {
+                        write!(f, ", ")?;
+                    } else {
+                        first = false;
+                    }
                     write!(f, "{}: {}", k, v)?;
                 }
                 write!(f, "}}")
@@ -53,7 +57,11 @@ impl fmt::Display for Value {
                 write!(f, "pool{{")?;
                 let mut first = true;
                 for v in set.iter() {
-                    if !first { write!(f, ", ")?; } else { first = false; }
+                    if !first {
+                        write!(f, ", ")?;
+                    } else {
+                        first = false;
+                    }
                     write!(f, "{}", v)?;
                 }
                 write!(f, "}}")
@@ -66,12 +74,25 @@ impl fmt::Display for Value {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+use crate::nlang_libs::common::NativeFunction;
+
+#[derive(Debug, Clone)]
 pub struct Function {
     pub name: String,
     pub parameters: Vec<Parameter>,
     pub body: Vec<Statement>,
     pub return_type: Option<Type>,
+    pub native_impl: Option<NativeFunction>,
+}
+
+impl PartialEq for Function {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+            && self.parameters == other.parameters
+            && self.body == other.body
+            && self.return_type == other.return_type
+        // Ignore native_impl in comparison as function pointers cannot be reliably compared
+    }
 }
 
 impl Value {
@@ -88,7 +109,7 @@ impl Value {
             Value::Lambda { .. } => "lambda",
         }
     }
-    
+
     pub fn to_int(&self) -> Result<i64, InterpreterError> {
         match self {
             Value::Integer(i) => Ok(*i),
@@ -100,7 +121,7 @@ impl Value {
             }),
         }
     }
-    
+
     pub fn to_float(&self) -> Result<f64, InterpreterError> {
         match self {
             Value::Integer(i) => Ok(*i as f64),
@@ -111,7 +132,7 @@ impl Value {
             }),
         }
     }
-    
+
     pub fn to_bool(&self) -> Result<bool, InterpreterError> {
         match self {
             Value::Boolean(b) => Ok(*b),
@@ -174,7 +195,9 @@ impl SimpleValue {
             Value::Float(f) => Ok(SimpleValue::Float((f * 1_000_000.0) as i64)),
             Value::Boolean(b) => Ok(SimpleValue::Boolean(b)),
             Value::String(s) => Ok(SimpleValue::String(s)),
-            _ => Err(InterpreterError::InvalidOperation { message: "Pool supports int, float, bool, string".to_string() }),
+            _ => Err(InterpreterError::InvalidOperation {
+                message: "Pool supports int, float, bool, string".to_string(),
+            }),
         }
     }
 }
@@ -186,6 +209,13 @@ pub struct TreeNode {
 }
 
 impl TreeNode {
-    pub fn new(value: SimpleValue) -> Self { Self { value, children: Vec::new() } }
-    pub fn add_child(&mut self, child: SimpleValue) { self.children.push(TreeNode::new(child)); }
+    pub fn new(value: SimpleValue) -> Self {
+        Self {
+            value,
+            children: Vec::new(),
+        }
+    }
+    pub fn add_child(&mut self, child: SimpleValue) {
+        self.children.push(TreeNode::new(child));
+    }
 }

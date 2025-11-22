@@ -1,5 +1,7 @@
-use crate::ast::{Program, Statement, Expr, Type, Literal, BinaryOperator, WhenCase, MatchCase};
+use crate::ast::{Program, Statement, Expr, Type, Literal, BinaryOperator, WhenCase, MatchCase, Parameter};
 use crate::nlang_libs::std_lib::StdLib;
+use crate::nlang_libs::registry::{LibraryRegistry, get_default_registry};
+
 use crate::lexer::Lexer;
 use crate::parser::Parser;
 use std::collections::HashMap;
@@ -24,6 +26,7 @@ pub struct SemanticAnalyzer {
     type_inference: TypeInferenceEngine,
     std_imported: bool,
     allow_builtin_override: bool,
+    registry: LibraryRegistry,
 }
 
 impl SemanticAnalyzer {
@@ -50,6 +53,7 @@ impl SemanticAnalyzer {
             type_inference: TypeInferenceEngine::new(),
             std_imported: false,
             allow_builtin_override: false,
+            registry: get_default_registry(),
         }
     }
     
@@ -203,7 +207,7 @@ impl SemanticAnalyzer {
             
             // Check if this is an import statement and collect imported function definitions
             if let Statement::Import { module, alias: _ } = &analyzed_stmt {
-                if module != "std" {
+                if module != "std" && !self.registry.is_builtin_module(module) {
                     let module_path = self.resolve_module_path(module);
                     let module_info = self.load_module(&module_path)?;
                     for (symbol_name, symbol) in &module_info.exported_symbols {
@@ -212,6 +216,22 @@ impl SemanticAnalyzer {
                                 imported_function_definitions.push(func_stmt);
                             }
                         }
+                    }
+                } else if let Some(lib) = self.registry.get_library(module) {
+                    // Handle built-in library (excluding std if it's not in registry, which it isn't)
+                    for func in &lib.functions {
+                        let func_decl = Statement::FunctionDeclaration {
+                            name: func.name.clone(),
+                            parameters: func.parameters.iter().enumerate().map(|(i, t)| crate::ast::Parameter {
+                                name: format!("arg{}", i),
+                                param_type: Some(t.clone()),
+                                inferred_type: None,
+                            }).collect(),
+                            body: func.ast_body.clone().unwrap_or_default(),
+                            return_type: Some(func.return_type.clone()),
+                            is_exported: true,
+                        };
+                        imported_function_definitions.push(func_decl);
                     }
                 }
             }
@@ -541,9 +561,13 @@ impl SemanticAnalyzer {
                     self.allow_builtin_override = prev_override;
                     return Ok(Statement::Import { module, alias });
                 }
-                // Resolve and load non-std modules
-                let module_path = self.resolve_module_path(&module);
-                let module_info = self.load_module(&module_path)?;
+                // Resolve and load modules (registered or file-based)
+                let module_info = if self.registry.is_builtin_module(&module) {
+                    self.load_registered_library(&module)?
+                } else {
+                    let module_path = self.resolve_module_path(&module);
+                    self.load_module(&module_path)?
+                };
                 
                 // Add the module's exported symbols to the current scope
                 if let Some(alias_name) = &alias {
@@ -570,6 +594,8 @@ impl SemanticAnalyzer {
                 let module_info = if module == "std" { 
                     self.std_imported = true; 
                     self.load_std_module()? 
+                } else if self.registry.is_builtin_module(&module) {
+                    self.load_registered_library(&module)?
                 } else {
                     let module_path = self.resolve_module_path(&module);
                     self.load_module(&module_path)?
@@ -1776,6 +1802,34 @@ impl SemanticAnalyzer {
         path
     }
     
+    fn load_registered_library(&self, lib_name: &str) -> Result<ModuleInfo, SemanticError> {
+        let lib = self.registry.get_library(lib_name).ok_or_else(|| SemanticError {
+            message: format!("Library '{}' not found in registry", lib_name)
+        })?;
+
+        let mut exported_symbols = HashMap::new();
+        
+        for func in &lib.functions {
+             let params = func.parameters.iter().enumerate().map(|(i, t)| {
+                 Parameter {
+                     name: format!("arg{}", i),
+                     param_type: Some(t.clone()),
+                     inferred_type: None,
+                 }
+             }).collect();
+             
+             exported_symbols.insert(func.name.clone(), Symbol::Function {
+                 return_type: func.return_type.clone(),
+                 parameters: params,
+             });
+        }
+        
+        Ok(ModuleInfo {
+            exported_symbols,
+            original_program: Program { statements: vec![] }, // No original program for registered libraries
+        })
+    }
+
     fn load_module(&mut self, module_path: &Path) -> Result<ModuleInfo, SemanticError> {
         // Check if module is already cached
         if let Some(cached_module) = self.module_cache.get(module_path) {

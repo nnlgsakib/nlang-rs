@@ -1,0 +1,5 @@
+import test_lib;
+import std;
+def main() {
+    print(hello() + "\n");
+}
