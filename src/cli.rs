@@ -4,6 +4,7 @@ use crate::lexer::tokenize;
 use crate::parser::parse;
 use anyhow::bail;
 use serde_json;
+use std::io::Write;
 use std::path::PathBuf;
 
 /// Validates that the input file has a .nlang extension.
@@ -249,8 +250,16 @@ pub fn add_lib(name: String) -> anyhow::Result<()> {
     std::fs::create_dir_all(&lib_dir)?;
 
     let mod_file = lib_dir.join("mod.rs");
-    let template = format!(
-        r#"use crate::ast::{{Expr, Type}};
+
+    print!("Do you want to use external dependencies (requires manual C implementation)? [y/N]: ");
+    std::io::stdout().flush()?;
+    let mut input = String::new();
+    std::io::stdin().read_line(&mut input)?;
+    let use_native = input.trim().eq_ignore_ascii_case("y");
+
+    let template = if use_native {
+        format!(
+            r#"use crate::ast::{{Expr, Type}};
 use crate::nlang_libs::common::{{LibraryDefinition, LibraryFunction}};
 
 pub fn create_{}_lib() -> LibraryDefinition {{
@@ -266,8 +275,34 @@ pub fn create_{}_lib() -> LibraryDefinition {{
 //     Ok(Expr::Literal(crate::ast::Literal::Null))
 // }}
 "#,
-        name, name
+            name, name
+        )
+    } else {
+        format!(
+            r#"use crate::ast::{{Expr, Literal, Statement, Type}};
+use crate::nlang_libs::common::LibraryDefinition;
+
+pub fn create_{}_lib() -> LibraryDefinition {{
+    let mut lib = LibraryDefinition::new("{}");
+    
+    // Example AST function
+    lib.add_ast_function(
+        "hello",
+        vec![],
+        Type::String,
+        vec![Statement::Return {{
+            value: Some(Box::new(Expr::Literal(Literal::String(
+                "Hello from {}!".to_string(),
+            )))),
+        }}],
     );
+    
+    lib
+}}
+"#,
+            name, name, name
+        )
+    };
 
     std::fs::write(&mod_file, template)?;
 
