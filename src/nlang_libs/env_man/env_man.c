@@ -1,9 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+// Standard headers are already included by the Nlang compiler
 
 #ifdef _WIN32
-#include <windows.h>
 #define ENV_MAN_EXPORT __declspec(dllexport)
 #else
 #include <unistd.h>
@@ -129,4 +126,30 @@ char* env_man_os() {
 #else
     return env_man_strdup("unknown");
 #endif
+}
+
+// Load environment variables from file
+void env_man_load_env(const char* filename) {
+    FILE* f = fopen(filename, "r");
+    if (!f) return;
+
+    char line[4096];
+    while (fgets(line, sizeof(line), f)) {
+        size_t len = strlen(line);
+        while (len > 0 && (line[len-1] == '\n' || line[len-1] == '\r')) {
+            line[len-1] = '\0';
+            len--;
+        }
+
+        if (len == 0 || line[0] == '#') continue;
+
+        char* eq = strchr(line, '=');
+        if (eq) {
+            *eq = '\0';
+            char* key = line;
+            char* val = eq + 1;
+            env_man_set(key, val);
+        }
+    }
+    fclose(f);
 }

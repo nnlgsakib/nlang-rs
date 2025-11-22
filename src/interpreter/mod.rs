@@ -286,7 +286,7 @@ impl Interpreter {
 
         // Check for registered built-in libraries
         if let Some(lib) = self.registry.get_library(module_path) {
-            println!("DEBUG: Found built-in library: {}", module_path);
+            // println!("DEBUG: Found built-in library: {}", module_path);
             let mut statements = Vec::new();
             for func in &lib.functions {
                 statements.push(Statement::FunctionDeclaration {

@@ -1,5 +1,5 @@
 import std;
-from env_man import get, set, unset, list, os;
+from env_man import get, set, unset, list, os, load_env;
 
 def main() {
     println("=== env_man Test ===");
@@ -34,4 +34,15 @@ def main() {
     println("Listing vars...");
     store all_vars = list();
     println("List returned successfully.");
+
+    println("--- Testing load_env ---");
+    println("Loading env from test.env...");
+    load_env("D:/projects/rust/nlang/nlang_examples/test.env");
+    store val_file = get("FILE_VAR");
+    println("FILE_VAR: []", val_file);
+    if (val_file == "LoadedFromFile") {
+        println("PASS: load_env working");
+    } else {
+        println("FAIL: load_env failed");
+    }
 }

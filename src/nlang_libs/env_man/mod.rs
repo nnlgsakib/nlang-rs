@@ -10,6 +10,7 @@ pub fn create_env_man_lib() -> LibraryDefinition {
     lib.add_function("unset", vec![Type::String], Type::Void, env_unset);
     lib.add_function("list", vec![], Type::String, env_list);
     lib.add_function("os", vec![], Type::String, env_os);
+    lib.add_function("load_env", vec![Type::String], Type::Void, env_load_env);
 
     // Set the library-level C implementation (headers and helper functions)
     lib.c_implementation = Some(include_str!("env_man.c").to_string());
@@ -22,6 +23,7 @@ pub fn create_env_man_lib() -> LibraryDefinition {
             "unset" => func.c_implementation = Some("env_man_unset({0})".to_string()),
             "list" => func.c_implementation = Some("env_man_list()".to_string()),
             "os" => func.c_implementation = Some("env_man_os()".to_string()),
+            "load_env" => func.c_implementation = Some("env_man_load_env({0})".to_string()),
             _ => {}
         }
     }
@@ -72,4 +74,25 @@ fn env_list(_args: &[Expr]) -> Result<Expr, String> {
 
 fn env_os(_args: &[Expr]) -> Result<Expr, String> {
     Ok(Expr::Literal(Literal::String(env::consts::OS.to_string())))
+}
+
+fn env_load_env(args: &[Expr]) -> Result<Expr, String> {
+    if let Expr::Literal(Literal::String(filename)) = &args[0] {
+        if let Ok(contents) = std::fs::read_to_string(filename) {
+            for line in contents.lines() {
+                let line = line.trim();
+                if line.is_empty() || line.starts_with('#') {
+                    continue;
+                }
+                if let Some((key, val)) = line.split_once('=') {
+                    unsafe {
+                        std::env::set_var(key, val);
+                    }
+                }
+            }
+        }
+        Ok(Expr::Literal(Literal::Null))
+    } else {
+        Err("Invalid argument type for env_man.load_env".to_string())
+    }
 }
