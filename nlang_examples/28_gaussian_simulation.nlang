@@ -1,0 +1,102 @@
+import std;
+
+// --- Linear Congruential Generator (LCG) ---
+// We use floats to avoid potential integer overflow issues if i32 behavior is unchecked.
+// Constants from Numerical Recipes
+def next_rand(state: float) -> float {
+    store a = 1664525.0;
+    store c = 1013904223.0;
+    store m = 4294967296.0; // 2^32
+    return fmod(a * state + c, m);
+}
+
+// Returns a float in [0.0, 1.0)
+def rand_float(state: float) -> float {
+    store m = 4294967296.0;
+    return state / m;
+}
+
+// --- Box-Muller Transform ---
+// Generates standard normal (mean=0, variance=1) from two uniform [0,1) samples
+def box_muller(u1: float, u2: float) -> float {
+    // Avoid log(0)
+    @mut store v1 = u1;
+    if (v1 < 1.0e-7) {
+        v1 = 1.0e-7;
+    }
+    
+    store r = sqrt(-2.0 * ln(v1));
+    store theta = 2.0 * pi() * u2;
+    return r * cos(theta);
+}
+
+def main() {
+    println("=== Gaussian Random Walk Simulation ===");
+    println("Simulating 100,000 steps...");
+
+    // Initial seed
+    @mut store state = 12345.0;
+    
+    // Simulation state
+    @mut store position = 0.0;
+    @mut store step_count = 0;
+    store max_steps = 100000;
+    @mut store next_log = 0;
+    store log_interval = 5000;
+
+    // Statistics (Welford's algorithm for variance is better, but simple sum_sq is fine for this)
+    @mut store sum_x = 0.0;
+    @mut store sum_sq_x = 0.0;
+
+    while (step_count < max_steps) {
+        if (step_count == next_log) {
+            println("Simulating step:", step_count);
+            next_log = next_log + log_interval;
+        }
+        // Generate u1
+        state = next_rand(state);
+        store u1 = rand_float(state);
+
+        // Generate u2
+        state = next_rand(state);
+        store u2 = rand_float(state);
+
+        // Gaussian step
+        store step = box_muller(u1, u2);
+
+        // Update position
+        position = position + step;
+
+        // Collect stats on the *steps* to verify Gaussian nature
+        sum_x = sum_x + step;
+        sum_sq_x = sum_sq_x + (step * step);
+
+        step_count = step_count + 1;
+    }
+
+    // Calculate stats
+    store n_f = 100000.0;
+    store mean = sum_x / n_f;
+    store variance = (sum_sq_x / n_f) - (mean * mean);
+    store std_dev = sqrt(variance);
+
+    println("Simulation Complete.");
+    println("Final Position:", position);
+    println("Step Mean (expect ~0.0):", mean);
+    println("Step Variance (expect ~1.0):", variance);
+    println("Step StdDev (expect ~1.0):", std_dev);
+    
+    // Check if "large" computation was successful
+    if (abs(mean) < 0.05) {
+        println("Result: SUCCESS (Mean is close to 0)");
+    } else {
+        println("Result: DEVIATION (Mean is far from 0)");
+    }
+}
+
+def abs(x: float) -> float {
+    if (x < 0.0) {
+        return 0.0 - x;
+    }
+    return x;
+}

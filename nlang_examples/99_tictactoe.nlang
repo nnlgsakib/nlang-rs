@@ -1,0 +1,32 @@
+import std;
+def check(b:[string;9], p:string) -> bool {
+    return (b[0]==p && b[1]==p && b[2]==p) || (b[3]==p && b[4]==p && b[5]==p) || (b[6]==p && b[7]==p && b[8]==p) ||
+           (b[0]==p && b[3]==p && b[6]==p) || (b[1]==p && b[4]==p && b[7]==p) || (b[2]==p && b[5]==p && b[8]==p) ||
+           (b[0]==p && b[4]==p && b[8]==p) || (b[2]==p && b[4]==p && b[6]==p);
+}
+def main() {
+    @mut store b = ["1","2","3","4","5","6","7","8","9"]; store s = vault(); s["t"] = 1; @mut store go = false;
+    repeat {
+        println("\n-------------"); @mut store r = 0;
+        while (r < 3) {
+            store i = r * 3; store i1 = i + 1; store i2 = i + 2;
+            print("| "); print(b[i]); print(" | "); print(b[i1]); print(" | "); print(b[i2]); println(" |");
+            println("-------------"); r = r + 1;
+        }
+        @mut store p = "X"; if (s["t"] % 2 == 0) { p = "O"; }
+        @mut store v = false; @mut store m = -1;
+        repeat {
+            print("\nPlayer "); print(p); print(", move (1-9): "); store in_v = int(input());
+            pick in_v { when 1,2,3,4,5,6,7,8,9 => { m = in_v - 1; } default => { m = -1; } }
+            if (m >= 0 && b[m] != "X" && b[m] != "O") { v = true; } else { println("Invalid!"); }
+        } until v;
+        b[m] = p;
+        if (check(b, p)) { println("Player ", p, " wins!"); go = true; }
+        else {
+            @mut store full = true; @mut store k = 0;
+            while (k < 9) { if (b[k] != "X" && b[k] != "O") { full = false; } k = k + 1; }
+            if (full) { println("Draw!"); go = true; } else { s["t"] = s["t"] + 1; }
+        }
+    } until go;
+    println("Game Over.");
+}
