@@ -148,7 +148,7 @@ impl MemManager {
             Statement::Expression(expr) => {
                 self.analyze_expr(expr)?;
             }
-            Statement::Break | Statement::Continue | Statement::AssignMain { .. } | Statement::Import { .. } | Statement::ImportFrom { .. } | Statement::Pick { .. } | Statement::RepeatUntil { .. } => {
+            Statement::Break | Statement::Continue | Statement::AssignMain { .. } | Statement::Import { .. } | Statement::ImportFrom { .. } | Statement::Pick { .. } | Statement::RepeatUntil { .. } | Statement::SubModDeclaration { .. } | Statement::EntryModDeclaration { .. } => {
                 // For now, treat these as non-memory-affecting; extend as needed
             }
         }

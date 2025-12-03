@@ -1,6 +1,7 @@
 use crate::ast::{Program, Statement, Expr, Type, Literal, BinaryOperator, WhenCase, MatchCase, Parameter};
 use crate::nlang_libs::std_lib::StdLib;
 use crate::nlang_libs::registry::{LibraryRegistry, get_default_registry};
+use crate::module_sys::{Project, ModuleRegistry, ModuleResolver};
 
 use crate::lexer::Lexer;
 use crate::parser::Parser;
@@ -27,6 +28,11 @@ pub struct SemanticAnalyzer {
     std_imported: bool,
     allow_builtin_override: bool,
     registry: LibraryRegistry,
+    // New module system fields
+    project: Option<Project>,
+    module_registry: Option<ModuleRegistry>,
+    module_resolver: Option<ModuleResolver>,
+    current_module_name: Option<String>,  // Track which module we're analyzing
 }
 
 impl SemanticAnalyzer {
@@ -44,6 +50,22 @@ impl SemanticAnalyzer {
             std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."))
         };
         
+        // Try to find project and load module registry
+        let (project, module_registry, module_resolver) = if let Some(path) = file_path {
+            if let Ok(proj) = Project::find(path) {
+                if let Ok(reg) = ModuleRegistry::load(&proj.mod_rec_path) {
+                    let resolver = ModuleResolver::new(reg.clone());
+                    (Some(proj), Some(reg), Some(resolver))
+                } else {
+                    (Some(proj), None, None)
+                }
+            } else {
+                (None, None, None)
+            }
+        } else {
+            (None, None, None)
+        };
+        
         Self {
             scopes: vec![HashMap::new()], // Global scope
             current_function_return_type: None,
@@ -54,6 +76,10 @@ impl SemanticAnalyzer {
             std_imported: false,
             allow_builtin_override: false,
             registry: get_default_registry(),
+            project,
+            module_registry,
+            module_resolver,
+            current_module_name: None,
         }
     }
     
@@ -207,13 +233,27 @@ impl SemanticAnalyzer {
             
             // Check if this is an import statement and collect imported function definitions
             if let Statement::Import { module, alias: _ } = &analyzed_stmt {
+                // For new module registry system: add function definitions from original_program
                 if module != "std" && !self.registry.is_builtin_module(module) {
-                    let module_path = self.resolve_module_path(module);
-                    let module_info = self.load_module(&module_path)?;
-                    for (symbol_name, symbol) in &module_info.exported_symbols {
-                        if let Symbol::Function { return_type: _, parameters: _ } = symbol {
-                            if let Some(func_stmt) = self.find_function_definition_in_module(&module_path, symbol_name) {
-                                imported_function_definitions.push(func_stmt);
+                    if self.module_resolver.is_some() {
+                        // Use new module registry system - load and add all exported definitions
+                        let mut resolver = self.module_resolver.take().unwrap();
+                        let module_info = self.load_module_from_registry(&mut resolver, module)?;
+                        self.module_resolver = Some(resolver);
+                        
+                        // Add all function and variable declarations from the module
+                        for stmt in module_info.original_program.statements {
+                            imported_function_definitions.push(stmt);
+                        }
+                    } else {
+                        // Old file-based system
+                        let module_path = self.resolve_module_path(module);
+                        let module_info = self.load_module(&module_path)?;
+                        for (symbol_name, symbol) in &module_info.exported_symbols {
+                            if let Symbol::Function { return_type: _, parameters: _ } = symbol {
+                                if let Some(func_stmt) = self.find_function_definition_in_module(&module_path, symbol_name) {
+                                    imported_function_definitions.push(func_stmt);
+                                }
                             }
                         }
                     }
@@ -564,7 +604,14 @@ impl SemanticAnalyzer {
                 // Resolve and load modules (registered or file-based)
                 let module_info = if self.registry.is_builtin_module(&module) {
                     self.load_registered_library(&module)?
+                } else if self.module_resolver.is_some() {
+                    // Use new module registry system (if in a project)
+                    let mut resolver = self.module_resolver.take().unwrap();
+                    let result = self.load_module_from_registry(&mut resolver, &module)?;
+                    self.module_resolver = Some(resolver);
+                    result
                 } else {
+                    // Fall back to old file-based resolution
                     let module_path = self.resolve_module_path(&module);
                     self.load_module(&module_path)?
                 };
@@ -580,10 +627,25 @@ impl SemanticAnalyzer {
                         self.define_symbol(namespaced_name, symbol.clone())?;
                     }
                 } else {
-                    // Add all exported symbols directly to the current scope
+                    // Create a namespace with the module's own name
+                    self.define_symbol(module.clone(), Symbol::Namespace { module_name: module.clone() })?;
+                    
+                    // For new module system: symbols already have submodule prefix (e.g., "character.create_character")
+                    // We need to add module prefix to create "game.character.create_character"
                     for (symbol_name, symbol) in &module_info.exported_symbols {
-                        if !self.scopes.last().unwrap().contains_key(symbol_name) {
-                            self.define_symbol(symbol_name.clone(), symbol.clone())?;
+                        let namespaced_name = format!("{}.{}", module, symbol_name);
+                        self.define_symbol(namespaced_name.clone(), symbol.clone())?;
+                        
+                        // Also register intermediate namespaces (e.g., "game.character")
+                        if symbol_name.contains('.') {
+                            let parts: Vec<&str> = symbol_name.split('.').collect();
+                            if parts.len() == 2 {
+                                let submodule_ns = format!("{}.{}", module, parts[0]);
+                                // Only define if not already defined
+                                if !self.scopes.last().unwrap().contains_key(&submodule_ns) {
+                                    self.define_symbol(submodule_ns, Symbol::Namespace { module_name: format!("{}.{}", module, parts[0]) })?;
+                                }
+                            }
                         }
                     }
                 }
@@ -596,7 +658,14 @@ impl SemanticAnalyzer {
                     self.load_std_module()? 
                 } else if self.registry.is_builtin_module(&module) {
                     self.load_registered_library(&module)?
+                } else if self.module_resolver.is_some() {
+                    // Use new module registry system (if in a project)
+                    let mut resolver = self.module_resolver.take().unwrap();
+                    let result = self.load_module_from_registry(&mut resolver, &module)?;
+                    self.module_resolver = Some(resolver);
+                    result
                 } else {
+                    // Fall back to old file-based resolution
                     let module_path = self.resolve_module_path(&module);
                     self.load_module(&module_path)?
                 };
@@ -712,6 +781,19 @@ impl SemanticAnalyzer {
                 Ok(Statement::Loop {
                     body: analyzed_body,
                 })
+            },
+            Statement::SubModDeclaration { name } => {
+                // Track that we're in this submodule for automatic internal imports
+                self.current_module_name = Some(name.clone());
+                
+                // Submodule declaration is valid but doesn't need further analysis
+                // The module resolver will handle loading symbols
+                Ok(Statement::SubModDeclaration { name })
+            },
+            Statement::EntryModDeclaration { name, exports } => {
+                // Entry module declaration - defines the module name
+                // The exports are already parsed from export.nlang by the module resolver
+                Ok(Statement::EntryModDeclaration { name, exports })
             },
         }
     }
@@ -1887,6 +1969,108 @@ impl SemanticAnalyzer {
         let mut exported_symbols = HashMap::new();
         self.extract_exported_symbols(&analyzed_program.statements, &mut exported_symbols)?;
         Ok(ModuleInfo { exported_symbols, original_program: Program { statements: program } })
+    }
+
+    /// Load module using the new module registry system
+    fn load_module_from_registry(
+        &mut self,
+        resolver: &mut crate::module_sys::ModuleResolver,
+        module_name: &str
+    ) -> Result<ModuleInfo, SemanticError> {
+        // Load the module through the resolver
+        let mod_info = resolver.load_module(module_name)
+            .map_err(|e| SemanticError {
+                message: format!("Failed to load module '{}': {}", module_name, e)
+            })?;
+
+        let mut exported_symbols = HashMap::new();
+        let mut all_statements = Vec::new();
+
+        // Convert from module_sys::SymbolInfo to semantic::Symbol and collect AST statements
+        for (submodule_name, submodule) in &mod_info.submodules {
+            // Only include exported submodules
+            if mod_info.exports.contains(submodule_name) {
+                // Parse each submodule file to get its AST
+                let content = std::fs::read_to_string(&submodule.path)
+                    .map_err(|e| SemanticError {
+                        message: format!("Failed to read submodule file '{}': {}", submodule.path.display(), e)
+                    })?;
+
+                let mut lexer = crate::lexer::Lexer::new(&content);
+                let tokens = lexer.tokenize()
+                    .map_err(|e| SemanticError {
+                        message: format!("Lexer error in submodule '{}': {:?}", submodule_name, e)
+                    })?;
+
+                let mut parser = crate::parser::Parser::new(&tokens);
+                let submodule_statements = parser.parse_program()
+                    .map_err(|e| SemanticError {
+                        message: format!("Parser error in submodule '{}': {:?}", submodule_name, e)
+                    })?;
+
+                // Process each statement from the submodule
+                for stmt in submodule_statements {
+                    match stmt {
+                        Statement::FunctionDeclaration { name, parameters, body, return_type, is_exported } if is_exported => {
+                            // Create symbol for the symbol table (with full qualified name including module)
+                            let full_name = format!("{}.{}.{}", module_name, submodule_name, name);
+                            let symbol_name = format!("{}.{}", submodule_name, name);
+                            
+                            exported_symbols.insert(
+                                symbol_name,
+                                Symbol::Function {
+                                    return_type: return_type.clone().unwrap_or(Type::Void),
+                                    parameters: parameters.clone(),
+                                }
+                            );
+                            
+                            // Add function declaration to the AST with fully qualified name
+                            all_statements.push(Statement::FunctionDeclaration {
+                                name: full_name,
+                                parameters,
+                                body,
+                                return_type,
+                                is_exported: true,
+                            });
+                        },
+                        Statement::LetDeclaration { name, initializer, var_type, is_mutable, is_exported } if is_exported => {
+                            // Create symbol for the symbol table (with full qualified name including module)
+                            let full_name = format!("{}.{}.{}", module_name, submodule_name, name);
+                            let symbol_name = format!("{}.{}", submodule_name, name);
+                            let inferred_type = if let Some(ref type_ann) = var_type {
+                                type_ann.clone()
+                            } else if let Some(ref init) = initializer {
+                                self.infer_type(init)?
+                            } else {
+                                Type::Integer
+                            };
+                            exported_symbols.insert(
+                                symbol_name,
+                                Symbol::Variable {
+                                    var_type: inferred_type.clone(),
+                                    is_mutable,
+                                }
+                            );
+                            
+                            // Add variable declaration to the AST with fully qualified name
+                            all_statements.push(Statement::LetDeclaration {
+                                name: full_name,
+                                initializer,
+                                var_type: Some(inferred_type),
+                                is_mutable,
+                                is_exported: true,
+                            });
+                        },
+                        _ => {} // Skip non-exported or other statements
+                    }
+                }
+            }
+        }
+
+        Ok(ModuleInfo {
+            exported_symbols,
+            original_program: Program { statements: all_statements },
+        })
     }
     
     fn extract_exported_symbols(&self, statements: &[Statement], symbols: &mut HashMap<String, Symbol>) -> Result<(), SemanticError> {

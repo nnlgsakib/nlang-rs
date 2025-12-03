@@ -26,6 +26,10 @@ pub enum TokenType {
     Repeat,
     Until,
     Loop,
+    // Module system keywords
+    Mod,
+    Sub,
+    Entry,
     // Annotation
     AtMut,
     

@@ -68,6 +68,14 @@ pub enum Statement {
     Loop {
         body: Box<Statement>,
     },
+    // Module system statements
+    SubModDeclaration {
+        name: String,
+    },
+    EntryModDeclaration {
+        name: String,
+        exports: Vec<String>,  // List of submodule names to re-export
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize)]

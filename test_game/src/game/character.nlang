@@ -1,0 +1,11 @@
+sub mod character;
+
+export def create_character(name: string) -> string {
+    print("⚔️ Creating character: ");
+    println(name);
+    return name;
+}
+
+export def get_health() -> int {
+    return 100;
+}

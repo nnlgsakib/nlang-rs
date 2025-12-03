@@ -1,0 +1,3 @@
+[modules.game.submodules]
+emotes = '\\?\D:\projects\rust\nlang\test_game\src\game\emotes.nlang'
+character = '\\?\D:\projects\rust\nlang\test_game\src\game\character.nlang'

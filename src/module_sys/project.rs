@@ -1,0 +1,229 @@
+//! Project management for NLang
+
+use std::path::{Path, PathBuf};
+use std::fs;
+use super::error::{ModuleError, ModuleResult};
+use super::types::ProjectMetadata;
+
+/// Represents an NLang project
+#[derive(Debug, Clone)]
+pub struct Project {
+    /// Project root directory
+    pub root: PathBuf,
+    /// Project metadata
+    pub metadata: ProjectMetadata,
+    /// Path to mod-rec.toml
+    pub mod_rec_path: PathBuf,
+    /// Path to src/ directory
+    pub src_path: PathBuf,
+    /// Path to bin/ directory
+    pub bin_path: PathBuf,
+}
+
+/// Project configuration
+#[derive(Debug, Clone)]
+pub struct ProjectConfig {
+    pub name: String,
+    pub create_git_ignore: bool,
+}
+
+impl Default for ProjectConfig {
+    fn default() -> Self {
+        Self {
+            name: "untitled".to_string(),
+            create_git_ignore: true,
+        }
+    }
+}
+
+impl Project {
+    /// Create a new project at the given path
+    pub fn create<P: AsRef<Path>>(path: P, config: ProjectConfig) -> ModuleResult<Self> {
+        let root = path.as_ref().to_path_buf();
+        
+        // Check if directory already exists
+        if root.exists() {
+            return Err(ModuleError::ProjectAlreadyExists(root));
+        }
+
+        // Create project directory structure
+        fs::create_dir_all(&root)?;
+        
+        let src_path = root.join("src");
+        let bin_path = root.join("bin");
+        
+        fs::create_dir_all(&src_path)?;
+        fs::create_dir_all(&bin_path)?;
+
+        // Create main.nlang
+        let main_nlang = src_path.join("main.nlang");
+        fs::write(&main_nlang, MAIN_TEMPLATE)?;
+
+        // Create mod-rec.toml
+        let mod_rec_path = root.join("mod-rec.toml");
+        fs::write(&mod_rec_path, INITIAL_MOD_REC)?;
+
+        // Create .gitignore if requested
+        if config.create_git_ignore {
+            let gitignore = root.join(".gitignore");
+            fs::write(&gitignore, GITIGNORE_TEMPLATE)?;
+        }
+
+        let metadata = ProjectMetadata {
+            name: config.name,
+            version: "0.1.0".to_string(),
+            description: None,
+        };
+
+        Ok(Self {
+            root,
+            metadata,
+            mod_rec_path,
+            src_path,
+            bin_path,
+        })
+    }
+
+    /// Initialize a project in an existing directory
+    pub fn init<P: AsRef<Path>>(path: P, config: ProjectConfig) -> ModuleResult<Self> {
+        let root = path.as_ref().to_path_buf();
+        
+        if !root.exists() {
+            fs::create_dir_all(&root)?;
+        }
+
+        let src_path = root.join("src");
+        let bin_path = root.join("bin");
+        
+        // Create directories if they don't exist
+        if !src_path.exists() {
+            fs::create_dir_all(&src_path)?;
+        }
+        if !bin_path.exists() {
+            fs::create_dir_all(&bin_path)?;
+        }
+
+        // Create main.nlang if it doesn't exist
+        let main_nlang = src_path.join("main.nlang");
+        if !main_nlang.exists() {
+            fs::write(&main_nlang, MAIN_TEMPLATE)?;
+        }
+
+        // Create mod-rec.toml if it doesn't exist
+        let mod_rec_path = root.join("mod-rec.toml");
+        if !mod_rec_path.exists() {
+            fs::write(&mod_rec_path, INITIAL_MOD_REC)?;
+        }
+
+        // Create .gitignore if requested and doesn't exist
+        if config.create_git_ignore {
+            let gitignore = root.join(".gitignore");
+            if !gitignore.exists() {
+                fs::write(&gitignore, GITIGNORE_TEMPLATE)?;
+            }
+        }
+
+        let metadata = ProjectMetadata {
+            name: config.name,
+            version: "0.1.0".to_string(),
+            description: None,
+        };
+
+        Ok(Self {
+            root,
+            metadata,
+            mod_rec_path,
+            src_path,
+            bin_path,
+        })
+    }
+
+    /// Find a project by walking up from the given directory
+    pub fn find<P: AsRef<Path>>(start: P) -> ModuleResult<Self> {
+        let mut current = start.as_ref().to_path_buf();
+        
+        loop {
+            let mod_rec = current.join("mod-rec.toml");
+            if mod_rec.exists() {
+                return Self::load(&current);
+            }
+            
+            if !current.pop() {
+                return Err(ModuleError::ProjectNotFound(start.as_ref().to_path_buf()));
+            }
+        }
+    }
+
+    /// Load an existing project from the given root directory
+    pub fn load<P: AsRef<Path>>(root: P) -> ModuleResult<Self> {
+        let root = root.as_ref().to_path_buf();
+        let mod_rec_path = root.join("mod-rec.toml");
+        
+        if !mod_rec_path.exists() {
+            return Err(ModuleError::ProjectNotFound(root));
+        }
+
+        let src_path = root.join("src");
+        let bin_path = root.join("bin");
+
+        // Validate project structure
+        if !src_path.exists() {
+            return Err(ModuleError::InvalidProjectStructure(
+                "src/ directory not found".to_string()
+            ));
+        }
+
+        // Extract project name from root directory
+        let name = root
+            .file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or("untitled")
+            .to_string();
+
+        let metadata = ProjectMetadata {
+            name,
+            version: "0.1.0".to_string(),
+            description: None,
+        };
+
+        Ok(Self {
+            root,
+            metadata,
+            mod_rec_path,
+            src_path,
+            bin_path,
+        })
+    }
+
+    /// Check if we're currently inside a project
+    pub fn is_in_project() -> bool {
+        Self::find(std::env::current_dir().unwrap_or_default()).is_ok()
+    }
+
+    /// Get the main entry file path
+    pub fn main_file(&self) -> PathBuf {
+        self.src_path.join("main.nlang")
+    }
+}
+
+const MAIN_TEMPLATE: &str = r#"import std;
+
+def main() {
+    println("welcome to nlang");
+}
+"#;
+
+const INITIAL_MOD_REC: &str = r#"# NLang Module Registry
+# This file is auto-generated by `nlang mod-rec`
+# Do not edit manually
+
+[modules]
+"#;
+
+const GITIGNORE_TEMPLATE: &str = r#"/bin
+*.exe
+*.o
+*.so
+*.dylib
+*.dll
+"#;

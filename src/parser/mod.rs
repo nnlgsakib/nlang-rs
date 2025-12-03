@@ -118,6 +118,15 @@ impl<'a> Parser<'a> {
             return self.assign_main_declaration();
         }
         
+        // Module system declarations
+        if self.check(&TokenType::Sub) {
+            return self.sub_mod_declaration();
+        }
+        
+        if self.check(&TokenType::Entry) {
+            return self.entry_mod_declaration();
+        }
+        
         self.statement()
     }
     
@@ -1271,5 +1280,46 @@ impl<'a> Parser<'a> {
             };
         }
         Ok(expr)
+    }
+    
+    fn sub_mod_declaration(&mut self) -> Result<Statement, ParseError> {
+        self.consume(&TokenType::Sub, "Expected 'sub' keyword")?;
+        self.consume(&TokenType::Mod, "Expected 'mod' keyword after 'sub'")?;
+        
+        let name = if let TokenType::Identifier(name) = &self.peek().token_type {
+            name.clone()
+        } else {
+            return Err(ParseError {
+                message: "Expected module name after 'sub mod'".to_string(),
+                line: self.peek().line,
+            });
+        };
+        
+        self.consume(&TokenType::Identifier(name.clone()), "Expected module name")?;
+        self.consume(&TokenType::Semicolon, "Expected ';' after sub mod declaration")?;
+        
+        Ok(Statement::SubModDeclaration { name })
+    }
+    
+    fn entry_mod_declaration(&mut self) -> Result<Statement, ParseError> {
+        self.consume(&TokenType::Entry, "Expected 'entry' keyword")?;
+        self.consume(&TokenType::Mod, "Expected 'mod' keyword after 'entry'")?;
+        
+        let name = if let TokenType::Identifier(name) = &self.peek().token_type {
+            name.clone()
+        } else {
+            return Err(ParseError {
+                message: "Expected module name after 'entry mod'".to_string(),
+                line: self.peek().line,
+            });
+        };
+        
+        self.consume(&TokenType::Identifier(name.clone()), "Expected module name")?;
+        self.consume(&TokenType::Semicolon, "Expected ';' after entry mod declaration")?;
+        
+        Ok(Statement::EntryModDeclaration { 
+            name,
+            exports: Vec::new() 
+        })
     }
 }

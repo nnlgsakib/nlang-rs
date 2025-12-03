@@ -1,0 +1,13 @@
+sub mod emotes;
+
+export def wave() {
+    println("👋 *waves*");
+}
+
+export def dance() {
+    println("💃 *dances*");
+}
+
+export def cheer() {
+    println("🎉 *cheers excitedly*");
+}

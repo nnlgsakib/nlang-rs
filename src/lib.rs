@@ -9,3 +9,4 @@ pub mod execution_engine;
 pub mod nlang_libs;
 pub mod cli;
 pub mod diagnostics;
+pub mod module_sys;

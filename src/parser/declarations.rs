@@ -62,6 +62,10 @@ pub fn parse_export_declaration(parser: &mut super::Parser) -> Result<Statement,
         }
         Ok(stmt)
     } else {
+        // Check for "export submodule1, submodule2;" syntax in export.nlang
+        // This is used for re-exporting submodules in entry mod declarations
+        // We'll handle this as a special case and skip it during regular parsing
+        // since it's only meaningful in export.nlang files
         Err(ParseError {
             message: "Expected 'store' or 'def' after 'export'".to_string(),
             line: parser.peek().line,
@@ -305,4 +309,51 @@ pub fn parse_assign_main_declaration(parser: &mut super::Parser) -> Result<State
     parser.consume(&TokenType::Semicolon, "Expected ';' after ASSIGN_MAIN declaration")?;
     
     Ok(Statement::AssignMain { function_name })
+}
+
+/// Parses sub module declarations: `sub mod MODULE_NAME;`
+pub fn parse_sub_mod_declaration(parser: &mut super::Parser) -> Result<Statement, ParseError> {
+    parser.consume(&TokenType::Sub, "Expected 'sub' keyword")?;
+    parser.consume(&TokenType::Mod, "Expected 'mod' keyword after 'sub'")?;
+    
+    let name = if let TokenType::Identifier(name) = &parser.peek().token_type {
+        name.clone()
+    } else {
+        return Err(ParseError {
+            message: "Expected module name after 'sub mod'".to_string(),
+            line: parser.peek().line,
+        });
+    };
+    
+    parser.consume(&TokenType::Identifier(name.clone()), "Expected module name")?;
+    parser.consume(&TokenType::Semicolon, "Expected ';' after sub mod declaration")?;
+    
+    Ok(Statement::SubModDeclaration { name })
+}
+
+/// Parses entry module declarations: `entry mod MODULE_NAME;` 
+/// followed by optional `export submodule1, submodule2;`
+pub fn parse_entry_mod_declaration(parser: &mut super::Parser) -> Result<Statement, ParseError> {
+    parser.consume(&TokenType::Entry, "Expected 'entry' keyword")?;
+    parser.consume(&TokenType::Mod, "Expected 'mod' keyword after 'entry'")?;
+    
+    let name = if let TokenType::Identifier(name) = &parser.peek().token_type {
+        name.clone()
+    } else {
+        return Err(ParseError {
+            message: "Expected module name after 'entry mod'".to_string(),
+            line: parser.peek().line,
+        });
+    };
+    
+    parser.consume(&TokenType::Identifier(name.clone()), "Expected module name")?;
+    parser.consume(&TokenType::Semicolon, "Expected ';' after entry mod declaration")?;
+    
+    // The exports list is handled separately when we encounter "export submodule1, submodule2;"
+    // For now, we'll return with an empty exports list
+    // The semantic analyzer will read the export.nlang file directly
+    Ok(Statement::EntryModDeclaration { 
+        name,
+        exports: Vec::new() 
+    })
 }

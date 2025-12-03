@@ -1,0 +1,21 @@
+import std;
+import game;
+
+def main() {
+    println("🎮 Welcome to NLang Game!");
+    println("");
+    
+    store player_name = game.character.create_character("Hero");
+    store health = game.character.get_health();
+    
+    print("Player: ");
+    println(player_name);
+    print("Health: ");
+    println(health);
+    println("");
+    
+    println("Emote Actions:");
+    game.emotes.wave();
+    game.emotes.dance();
+    game.emotes.cheer();
+}

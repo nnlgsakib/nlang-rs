@@ -8,9 +8,11 @@ use crate::nlang_libs::registry::{LibraryRegistry, get_default_registry};
 use crate::nlang_libs::std_lib::nlang::std_module;
 use crate::nlang_libs::std_lib::string as string_lib;
 use crate::parser::Parser;
+use crate::module_sys::{Project, ModuleRegistry, ModuleResolver};
 use chrono::{Datelike, TimeZone, Timelike};
 use std::collections::HashMap;
 use std::fs;
+use std::path::Path;
 
 pub mod environment;
 pub mod error;
@@ -20,6 +22,7 @@ pub struct Interpreter {
     global_env: Environment,
     module_cache: HashMap<String, Program>,
     registry: LibraryRegistry,
+    module_resolver: Option<ModuleResolver>,
 }
 
 impl Interpreter {
@@ -28,6 +31,31 @@ impl Interpreter {
             global_env: Environment::new(),
             module_cache: HashMap::new(),
             registry: get_default_registry(),
+            module_resolver: None,
+        }
+    }
+    
+    pub fn new_with_file_path(file_path: Option<&Path>) -> Self {
+        // Try to find project and load module registry
+        let module_resolver = if let Some(path) = file_path {
+            if let Ok(proj) = Project::find(path) {
+                if let Ok(reg) = ModuleRegistry::load(&proj.mod_rec_path) {
+                    Some(ModuleResolver::new(reg))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+        
+        Interpreter {
+            global_env: Environment::new(),
+            module_cache: HashMap::new(),
+            registry: get_default_registry(),
+            module_resolver,
         }
     }
 
@@ -181,10 +209,52 @@ impl Interpreter {
         if self.global_env.get_function(name).is_ok() {
             return true;
         }
+        
+        // Handle nested qualified names (e.g., "game.character.create_character")
         let parts: Vec<&str> = name.split('.').collect();
-        if parts.len() == 2 {
+        
+        if parts.len() >= 2 {
+            // Try namespace lookup: first part is the module name
+            let namespace = parts[0];
+            let remaining = parts[1..].join(".");
+            
+            if let Some(prog) = self.module_cache.get(namespace) {
+                for stmt in &prog.statements {
+                    if let Statement::FunctionDeclaration {
+                        name: func_name,
+                        parameters,
+                        body,
+                        return_type,
+                        is_exported,
+                    } = stmt
+                    {
+                        if *is_exported && func_name == &remaining {
+                            let mut native_impl = None;
+                            // Check if the namespace corresponds to a registered library
+                            if let Some(lib) = self.registry.get_library(namespace) {
+                                if let Some(func_def) = lib.functions.iter().find(|f| f.name == *func_name) {
+                                    native_impl = func_def.implementation;
+                                }
+                            }
+
+                            let f = Function {
+                                name: name.to_string(),  // Register with full qualified name
+                                parameters: parameters.clone(),
+                                body: body.clone(),
+                                return_type: return_type.clone(),
+                                native_impl,
+                            };
+                            self.global_env.define_function(f);
+                            return true;
+                        }
+                    }
+                }
+            }
+            
+            // Legacy 2-part name handling (kept for backwards compatibility)
             return self.ensure_function_loaded_qualified(parts[0], parts[1]);
         }
+        
         self.ensure_function_loaded_direct(name)
     }
 
@@ -262,7 +332,7 @@ impl Interpreter {
     }
 
     fn parse_module(
-        &self,
+        &mut self,
         module_path: &str,
         importing_file: Option<&str>,
     ) -> Result<Program, InterpreterError> {
@@ -286,7 +356,6 @@ impl Interpreter {
 
         // Check for registered built-in libraries
         if let Some(lib) = self.registry.get_library(module_path) {
-            // println!("DEBUG: Found built-in library: {}", module_path);
             let mut statements = Vec::new();
             for func in &lib.functions {
                 statements.push(Statement::FunctionDeclaration {
@@ -307,14 +376,17 @@ impl Interpreter {
                 });
             }
             return Ok(Program { statements });
-        } else {
-            println!(
-                "DEBUG: Library '{}' not found in registry. Available: {:?}",
-                module_path,
-                self.registry.get_registered_libs()
-            );
         }
 
+        // Try new module registry system first (if in a project)
+        if self.module_resolver.is_some() {
+            let mut resolver = self.module_resolver.take().unwrap();
+            let result = self.load_module_from_registry(&mut resolver, module_path);
+            self.module_resolver = Some(resolver);
+            return result;
+        }
+
+        // Fall back to old file-based resolution
         let file_path = if let Some(importing_file) = importing_file {
             // Resolve relative to the importing file's directory
             let importing_dir = std::path::Path::new(importing_file)
@@ -347,6 +419,74 @@ impl Interpreter {
                 .map_err(|e| InterpreterError::InvalidOperation {
                     message: format!("Parser error in module {}: {:?}", module_path, e),
                 })?;
+
+        Ok(Program { statements })
+    }
+
+    /// Load module using the new module registry system
+    fn load_module_from_registry(
+        &mut self,
+        resolver: &mut ModuleResolver,
+        module_name: &str
+    ) -> Result<Program, InterpreterError> {
+        // Load the module through the resolver
+        let mod_info = resolver.load_module(module_name)
+            .map_err(|e| InterpreterError::InvalidOperation {
+                message: format!("Failed to load module '{}': {}", module_name, e)
+            })?;
+
+        let mut statements = Vec::new();
+
+        // Convert from module_sys symbols to AST statements
+        for (submodule_name, submodule) in &mod_info.submodules {
+            // Only include exported submodules
+            if mod_info.exports.contains(submodule_name) {
+                // Parse each submodule file to get its AST
+                let content = fs::read_to_string(&submodule.path)
+                    .map_err(|e| InterpreterError::InvalidOperation {
+                        message: format!("Failed to read submodule file '{}': {}", submodule.path.display(), e)
+                    })?;
+
+                let mut lexer = Lexer::new(&content);
+                let tokens = lexer.tokenize()
+                    .map_err(|e| InterpreterError::InvalidOperation {
+                        message: format!("Lexer error in submodule '{}': {:?}", submodule_name, e)
+                    })?;
+
+                let mut parser = Parser::new(&tokens);
+                let submodule_statements = parser.parse_program()
+                    .map_err(|e| InterpreterError::InvalidOperation {
+                        message: format!("Parser error in submodule '{}': {:?}", submodule_name, e)
+                    })?;
+
+                // Add submodule statements with prefixed names for namespacing
+                for stmt in submodule_statements {
+                    match stmt {
+                        Statement::FunctionDeclaration { name, parameters, body, return_type, is_exported } if is_exported => {
+                            // Prefix function name with submodule (e.g., "character.create_character")
+                            statements.push(Statement::FunctionDeclaration {
+                                name: format!("{}.{}", submodule_name, name),
+                                parameters,
+                                body,
+                                return_type,
+                                is_exported: true,
+                            });
+                        },
+                        Statement::LetDeclaration { name, initializer, var_type, is_mutable, is_exported } if is_exported => {
+                            // Prefix variable name with submodule
+                            statements.push(Statement::LetDeclaration {
+                                name: format!("{}.{}", submodule_name, name),
+                                initializer,
+                                var_type,
+                                is_mutable,
+                                is_exported: true,
+                            });
+                        },
+                        _ => {} // Skip non-exported or other statements
+                    }
+                }
+            }
+        }
 
         Ok(Program { statements })
     }
@@ -666,11 +806,32 @@ impl Interpreter {
                 self.evaluate_unary_op(operator, &val)
             }
             Expr::Call { callee, arguments } => {
+                // Helper function to extract full qualified name from nested Gets
+                fn extract_qualified_name(expr: &Expr) -> Option<String> {
+                    match expr {
+                        Expr::Variable(name) => Some(name.clone()),
+                        Expr::Get { object, name } => {
+                            if let Some(prefix) = extract_qualified_name(object) {
+                                Some(format!("{}.{}", prefix, name))
+                            } else {
+                                None
+                            }
+                        }
+                        _ => None,
+                    }
+                }
+
                 let func_name = match callee.as_ref() {
                     Expr::Variable(name) => name.clone(),
-                    Expr::Get { object, name } => {
-                        let obj_val = self.evaluate_expression(object, env)?;
-                        match obj_val {
+                    Expr::Get { .. } => {
+                        // Try to build qualified name (e.g., "game.character.create_character")
+                        if let Some(qualified_name) = extract_qualified_name(callee.as_ref()) {
+                            qualified_name
+                        } else {
+                            // Fall back to evaluating as method call on object
+                            let Expr::Get { object, name } = callee.as_ref() else { unreachable!() };
+                            let obj_val = self.evaluate_expression(object, env)?;
+                            match obj_val {
                             Value::String(s) => match name.as_str() {
                                 "upper" => {
                                     if !arguments.is_empty() {
@@ -910,6 +1071,7 @@ impl Interpreter {
                                     });
                                 }
                             }
+                        }
                         }
                     }
                     _ => {

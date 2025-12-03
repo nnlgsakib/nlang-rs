@@ -17,8 +17,8 @@ enum Commands {
     /// Compile an Nlang file to machine code
     #[command(alias = "c")]
     Compile {
-        /// Input file to compile
-        input: PathBuf,
+        /// Input file to compile (optional if inside a project)
+        input: Option<PathBuf>,
 
         /// Output file name (optional)
         #[arg(short, long)]
@@ -36,8 +36,8 @@ enum Commands {
     /// Run an Nlang file directly
     #[command(alias = "r")]
     Run {
-        /// Input file to run
-        input: PathBuf,
+        /// Input file to run (optional if inside a project)
+        input: Option<PathBuf>,
     },
 
     /// Generate C code from an Nlang file
@@ -84,6 +84,22 @@ enum Commands {
     /// Display version information
     #[command(alias = "v")]
     Version,
+
+    /// Create a new NLang project
+    Create {
+        /// Project name
+        name: String,
+    },
+
+    /// Initialize current directory as an NLang project
+    Init {
+        /// Project name (defaults to directory name)
+        name: Option<String>,
+    },
+
+    /// Update module registry (mod-rec.toml)
+    #[command(name = "mod-rec")]
+    ModRec,
 
     /// Manage libraries
     Lib {
@@ -132,6 +148,15 @@ fn main() -> anyhow::Result<()> {
         }
         Commands::Version => {
             cli::version()?;
+        }
+        Commands::Create { name } => {
+            cli::create_project(name)?;
+        }
+        Commands::Init { name } => {
+            cli::init_project(name)?;
+        }
+        Commands::ModRec => {
+            cli::update_mod_rec()?;
         }
         Commands::Lib { command } => match command {
             LibCommands::AddLib { name } => {

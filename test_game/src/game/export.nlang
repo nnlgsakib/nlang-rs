@@ -1,0 +1,3 @@
+entry mod game;
+
+export character, emotes;

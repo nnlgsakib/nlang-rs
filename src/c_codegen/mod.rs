@@ -1177,9 +1177,13 @@ impl CCodeGenerator {
                             self.type_to_c(return_type.as_ref().unwrap_or(&Type::Void))
                         })
                 };
+                
+                // Convert qualified names (e.g., "game.character.create_character") to valid C identifiers
+                let c_name = name.replace('.', "_");
+                
                 self.write(&ret);
                 self.write(" ");
-                self.write(name);
+                self.write(&c_name);
                 self.write("(");
                 let mut first = true;
                 for p in parameters {
@@ -1250,9 +1254,13 @@ impl CCodeGenerator {
             self.function_parameters
                 .insert(param.name.clone(), param_type);
         }
+        
+        // Convert qualified names (e.g., "game.character.create_character") to valid C identifiers
+        let c_name = name.replace('.', "_");
+        
         self.write(&ret);
         self.write(" ");
-        self.write(name);
+        self.write(&c_name);
         self.write("(");
         let mut first = true;
         for p in parameters {
@@ -1988,7 +1996,14 @@ impl CCodeGenerator {
                                 return Ok(name.clone());
                             }
                         }
-                        return Err(CCodeGenError::Unsupported("complex callee".into()));
+                        
+                        // Handle module.submodule.function pattern (e.g., game.character.create_character)
+                        // Try to extract the full qualified name recursively
+                        let full_name = self.extract_qualified_name(callee)?;
+                        
+                        // The full qualified name will be used as the function name
+                        // (e.g., "game.character.create_character" becomes function name)
+                        full_name
                     } else {
                         return Err(CCodeGenError::Unsupported("complex callee".into()));
                     }
@@ -2847,7 +2862,9 @@ impl CCodeGenerator {
                     .iter()
                     .map(|a| self.emit_expr(a))
                     .collect::<Result<_, _>>()?;
-                format!("{}({})", fname, args.join(", "))
+                // Convert qualified names (e.g., "game.character.create_character") to valid C identifiers
+                let c_fname = fname.replace('.', "_");
+                format!("{}({})", c_fname, args.join(", "))
             }
             Expr::Assign { name, value } => {
                 let v = self.emit_expr(value)?;
@@ -3440,5 +3457,18 @@ impl CCodeGenerator {
                 }
             }
         })
+    }
+    
+    /// Extract the fully qualified name from a nested Expr::Get chain
+    /// For example: game.character.create_character -> "game.character.create_character"
+    fn extract_qualified_name(&mut self, expr: &Expr) -> Result<String, CCodeGenError> {
+        match expr {
+            Expr::Variable(name) => Ok(name.clone()),
+            Expr::Get { object, name } => {
+                let object_name = self.extract_qualified_name(object)?;
+                Ok(format!("{}.{}", object_name, name))
+            }
+            _ => Err(CCodeGenError::Unsupported("Cannot extract qualified name from complex expression".into()))
+        }
     }
 }

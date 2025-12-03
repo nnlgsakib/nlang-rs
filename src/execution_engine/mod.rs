@@ -58,6 +58,11 @@ impl ExecutionEngine {
     
     /// Execute a nlang program from source code with file path for proper module resolution
     pub fn execute_source_with_file_path(&mut self, source: &str, _module_name: &str, file_path: Option<&std::path::Path>) -> Result<i32, ExecutionError> {
+        // Create interpreter with file path for module registry support
+        if file_path.is_some() {
+            self.interpreter = Interpreter::new_with_file_path(file_path);
+        }
+        
         // Tokenize
         let tokens = tokenize(source)?;
         

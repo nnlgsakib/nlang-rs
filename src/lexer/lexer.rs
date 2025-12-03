@@ -248,6 +248,9 @@ impl Lexer {
             "repeat" => TokenType::Repeat,
             "until" => TokenType::Until,
             "loop" => TokenType::Loop,
+            "mod" => TokenType::Mod,
+            "sub" => TokenType::Sub,
+            "entry" => TokenType::Entry,
             // 'vault', 'pool', 'tree' are treated as identifiers to allow brace literals
             _ => TokenType::Identifier(text.clone()),
         };

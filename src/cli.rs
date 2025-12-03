@@ -2,6 +2,7 @@ use crate::diagnostics;
 use crate::execution_engine::ExecutionEngine;
 use crate::lexer::tokenize;
 use crate::parser::parse;
+use crate::module_sys::{Project, ProjectConfig, ModuleRegistry};
 use anyhow::bail;
 use serde_json;
 use std::io::Write;
@@ -20,11 +21,21 @@ fn validate_nlang_file(input: &PathBuf) -> anyhow::Result<()> {
 }
 
 pub fn compile(
-    input: PathBuf,
+    input: Option<PathBuf>,
     output: Option<PathBuf>,
     generate_lex: bool,
     generate_ast: bool,
 ) -> anyhow::Result<()> {
+    // Determine input file
+    let input = if let Some(path) = input {
+        path
+    } else {
+        // Try to find project and use main.nlang
+        let project = Project::find(std::env::current_dir()?)
+            .map_err(|_| anyhow::anyhow!("No input file specified and not in a project directory"))?;
+        project.main_file()
+    };
+
     validate_nlang_file(&input)?;
     println!("Compiling {}...", input.display());
 
@@ -59,12 +70,24 @@ pub fn compile(
 
     let output_path = output.unwrap_or_else(|| {
         let mut path = input.clone();
-        if cfg!(windows) {
-            path.set_extension("exe");
+        // If in a project, output to bin/ directory
+        if let Ok(project) = Project::find(std::env::current_dir().unwrap_or_default()) {
+            let filename = input.file_stem()
+                .and_then(|s| s.to_str())
+                .unwrap_or("output");
+            if cfg!(windows) {
+                project.bin_path.join(format!("{}.exe", filename))
+            } else {
+                project.bin_path.join(filename)
+            }
         } else {
-            path.set_extension("");
+            if cfg!(windows) {
+                path.set_extension("exe");
+            } else {
+                path.set_extension("");
+            }
+            path
         }
-        path
     });
 
     // Compile to executable with file path for proper module resolution
@@ -211,7 +234,17 @@ pub fn gen_ast(input: PathBuf, output: Option<PathBuf>) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub fn run(input: PathBuf) -> anyhow::Result<()> {
+pub fn run(input: Option<PathBuf>) -> anyhow::Result<()> {
+    // Determine input file
+    let input = if let Some(path) = input {
+        path
+    } else {
+        // Try to find project and use main.nlang
+        let project = Project::find(std::env::current_dir()?)
+            .map_err(|_| anyhow::anyhow!("No input file specified and not in a project directory"))?;
+        project.main_file()
+    };
+
     validate_nlang_file(&input)?;
     println!("Running {}...", input.display());
 
@@ -343,5 +376,107 @@ pub fn create_{}_lib() -> LibraryDefinition {{
     std::fs::write(&registry_path, registry_content)?;
 
     println!("Library '{}' created successfully.", name);
+    Ok(())
+}
+
+/// Create a new NLang project
+pub fn create_project(name: String) -> anyhow::Result<()> {
+    let project_path = std::env::current_dir()?.join(&name);
+    
+    let config = ProjectConfig {
+        name: name.clone(),
+        create_git_ignore: true,
+    };
+    
+    Project::create(&project_path, config)
+        .map_err(|e| anyhow::anyhow!("Failed to create project: {}", e))?;
+    
+    println!("✅ Created new NLang project '{}' at {}", name, project_path.display());
+    println!("\nProject structure:");
+    println!("  {}/", name);
+    println!("    mod-rec.toml");
+    println!("    src/");
+    println!("      main.nlang");
+    println!("    bin/");
+    println!("    .gitignore");
+    println!("\nGet started:");
+    println!("  cd {}", name);
+    println!("  nlang run");
+    
+    Ok(())
+}
+
+/// Initialize current directory as an NLang project
+pub fn init_project(name: Option<String>) -> anyhow::Result<()> {
+    let current_dir = std::env::current_dir()?;
+    
+    let project_name = name.unwrap_or_else(|| {
+        current_dir
+            .file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or("nlang_project")
+            .to_string()
+    });
+    
+    let config = ProjectConfig {
+        name: project_name.clone(),
+        create_git_ignore: true,
+    };
+    
+    Project::init(&current_dir, config)
+        .map_err(|e| anyhow::anyhow!("Failed to initialize project: {}", e))?;
+    
+    println!("✅ Initialized NLang project '{}' in current directory", project_name);
+    println!("\nProject structure:");
+    println!("  mod-rec.toml");
+    println!("  src/");
+    println!("    main.nlang");
+    println!("  bin/");
+    println!("  .gitignore");
+    println!("\nGet started:");
+    println!("  nlang run");
+    
+    Ok(())
+}
+
+/// Update module registry (mod-rec.toml)
+pub fn update_mod_rec() -> anyhow::Result<()> {
+    // Find the project root
+    let project = Project::find(std::env::current_dir()?)
+        .map_err(|_| anyhow::anyhow!("Not in an NLang project directory. Run 'nlang init' or 'nlang create' first."))?;
+    
+    println!("Scanning project modules in {}...", project.src_path.display());
+    
+    // Scan and update the module registry
+    let registry = ModuleRegistry::scan_and_update(&project.src_path)
+        .map_err(|e| anyhow::anyhow!("Failed to scan modules: {}", e))?;
+    
+    // Save the updated registry
+    registry.save(&project.mod_rec_path)
+        .map_err(|e| anyhow::anyhow!("Failed to save mod-rec.toml: {}", e))?;
+    
+    // Display summary
+    let module_count = registry.modules.len();
+    let submodule_count: usize = registry.modules.values()
+        .map(|m| m.submodules.len())
+        .sum();
+    
+    println!("✅ Module registry updated successfully!");
+    println!("\nDiscovered:");
+    println!("  {} module(s)", module_count);
+    println!("  {} submodule(s)", submodule_count);
+    
+    if module_count > 0 {
+        println!("\nModules:");
+        for (module_name, record) in &registry.modules {
+            println!("  📦 {}", module_name);
+            for submodule_name in record.submodules.keys() {
+                println!("     └─ {}", submodule_name);
+            }
+        }
+    }
+    
+    println!("\nRegistry saved to: {}", project.mod_rec_path.display());
+    
     Ok(())
 }
