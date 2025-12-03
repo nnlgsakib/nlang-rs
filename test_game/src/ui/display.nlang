@@ -1,0 +1,41 @@
+sub mod display;
+
+// Display submodule - uses game.character (cross-module call)
+
+export def show_welcome() {
+    println("╔════════════════════════════════════╗");
+    println("║       Welcome to NLang Game!       ║");
+    println("╚════════════════════════════════════╝");
+}
+
+export def show_character_info(name: string, level: int, health: int) {
+    println("┌──────────────────────────────────┐");
+    print("│ Character: ");
+    println(name);
+    print("│ Level: ");
+    println(level);
+    print("│ Health: ");
+    println(health);
+    println("└──────────────────────────────────┘");
+}
+
+export def show_stats_panel(attack: int, defense: int, luck: int) {
+    println("╭─────── Stats Panel ───────╮");
+    print("│ Attack:  ");
+    println(attack);
+    print("│ Defense: ");
+    println(defense);
+    print("│ Luck:    ");
+    println(luck);
+    println("╰───────────────────────────╯");
+}
+
+export def show_separator() {
+    println("────────────────────────────────────");
+}
+
+export def show_section_header(title: string) {
+    print("══════ ");
+    print(title);
+    println(" ══════");
+}

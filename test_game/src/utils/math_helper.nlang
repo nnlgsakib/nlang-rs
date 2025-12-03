@@ -1,0 +1,51 @@
+sub mod math_helper;
+
+// Math helper submodule - uses std library functions
+
+export def clamp(value: int, min_val: int, max_val: int) -> int {
+    if (value < min_val) {
+        return min_val;
+    }
+    if (value > max_val) {
+        return max_val;
+    }
+    return value;
+}
+
+export def percentage(part: int, total: int) -> int {
+    if (total == 0) {
+        return 0;
+    }
+    return (part * 100) / total;
+}
+
+export def sum_array(arr: [int; 5]) -> int {
+    // Manual sum since we need specific array size
+    return arr[0] + arr[1] + arr[2] + arr[3] + arr[4];
+}
+
+export def average(a: int, b: int, c: int) -> int {
+    store total = a + b + c;
+    return total / 3;
+}
+
+export def scale_value(base: int, scale_percent: int) -> int {
+    return (base * scale_percent) / 100;
+}
+
+export def random_range_seed(seed: int, min_val: int, max_val: int) -> int {
+    // Simple pseudo-random based on seed
+    store range = max_val - min_val + 1;
+    @mut store pseudo = ((seed * 1103515245 + 12345) / 65536) % 32768;
+    if (pseudo < 0) {
+        pseudo = 0 - pseudo;
+    }
+    return min_val + (pseudo % range);
+}
+
+export def is_in_range(value: int, min_val: int, max_val: int) -> bool {
+    if (value >= min_val && value <= max_val) {
+        return true;
+    }
+    return false;
+}

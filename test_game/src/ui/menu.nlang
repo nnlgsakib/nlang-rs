@@ -1,0 +1,38 @@
+sub mod menu;
+
+// Menu submodule - standalone implementation
+
+export def show_main_menu() {
+    println("────────────────────────────────────");
+    println("       MAIN MENU");
+    println("────────────────────────────────────");
+    println("1. Start Game");
+    println("2. View Stats");
+    println("3. Emotes");
+    println("4. Exit");
+    println("────────────────────────────────────");
+}
+
+export def show_stats_menu() {
+    println("══════ STATS MENU ══════");
+    println("1. View Character");
+    println("2. View Equipment");
+    println("3. Back");
+    println("────────────────────────────────────");
+}
+
+export def show_emote_menu() {
+    println("══════ EMOTE MENU ══════");
+    println("1. Wave");
+    println("2. Dance");  
+    println("3. Cheer");
+    println("4. Back");
+    println("────────────────────────────────────");
+}
+
+export def show_game_over() {
+    println("────────────────────────────────────");
+    println("     GAME OVER");
+    println("  Thanks for playing!");
+    println("────────────────────────────────────");
+}

@@ -1,0 +1,70 @@
+sub mod formatter;
+
+// Formatter submodule - standalone implementation
+
+export def format_health_bar(current: int, maximum: int) {
+    @mut store percent = 0;
+    if (maximum != 0) {
+        percent = (current * 100) / maximum;
+    }
+    print("[");
+    @mut store i = 0;
+    while (i < 10) {
+        if (i * 10 < percent) {
+            print("█");
+        } else {
+            print("░");
+        }
+        i = i + 1;
+    }
+    print("] ");
+    print(current);
+    print("/");
+    println(maximum);
+}
+
+export def format_stat_line(label: string, value: int) {
+    print("  ");
+    print(label);
+    print(": ");
+    println(value);
+}
+
+export def format_percentage(value: int, total: int) {
+    @mut store pct = 0;
+    if (total != 0) {
+        pct = (value * 100) / total;
+    }
+    print(pct);
+    println("%");
+}
+
+export def format_level_progress(current_exp: int, needed_exp: int) {
+    print("EXP: ");
+    print(current_exp);
+    print("/");
+    print(needed_exp);
+    print(" (");
+    @mut store pct = 0;
+    if (needed_exp != 0) {
+        pct = (current_exp * 100) / needed_exp;
+    }
+    print(pct);
+    println("%)");
+}
+
+export def format_damage_text(damage: int, is_critical: bool) {
+    if (is_critical) {
+        print("💥 CRITICAL! ");
+    }
+    print("Damage: ");
+    println(damage);
+}
+
+export def format_header(text: string) {
+    println("╔════════════════════════════════════╗");
+    print("║ ");
+    print(text);
+    println("");
+    println("╚════════════════════════════════════╝");
+}

@@ -1,3 +1,12 @@
 [modules.game.submodules]
 emotes = '\\?\D:\projects\rust\nlang\test_game\src\game\emotes.nlang'
+stats = '\\?\D:\projects\rust\nlang\test_game\src\game\stats.nlang'
 character = '\\?\D:\projects\rust\nlang\test_game\src\game\character.nlang'
+
+[modules.ui.submodules]
+display = '\\?\D:\projects\rust\nlang\test_game\src\ui\display.nlang'
+menu = '\\?\D:\projects\rust\nlang\test_game\src\ui\menu.nlang'
+
+[modules.utils.submodules]
+formatter = '\\?\D:\projects\rust\nlang\test_game\src\utils\formatter.nlang'
+math_helper = '\\?\D:\projects\rust\nlang\test_game\src\utils\math_helper.nlang'

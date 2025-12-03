@@ -11,3 +11,11 @@ export def dance() {
 export def cheer() {
     println("🎉 *cheers excitedly*");
 }
+
+export def hype_character(name: string, items: [int; 5]) {
+    println("🔥 Hyping up character:", name);
+    store list_str = game.inventory.stringify_items(items);
+    println("Inventory item powers:", list_str);
+    store strongest = game.inventory.best_item_power(items);
+    println("Strongest item power:", strongest);
+}

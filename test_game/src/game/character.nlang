@@ -1,5 +1,7 @@
 sub mod character;
 
+// Character submodule - standalone implementation
+
 export def create_character(name: string) -> string {
     print("⚔️ Creating character: ");
     println(name);
@@ -7,5 +9,34 @@ export def create_character(name: string) -> string {
 }
 
 export def get_health() -> int {
-    return 100;
+    // Base health for level 1
+    return 110;
+}
+
+export def get_character_stats(level: int) -> int {
+    // Calculate all stats inline
+    store base_health = 100;
+    store level_bonus = level * 10;
+    store max_hp = base_health + level_bonus;
+    store base_attack = 15;
+    store armor = 10;
+    store base_def = armor / 2;
+    store def_bonus = level * 2;
+    store defense = base_def + def_bonus;
+    return max_hp + base_attack + defense;
+}
+
+export def get_damage(base_attack: int, level: int) -> int {
+    store level_bonus = level / 10;
+    store base_mult = 1;
+    store multiplier = base_mult + level_bonus;
+    return base_attack * multiplier;
+}
+
+export def level_up_info(current_level: int) -> int {
+    store one = 1;
+    store next_level = current_level + one;
+    store level_sq = next_level * next_level;
+    store hundred = 100;
+    return level_sq * hundred;
 }

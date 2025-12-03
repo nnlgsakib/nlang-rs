@@ -1,21 +1,92 @@
 import std;
 import game;
+import ui;
+import utils;
 
 def main() {
-    println("🎮 Welcome to NLang Game!");
+    // Welcome screen using UI module
+    ui.display.show_welcome();
     println("");
     
+    // Create character using game module
     store player_name = game.character.create_character("Hero");
-    store health = game.character.get_health();
+    store player_level = 5;
     
-    print("Player: ");
-    println(player_name);
-    print("Health: ");
-    println(health);
+    // Calculate health using game.stats (same-module call from character to stats)
+    store health = game.character.get_health();
+    store max_health = game.stats.calculate_max_health(player_level);
+    
+    // Show character info using UI module (cross-module: ui uses data from game)
+    ui.display.show_character_info(player_name, player_level, max_health);
     println("");
     
+    // Calculate stats using game.stats module
+    store total_stats = game.character.get_character_stats(player_level);
+    store attack = 15;
+    store defense = game.stats.calculate_defense(10, player_level);
+    store luck = 25;
+    
+    // Show stats panel
+    ui.display.show_stats_panel(attack, defense, luck);
+    println("");
+    
+    // Use utils module for calculations
+    store clamped_luck = utils.math_helper.clamp(luck, 0, 100);
+    store crit_chance = game.stats.calculate_critical_chance(clamped_luck);
+    
+    // Show formatted health bar using utils.formatter
+    println("Health Bar:");
+    utils.formatter.format_health_bar(health, max_health);
+    println("");
+    
+    // Show damage calculation
+    store base_damage = game.character.get_damage(attack, player_level);
+    store is_crit = crit_chance > 10;
+    utils.formatter.format_damage_text(base_damage, is_crit);
+    println("");
+    
+    // Show experience info
+    store current_exp = 350;
+    store needed_exp = game.character.level_up_info(player_level);
+    utils.formatter.format_level_progress(current_exp, needed_exp);
+    println("");
+    
+    // Test std library functions - sum, min, max, pow
+    println("=== Using std library ===");
+    store scores: [int; 5] = [85, 92, 78, 95, 88];
+    print("Scores sum: ");
+    println(sum(scores));
+    print("Min score: ");
+    println(min(scores));
+    print("Max score: ");
+    println(max(scores));
+    print("pow(2, 8): ");
+    println(pow(2, 8));
+    println("");
+    
+    // Test utils.math_helper functions
+    println("=== Using utils.math_helper ===");
+    store test_scores = utils.math_helper.sum_array(scores);
+    print("Manual sum: ");
+    println(test_scores);
+    store avg = utils.math_helper.average(85, 92, 78);
+    print("Average of 85, 92, 78: ");
+    println(avg);
+    store scaled = utils.math_helper.scale_value(100, 150);
+    print("100 scaled by 150%: ");
+    println(scaled);
+    println("");
+    
+    // Show main menu using ui.menu (same-module call: menu uses display)
+    ui.menu.show_main_menu();
+    
+    // Emote actions
     println("Emote Actions:");
     game.emotes.wave();
     game.emotes.dance();
     game.emotes.cheer();
+    println("");
+    
+    // Game over screen
+    ui.menu.show_game_over();
 }

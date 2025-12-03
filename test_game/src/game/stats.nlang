@@ -1,0 +1,39 @@
+sub mod stats;
+
+// Stats submodule - uses std library functions for calculations
+
+export def calculate_damage(base: int, multiplier: int) -> int {
+    store result = base * multiplier;
+    return result;
+}
+
+export def calculate_max_health(level: int) -> int {
+    // Base health + level bonus using power
+    store base_health = 100;
+    store level_bonus = level * 10;
+    return base_health + level_bonus;
+}
+
+export def calculate_defense(armor: int, level: int) -> int {
+    store base_def = armor / 2;
+    store level_bonus = level * 2;
+    return base_def + level_bonus;
+}
+
+export def get_stat_summary(health: int, attack: int, defense: int) -> int {
+    // Return total stat points
+    return health + attack + defense;
+}
+
+export def calculate_critical_chance(luck: int) -> int {
+    // Critical chance percentage based on luck
+    if (luck > 100) {
+        return 50;
+    }
+    return luck / 2;
+}
+
+export def calculate_experience_needed(level: int) -> int {
+    // Experience curve: level^2 * 100
+    return level * level * 100;
+}
