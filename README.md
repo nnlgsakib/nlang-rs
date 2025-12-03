@@ -29,9 +29,32 @@ cargo test
 
 ## Usage
 
+### Project Management
+
+Create a new project:
+```bash
+cargo run --bin nlang -- create my_project
+cd my_project
+```
+
+Or initialize in existing directory:
+```bash
+mkdir my_project && cd my_project
+cargo run --bin nlang -- init
+```
+
+Update module registry (after adding/removing files):
+```bash
+cargo run --bin nlang -- mod-rec
+```
+
+### Running and Compiling
+
 Direct execution (interpreter):
 ```bash
 cargo run --bin nlang -- run path/to/program.nlang
+# Or inside a project directory:
+cargo run --bin nlang -- run
 ```
 
 C code generation and compilation:
@@ -41,6 +64,8 @@ gcc program.c -o program.exe
 
 # Or compile directly via the CLI wrapper
 cargo run --bin nlang -- compile path/to/program.nlang
+# Inside a project, output goes to bin/ with project name:
+cargo run --bin nlang -- compile
 ```
 
 ### Compiler Selection (custom GCC/Clang path)
@@ -148,8 +173,10 @@ Location: `src/std_lib/`
 - I/O: `print`, `println`, `input`
 - Conversions: `str`, `int`, `float`
 - Strings: `upper`, `lower`, `trim`, `contains`, `split`, `replace`, `substring`, `regex`
-- Math: `pi`, `e`, `exp`, `ln`, `log10`, `log2`, `sqrt`, `pow_float`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, stats (`sum_float`, `mean_float`, `median_float`, `variance_float`, `stddev_float`)
+- Math: `pi`, `e`, `exp`, `ln`, `log10`, `log2`, `sqrt`, `pow_float`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `floor`, `ceil`, `round`, `fmod`, `gcd`, `lcm`, `factorial`, `nPr`, `nCr`, stats (`sum_float`, `mean_float`, `median_float`, `variance_float`, `stddev_float`)
 - Collections: `reverse`, `sort`
+- Time: `time_now`, `time_elapsed`, `sleep_ms`, `format_duration`
+- Environment: `env_get`, `env_set`, `env_remove`, `env_exists`
 - Crypto: `sha256`, `sha256_random`
 
 ## Compilation Pipeline
@@ -178,21 +205,37 @@ src/
 ├── interpreter/      # Execution engine
 ├── c_codegen/        # C transpiler (portable runtime helpers)
 ├── execution_engine/ # Unified orchestration for run/compile
-├── std_lib/          # Built-in functions and packaged nlang modules
+├── module_sys/       # Module resolution and registry (mod-rec.toml)
+├── nlang_libs/       # Built-in libraries (std_lib, env_man, etc.)
+├── diagnostics/      # Error reporting and formatting
 ├── nscan/            # LSP server and tooling
 ├── cli.rs            # CLI subcommands
 ├── lib.rs            # Public API exports
 └── main.rs           # Application entry point
 ```
 
+### Project Structure
+
+A typical NLang project:
+```
+my_project/
+├── mod-rec.toml      # Module registry (auto-generated)
+├── src/
+│   └── main.nlang    # Entry point
+└── bin/              # Compiled output
+```
+
 ## Examples
 
-See `nlang_test_writes/` for runnable samples:
+See `nlang_examples/` for runnable samples:
 - Hello world, loops, control flow, functions
 - Arrays and multi-dimensional arrays (`13_comprehensive_array_test.nlang`)
 - String library demos (`25_string_library_advanced.nlang`)
 - Math std lib demo (`26_math_std_lib_demo.nlang`)
+- Time library demo (`28_time_library_demo.nlang`)
+- Environment variables (`29_test_env_man.nlang`)
 - SHA-256 (pure nlang and built-in) (`21_sha256.nlang`)
+- Memory safety showcase (`27_memory_safety_showcase.nlang`)
 
 ## Testing
 
