@@ -70,15 +70,14 @@ pub fn compile(
 
     let output_path = output.unwrap_or_else(|| {
         let mut path = input.clone();
-        // If in a project, output to bin/ directory
+        // If in a project, output to bin/ directory with project name
         if let Ok(project) = Project::find(std::env::current_dir().unwrap_or_default()) {
-            let filename = input.file_stem()
-                .and_then(|s| s.to_str())
-                .unwrap_or("output");
+            // Use project name for the binary
+            let binary_name = &project.metadata.name;
             if cfg!(windows) {
-                project.bin_path.join(format!("{}.exe", filename))
+                project.bin_path.join(format!("{}.exe", binary_name))
             } else {
-                project.bin_path.join(filename)
+                project.bin_path.join(binary_name)
             }
         } else {
             if cfg!(windows) {
@@ -445,10 +444,10 @@ pub fn update_mod_rec() -> anyhow::Result<()> {
     let project = Project::find(std::env::current_dir()?)
         .map_err(|_| anyhow::anyhow!("Not in an NLang project directory. Run 'nlang init' or 'nlang create' first."))?;
     
-    println!("Scanning project modules in {}...", project.src_path.display());
+    println!("Scanning project '{}' modules in {}...", project.metadata.name, project.src_path.display());
     
-    // Scan and update the module registry
-    let registry = ModuleRegistry::scan_and_update(&project.src_path)
+    // Scan and update the module registry (preserves project name from existing config)
+    let registry = ModuleRegistry::scan_and_update(&project.root, Some(&project.metadata.name))
         .map_err(|e| anyhow::anyhow!("Failed to scan modules: {}", e))?;
     
     // Save the updated registry
@@ -462,6 +461,7 @@ pub fn update_mod_rec() -> anyhow::Result<()> {
         .sum();
     
     println!("✅ Module registry updated successfully!");
+    println!("\nProject: {} v{}", registry.project.name, registry.project.version);
     println!("\nDiscovered:");
     println!("  {} module(s)", module_count);
     println!("  {} submodule(s)", submodule_count);
@@ -470,8 +470,8 @@ pub fn update_mod_rec() -> anyhow::Result<()> {
         println!("\nModules:");
         for (module_name, record) in &registry.modules {
             println!("  📦 {}", module_name);
-            for submodule_name in record.submodules.keys() {
-                println!("     └─ {}", submodule_name);
+            for (submodule_name, path) in &record.submodules {
+                println!("     └─ {} ({})", submodule_name, path);
             }
         }
     }

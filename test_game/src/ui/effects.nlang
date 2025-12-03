@@ -1,0 +1,70 @@
+sub mod effects;
+
+// Effects submodule - uses game module for character data (cross-module calls)
+import game;
+import utils;
+
+export def show_damage_effect(damage: int, target_name: string) {
+    print("💥 ");
+    print(target_name);
+    print(" takes ");
+    print(damage);
+    println(" damage!");
+}
+
+export def show_heal_effect(amount: int, target_name: string) {
+    print("💚 ");
+    print(target_name);
+    print(" heals ");
+    print(amount);
+    println(" HP!");
+}
+
+export def show_level_up_effect(name: string, new_level: int) {
+    println("╔═══════════════════════════════╗");
+    print("║ 🎉 ");
+    print(name);
+    println(" LEVELED UP!");
+    print("║    New Level: ");
+    println(new_level);
+    store new_max_health = game.stats.calculate_max_health(new_level);
+    print("║    Max HP: ");
+    println(new_max_health);
+    store new_defense = game.stats.calculate_defense(15, new_level);
+    print("║    Defense: ");
+    println(new_defense);
+    println("╚═══════════════════════════════╝");
+}
+
+export def show_battle_result(player_name: string, enemy_name: string, player_hp: int, enemy_hp: int) {
+    println("------- Battle Status -------");
+    print("| ");
+    print(player_name);
+    print(": ");
+    print(player_hp);
+    println(" HP");
+    print("| ");
+    print(enemy_name);
+    print(": ");
+    print(enemy_hp);
+    println(" HP");
+    println("-----------------------------");
+}
+
+export def show_critical_hit() {
+    println("⚡⚡⚡ CRITICAL HIT! ⚡⚡⚡");
+}
+
+export def show_miss() {
+    println("💨 Attack missed!");
+}
+
+export def show_victory(winner_name: string, exp_gained: int) {
+    println("════════════════════════════════");
+    print("🏆 ");
+    print(winner_name);
+    println(" WINS!");
+    print("   EXP gained: +");
+    println(exp_gained);
+    println("════════════════════════════════");
+}

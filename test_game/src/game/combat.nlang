@@ -1,0 +1,62 @@
+sub mod combat;
+
+// Combat submodule - uses utils.math_helper (cross-module calls)
+import utils;
+
+export def calculate_hit_chance(attacker_luck: int, defender_agility: int) -> int {
+    store base_chance = 75;
+    store luck_bonus = attacker_luck / 5;
+    store agility_penalty = defender_agility / 10;
+    store raw_chance = base_chance + luck_bonus - agility_penalty;
+    return utils.math_helper.clamp(raw_chance, 5, 95);
+}
+
+export def calculate_damage_range(base_damage: int, variance_percent: int) -> int {
+    // Returns max possible damage with variance
+    store bonus = utils.math_helper.scale_value(base_damage, variance_percent);
+    return base_damage + bonus;
+}
+
+export def apply_critical_multiplier(damage: int, is_critical: bool) -> int {
+    if (is_critical) {
+        store two = 2;
+        return damage * two;
+    }
+    return damage;
+}
+
+export def calculate_final_damage(base_damage: int, defense: int, is_critical: bool) -> int {
+    @mut store reduced = base_damage - defense;
+    if (reduced < 1) {
+        reduced = 1;
+    }
+    // Inline critical multiplier logic
+    if (is_critical) {
+        store two = 2;
+        reduced = reduced * two;
+    }
+    return reduced;
+}
+
+export def simulate_battle_round(atk_power: int, def_power: int, luck: int) -> int {
+    // Simulate one round of combat, returns damage dealt
+    store base_chance = 75;
+    store luck_bonus = luck / 5;
+    store agility_penalty = def_power / 20;
+    store raw_chance = base_chance + luck_bonus - agility_penalty;
+    store hit_chance = utils.math_helper.clamp(raw_chance, 5, 95);
+    
+    if (hit_chance > 50) {
+        store is_crit = luck > 30;
+        @mut store damage = atk_power - def_power;
+        if (damage < 1) {
+            damage = 1;
+        }
+        if (is_crit) {
+            store two = 2;
+            damage = damage * two;
+        }
+        return damage;
+    }
+    return 0;
+}

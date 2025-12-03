@@ -67,6 +67,12 @@ pub struct ProjectMetadata {
     pub version: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub authors: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub license: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub repository: Option<String>,
 }
 
 impl Default for ProjectMetadata {
@@ -75,6 +81,9 @@ impl Default for ProjectMetadata {
             name: "untitled".to_string(),
             version: "0.1.0".to_string(),
             description: None,
+            authors: None,
+            license: None,
+            repository: None,
         }
     }
 }

@@ -1,13 +1,21 @@
-[modules.utils.submodules]
-math_helper = '\\?\D:\projects\rust\nlang\test_game\src\utils\math_helper.nlang'
-formatter = '\\?\D:\projects\rust\nlang\test_game\src\utils\formatter.nlang'
+[project]
+name = "test_game"
+version = "0.1.0"
+description = "A multi-module NLang test game"
 
 [modules.game.submodules]
-stats = '\\?\D:\projects\rust\nlang\test_game\src\game\stats.nlang'
-emotes = '\\?\D:\projects\rust\nlang\test_game\src\game\emotes.nlang'
-inventory = '\\?\D:\projects\rust\nlang\test_game\src\game\inventory.nlang'
-character = '\\?\D:\projects\rust\nlang\test_game\src\game\character.nlang'
+stats = "src/game/stats.nlang"
+combat = "src/game/combat.nlang"
+emotes = "src/game/emotes.nlang"
+character = "src/game/character.nlang"
+inventory = "src/game/inventory.nlang"
+
+[modules.utils.submodules]
+formatter = "src/utils/formatter.nlang"
+logger = "src/utils/logger.nlang"
+math_helper = "src/utils/math_helper.nlang"
 
 [modules.ui.submodules]
-display = '\\?\D:\projects\rust\nlang\test_game\src\ui\display.nlang'
-menu = '\\?\D:\projects\rust\nlang\test_game\src\ui\menu.nlang'
+menu = "src/ui/menu.nlang"
+effects = "src/ui/effects.nlang"
+display = "src/ui/display.nlang"

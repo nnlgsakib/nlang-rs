@@ -1,0 +1,43 @@
+sub mod logger;
+
+// Logger submodule - provides logging utilities
+
+export def log_info(message: string) {
+    print("[INFO] ");
+    println(message);
+}
+
+export def log_warning(message: string) {
+    print("[⚠ WARN] ");
+    println(message);
+}
+
+export def log_error(message: string) {
+    print("[❌ ERROR] ");
+    println(message);
+}
+
+export def log_debug(label: string, value: int) {
+    print("[DEBUG] ");
+    print(label);
+    print(": ");
+    println(value);
+}
+
+export def log_action(actor: string, action: string) {
+    print("[ACTION] ");
+    print(actor);
+    print(" -> ");
+    println(action);
+}
+
+export def log_separator() {
+    println("─────────────────────────────────────────");
+}
+
+export def log_section(title: string) {
+    println("");
+    print("═══════ ");
+    print(title);
+    println(" ═══════");
+}
