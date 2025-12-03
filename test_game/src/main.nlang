@@ -89,4 +89,36 @@ def main() {
     
     // Game over screen
     ui.menu.show_game_over();
+    
+    // === Cross-module complexity tests ===
+    println("");
+    println("=== Cross-Module Complexity Tests ===");
+    
+    // Test 1: ui.display calls utils.formatter (cross-module from submodule)
+    println("Test 1: ui.display -> utils.formatter:");
+    ui.display.show_health_display(75, 100);
+    println("");
+    
+    // Test 2: ui.display calls game.stats (cross-module from submodule)  
+    println("Test 2: ui.display -> game.stats:");
+    ui.display.show_computed_damage(20, 5);
+    println("");
+    
+    // Test 3: game.emotes calls game.inventory (sibling submodule call)
+    println("Test 3: game.emotes -> game.inventory (sibling):");
+    store item_powers: [int; 5] = [50, 35, 80, 25, 60];
+    game.emotes.hype_character(player_name, item_powers);
+    println("");
+    
+    // Test 4: Direct inventory access from main
+    println("Test 4: Direct inventory access:");
+    store total_pwr = game.inventory.total_power(item_powers);
+    print("Total inventory power: ");
+    println(total_pwr);
+    store has_legendary = game.inventory.has_legendary_item(item_powers);
+    print("Has legendary item: ");
+    println(has_legendary);
+    println("");
+    
+    println("=== All Cross-Module Tests Passed ===");
 }

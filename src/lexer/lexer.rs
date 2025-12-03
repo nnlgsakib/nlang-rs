@@ -169,16 +169,26 @@ impl Lexer {
                 // Check if this might be an identifier starting with a digit (for module names like 06_functions)
                 let mut temp_pos = self.current;
 
-                // Skip the initial digits
-                while temp_pos < self.source.len()
-                    && self.source.chars().nth(temp_pos).unwrap().is_ascii_digit()
-                {
-                    temp_pos += 1;
+                // Skip the initial digits - use byte-safe character access
+                while temp_pos < self.source.len() {
+                    if let Some(ch) = self.source[temp_pos..].chars().next() {
+                        if ch.is_ascii_digit() {
+                            temp_pos += ch.len_utf8();
+                        } else {
+                            break;
+                        }
+                    } else {
+                        break;
+                    }
                 }
 
                 // Check if the next character is alphabetic or underscore
                 if temp_pos < self.source.len() {
-                    let next_char = self.source.chars().nth(temp_pos).unwrap();
+                    let next_char = if let Some(ch) = self.source[temp_pos..].chars().next() {
+                        ch
+                    } else {
+                        '\0'
+                    };
 
                     // Check if this could be a type suffix
                     let remaining = &self.source[temp_pos..];

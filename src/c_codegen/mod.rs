@@ -2922,6 +2922,13 @@ impl CCodeGenerator {
                 format!("({seq_code}[{idx_code}])")
             }
             Expr::ArrayLiteral { elements } => self.emit_array_literal(elements)?,
+            // Handle module namespace access (e.g., game.inventory for nested module paths)
+            Expr::Get { object, name } => {
+                // This handles cases like game.inventory when used as an object
+                // Try to extract the full qualified name for module namespace access
+                let obj_name = self.extract_qualified_name(object)?;
+                format!("{}.{}", obj_name, name)
+            }
             _ => return Err(CCodeGenError::Unsupported(format!("expr {:?}", e))),
         })
     }
@@ -3279,6 +3286,15 @@ impl CCodeGenerator {
                         }
                     }
                     Expr::Get { object, name } => {
+                        // First check if this is a module function call (qualified name)
+                        // Try to extract qualified name and look up return type
+                        if let Ok(qualified_name) = self.extract_qualified_name_for_infer(callee) {
+                            if let Some(ret_type) = (*self.function_return_types).get(&qualified_name) {
+                                return ret_type.clone();
+                            }
+                        }
+                        
+                        // Fall back to method call handling (string methods, etc.)
                         let obj_ty = self.infer_type(object);
                         if obj_ty == "const char*" || obj_ty == "char*" {
                             match name.as_str() {
@@ -3466,6 +3482,18 @@ impl CCodeGenerator {
             Expr::Variable(name) => Ok(name.clone()),
             Expr::Get { object, name } => {
                 let object_name = self.extract_qualified_name(object)?;
+                Ok(format!("{}.{}", object_name, name))
+            }
+            _ => Err(CCodeGenError::Unsupported("Cannot extract qualified name from complex expression".into()))
+        }
+    }
+    
+    /// Non-mutable version for use in infer_type
+    fn extract_qualified_name_for_infer(&self, expr: &Expr) -> Result<String, CCodeGenError> {
+        match expr {
+            Expr::Variable(name) => Ok(name.clone()),
+            Expr::Get { object, name } => {
+                let object_name = self.extract_qualified_name_for_infer(object)?;
                 Ok(format!("{}.{}", object_name, name))
             }
             _ => Err(CCodeGenError::Unsupported("Cannot extract qualified name from complex expression".into()))

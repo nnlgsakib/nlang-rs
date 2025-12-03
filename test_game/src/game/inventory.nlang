@@ -1,0 +1,60 @@
+sub mod inventory;
+
+// Inventory submodule - provides item management
+// These functions are called from sibling submodules (game.emotes)
+
+export def get_item_count() -> int {
+    return 5;
+}
+
+export def get_item_power(slot: int) -> int {
+    // Return power based on slot (0-4)
+    if (slot == 0) {
+        return 50;
+    }
+    if (slot == 1) {
+        return 35;
+    }
+    if (slot == 2) {
+        return 80;
+    }
+    if (slot == 3) {
+        return 25;
+    }
+    return 60;
+}
+
+export def best_item_power(items: [int; 5]) -> int {
+    // Find the highest power in the inventory array
+    @mut store best = items[0];
+    @mut store i = 1;
+    while (i < 5) {
+        if (items[i] > best) {
+            best = items[i];
+        }
+        i = i + 1;
+    }
+    return best;
+}
+
+export def stringify_items(items: [int; 5]) -> string {
+    // Return a description of item powers
+    return "Item powers loaded";
+}
+
+export def total_power(items: [int; 5]) -> int {
+    // Sum all item powers
+    return items[0] + items[1] + items[2] + items[3] + items[4];
+}
+
+export def has_legendary_item(items: [int; 5]) -> bool {
+    // Check if any item has power >= 100
+    @mut store i = 0;
+    while (i < 5) {
+        if (items[i] >= 100) {
+            return true;
+        }
+        i = i + 1;
+    }
+    return false;
+}

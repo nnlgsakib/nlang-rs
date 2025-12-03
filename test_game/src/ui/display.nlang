@@ -39,3 +39,17 @@ export def show_section_header(title: string) {
     print(title);
     println(" ══════");
 }
+
+// Cross-module call: ui.display calls utils.formatter
+export def show_health_display(current: int, max_hp: int) {
+    println("Health Status:");
+    utils.formatter.format_health_bar(current, max_hp);
+    utils.formatter.format_percentage(current, max_hp);
+}
+
+// Cross-module call: ui.display calls game.stats
+export def show_computed_damage(base_atk: int, level: int) {
+    store damage = game.stats.calculate_damage(base_atk, 2);
+    print("Computed damage: ");
+    println(damage);
+}
