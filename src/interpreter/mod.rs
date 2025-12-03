@@ -538,16 +538,20 @@ impl Interpreter {
             // Call the native function
             match native_impl(&expr_args) {
                 Ok(result_expr) => {
-                    // Evaluate the result expression to get a Value
-                    // We need a temporary environment for this evaluation, although native functions usually return literals
-                    let mut temp_env = self.global_env.clone();
+                    // Native functions usually return literals, evaluate with minimal env
+                    let mut temp_env = Environment::new();
                     return self.evaluate_expression(&result_expr, &mut temp_env);
                 }
                 Err(msg) => return Err(InterpreterError::InvalidOperation { message: msg }),
             }
         }
 
-        let mut local_env = self.global_env.clone();
+        // Create a minimal local environment - only for local variables
+        // Global variables and functions are accessed via self.global_env
+        let mut local_env = Environment {
+            variables: HashMap::new(),  // Start empty - only parameters and local vars
+            functions: HashMap::new(),  // Functions looked up from global_env
+        };
 
         // Bind parameters
         for (param, arg) in func.parameters.iter().zip(args.iter()) {
@@ -791,7 +795,10 @@ impl Interpreter {
                     Literal::Null => Ok(Value::Integer(0)), // Default null to 0
                 }
             }
-            Expr::Variable(name) => env.get_variable(name),
+            Expr::Variable(name) => {
+                // Try local env first, then fall back to global env
+                env.get_variable(name).or_else(|_| self.global_env.get_variable(name))
+            }
             Expr::Binary {
                 left,
                 operator,
@@ -820,17 +827,31 @@ impl Interpreter {
                         _ => None,
                     }
                 }
+                
+                // Helper function to get the base variable name from a Get chain
+                // Also looks through Call and Index expressions for chained method calls
+                fn get_base_variable(expr: &Expr) -> Option<String> {
+                    match expr {
+                        Expr::Variable(name) => Some(name.clone()),
+                        Expr::Get { object, .. } => get_base_variable(object),
+                        Expr::Call { callee, .. } => get_base_variable(callee),
+                        Expr::Index { sequence, .. } => get_base_variable(sequence),
+                        _ => None,
+                    }
+                }
 
                 let func_name = match callee.as_ref() {
                     Expr::Variable(name) => name.clone(),
-                    Expr::Get { .. } => {
-                        // Try to build qualified name (e.g., "game.character.create_character")
-                        if let Some(qualified_name) = extract_qualified_name(callee.as_ref()) {
-                            qualified_name
-                        } else {
-                            // Fall back to evaluating as method call on object
-                            let Expr::Get { object, name } = callee.as_ref() else { unreachable!() };
-                            let obj_val = self.evaluate_expression(object, env)?;
+                    Expr::Get { object, name } => {
+                        // First, check if this is a method call on a local variable
+                        // (e.g., s.split(",") where s is a string variable)
+                        // We need to check if the base of the Get chain is a known variable
+                        // in the current environment (not a module/namespace)
+                        if let Some(base_var) = get_base_variable(callee) {
+                            // Check if base_var is a local variable or global variable (not a module)
+                            if env.variables.contains_key(&base_var) || self.global_env.variables.contains_key(&base_var) {
+                                // This is a method call on a variable - handle it directly
+                                let obj_val = self.evaluate_expression(object, env)?;
                             match obj_val {
                             Value::String(s) => match name.as_str() {
                                 "upper" => {
@@ -1062,16 +1083,24 @@ impl Interpreter {
                                 }
                             },
                             _ => {
-                                if let Expr::Variable(namespace_name) = object.as_ref() {
-                                    format!("{}.{}", namespace_name, name)
-                                } else {
+                                    // Not a type with methods - this shouldn't happen for local variables
                                     return Err(InterpreterError::InvalidOperation {
-                                        message: "Complex function calls not yet supported"
-                                            .to_string(),
+                                        message: format!("Cannot call method '{}' on this type", name),
                                     });
                                 }
                             }
+                            } else {
+                                // base_var is not in local variables - might be a module
+                                // Fall through to qualified name handling below
+                            }
                         }
+                        // Try to build qualified name (e.g., "game.character.create_character")
+                        if let Some(qualified_name) = extract_qualified_name(callee) {
+                            qualified_name
+                        } else {
+                            return Err(InterpreterError::InvalidOperation {
+                                message: "Complex function calls not yet supported".to_string(),
+                            });
                         }
                     }
                     _ => {

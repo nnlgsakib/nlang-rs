@@ -1,6 +1,10 @@
 use clap::Parser;
 use nlang::cli;
 use std::path::PathBuf;
+use std::thread;
+
+// Stack size for interpreter (8 MB to handle deep recursion in std lib functions)
+const STACK_SIZE: usize = 8 * 1024 * 1024;
 
 #[derive(Parser)]
 #[command(name = "nlang")]
@@ -118,6 +122,20 @@ enum LibCommands {
 }
 
 fn main() -> anyhow::Result<()> {
+    // Spawn a thread with larger stack to handle deep recursion in interpreter
+    let child = thread::Builder::new()
+        .stack_size(STACK_SIZE)
+        .spawn(run_cli)
+        .expect("Failed to spawn main thread");
+
+    // Wait for the child thread and propagate any errors
+    match child.join() {
+        Ok(result) => result,
+        Err(_) => Err(anyhow::anyhow!("Main thread panicked")),
+    }
+}
+
+fn run_cli() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     match cli.command {

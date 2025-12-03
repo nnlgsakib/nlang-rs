@@ -1,7 +1,10 @@
 // Static float tests: f32/f64 types and scientific notation
 import std;
-import 06_functions;
 
+// Helper function for demonstration
+def add_numbers(a: int, b: int) -> int {
+    return a + b;
+}
 
 def main() {
     store a: f32 = 3.14;
@@ -19,7 +22,7 @@ def main() {
     println(d);
     println(f);
     
-    // Using imported function
+    // Using local function
     store sum_result = add_numbers(10, 5);
     print("10 + 5 = ");
     println(sum_result);

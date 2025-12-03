@@ -28,8 +28,10 @@ pub struct SemanticAnalyzer {
     std_imported: bool,
     allow_builtin_override: bool,
     registry: LibraryRegistry,
-    // New module system fields
+    // New module system fields (prefixed with _ as they're stored for future use)
+    #[allow(dead_code)]
     project: Option<Project>,
+    #[allow(dead_code)]
     module_registry: Option<ModuleRegistry>,
     module_resolver: Option<ModuleResolver>,
     current_module_name: Option<String>,  // Track which module we're analyzing

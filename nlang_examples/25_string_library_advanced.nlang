@@ -15,8 +15,8 @@ def show_replace_substring() {
     store r = s.replace("string", "STR");
     println("replace:", r);
     // substring(start, end) by byte offsets
-    store sub = r.substring(6, 10);
-    println("substring(6,10):", sub);
+    store substr = r.substring(6, 10);
+    println("substring(6,10):", substr);
 }
 
 def show_regex() {

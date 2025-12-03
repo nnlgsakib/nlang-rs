@@ -1178,8 +1178,8 @@ impl CCodeGenerator {
                         })
                 };
                 
-                // Convert qualified names (e.g., "game.character.create_character") to valid C identifiers
-                let c_name = name.replace('.', "_");
+                // Convert to valid C identifier with prefix to avoid stdlib conflicts
+                let c_name = self.to_c_function_name(name);
                 
                 self.write(&ret);
                 self.write(" ");
@@ -1255,8 +1255,8 @@ impl CCodeGenerator {
                 .insert(param.name.clone(), param_type);
         }
         
-        // Convert qualified names (e.g., "game.character.create_character") to valid C identifiers
-        let c_name = name.replace('.', "_");
+        // Convert to valid C identifier with prefix to avoid stdlib conflicts
+        let c_name = self.to_c_function_name(name);
         
         self.write(&ret);
         self.write(" ");
@@ -2862,8 +2862,8 @@ impl CCodeGenerator {
                     .iter()
                     .map(|a| self.emit_expr(a))
                     .collect::<Result<_, _>>()?;
-                // Convert qualified names (e.g., "game.character.create_character") to valid C identifiers
-                let c_fname = fname.replace('.', "_");
+                // Convert to valid C identifier with prefix to avoid stdlib conflicts
+                let c_fname = self.to_c_function_name(&fname);
                 format!("{}({})", c_fname, args.join(", "))
             }
             Expr::Assign { name, value } => {
@@ -3497,6 +3497,45 @@ impl CCodeGenerator {
                 Ok(format!("{}.{}", object_name, name))
             }
             _ => Err(CCodeGenError::Unsupported("Cannot extract qualified name from complex expression".into()))
+        }
+    }
+    
+    /// C standard library function names that would conflict with user-defined functions
+    const C_STDLIB_NAMES: &'static [&'static str] = &[
+        "abs", "fabs", "exit", "abort", "malloc", "calloc", "realloc", "free",
+        "printf", "fprintf", "sprintf", "snprintf", "scanf", "fscanf", "sscanf",
+        "strlen", "strcpy", "strncpy", "strcat", "strncat", "strcmp", "strncmp",
+        "memcpy", "memmove", "memset", "memcmp",
+        "sin", "cos", "tan", "asin", "acos", "atan", "atan2",
+        "sinh", "cosh", "tanh", "exp", "log", "log10", "log2",
+        "pow", "sqrt", "ceil", "floor", "round", "fmod",
+        "rand", "srand", "time", "clock", "difftime",
+        "isalpha", "isdigit", "isalnum", "isspace", "isupper", "islower",
+        "toupper", "tolower", "getchar", "putchar", "puts", "gets",
+        "fopen", "fclose", "fread", "fwrite", "fgets", "fputs",
+        "getenv", "system", "qsort", "bsearch", "atoi", "atof", "atol",
+        "div", "ldiv", "labs", "llabs",
+    ];
+    
+    /// Convert an nlang function name to a valid C function name
+    /// Prefixes user-defined functions to avoid conflicts with C stdlib
+    fn to_c_function_name(&self, name: &str) -> String {
+        // main is special - never prefix
+        if name == "main" {
+            return name.to_string();
+        }
+        
+        // Replace dots with underscores for qualified names
+        let base_name = name.replace('.', "_");
+        
+        // Check if the base function name (without module prefix) conflicts with C stdlib
+        // Get the last part of the name (after all dots)
+        let func_part = name.rsplit('.').next().unwrap_or(name);
+        
+        if Self::C_STDLIB_NAMES.contains(&func_part) {
+            format!("nlang_{}", base_name)
+        } else {
+            base_name
         }
     }
 }

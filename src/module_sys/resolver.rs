@@ -94,7 +94,7 @@ impl ModuleResolver {
     /// Load a single submodule file
     fn load_submodule(
         &self,
-        module_name: &str,
+        _module_name: &str,
         submodule_name: &str,
         path: &Path
     ) -> ModuleResult<SubModuleInfo> {
