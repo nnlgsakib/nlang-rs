@@ -1,0 +1,137 @@
+sub mod save_manager;
+
+import fs_man;
+import std;
+
+export def create_save_directory() {
+    store save_dir = fs_man.path_join("game_saves", "");
+    
+    if (!fs_man.exists(save_dir)) {
+        fs_man.create_dir_all(save_dir);
+        print("[SAVE] Created save directory: ");
+        println(save_dir);
+    } else {
+        println("[SAVE] Save directory already exists");
+    }
+}
+
+export def save_player_data(player_name: string, level: int, health: int) {
+    store save_dir = "game_saves";
+    store filename = fs_man.path_join(save_dir, player_name + ".sav");
+    
+    @mut store content = "PLAYER_SAVE_V1\n";
+    content = content + "name=" + player_name + "\n";
+    content = content + "level=" + str(level) + "\n";
+    content = content + "health=" + str(health) + "\n";
+    
+    fs_man.write_file(filename, content);
+    
+    print("[SAVE] Saved player data to: ");
+    println(filename);
+}
+
+export def load_player_data(player_name: string) -> string {
+    store save_dir = "game_saves";
+    store filename = fs_man.path_join(save_dir, player_name + ".sav");
+    
+    if (fs_man.exists(filename)) {
+        store content = fs_man.read_file(filename);
+        print("[SAVE] Loaded player data from: ");
+        println(filename);
+        return content;
+    } else {
+        println("[SAVE] No save file found");
+        return "";
+    }
+}
+
+export def list_save_files() -> int {
+    store save_dir = "game_saves";
+    
+    if (!fs_man.exists(save_dir)) {
+        println("[SAVE] No save directory found");
+        return 0;
+    }
+    
+    if (!fs_man.is_dir(save_dir)) {
+        println("[SAVE] Save path is not a directory");
+        return 0;
+    }
+    
+    println("[SAVE] Available save files:");
+    store saves = fs_man.read_dir(save_dir);
+    @mut store count = 0;
+    
+    @mut store i = 0;
+    while (i < len(saves)) {
+        store file = saves[i];
+        if (fs_man.extname(file) == ".sav") {
+            store basename = fs_man.basename(file);
+            print("  - ");
+            println(basename);
+            count = count + 1;
+        }
+        i = i + 1;
+    }
+    
+    return count;
+}
+
+export def backup_save_file(player_name: string) {
+    store save_dir = "game_saves";
+    store filename = fs_man.path_join(save_dir, player_name + ".sav");
+    
+    if (fs_man.exists(filename)) {
+        store backup_name = player_name + ".bak";
+        store backup_path = fs_man.path_join(save_dir, backup_name);
+        
+        fs_man.copy_file(filename, backup_path);
+        print("[SAVE] Created backup: ");
+        println(backup_name);
+    } else {
+        println("[SAVE] No save file to backup");
+    }
+}
+
+export def delete_save_file(player_name: string) {
+    store save_dir = "game_saves";
+    store filename = fs_man.path_join(save_dir, player_name + ".sav");
+    
+    if (fs_man.exists(filename)) {
+        fs_man.remove_file(filename);
+        print("[SAVE] Deleted save file: ");
+        println(filename);
+    } else {
+        println("[SAVE] Save file not found");
+    }
+}
+
+export def get_save_file_size(player_name: string) -> int {
+    store save_dir = "game_saves";
+    store filename = fs_man.path_join(save_dir, player_name + ".sav");
+    
+    if (fs_man.exists(filename)) {
+        store size = fs_man.file_size(filename);
+        print("[SAVE] Save file size: ");
+        print(size);
+        println(" bytes");
+        return size;
+    } else {
+        println("[SAVE] Save file not found");
+        return 0;
+    }
+}
+
+export def create_temp_save(player_name: string) -> string {
+    store temp_file = fs_man.create_temp_file("game_autosave");
+    
+    @mut store content = "AUTOSAVE\n";
+    content = content + "player=" + player_name + "\n";
+    
+    fs_man.write_file(temp_file, content);
+    
+    print("[SAVE] Created autosave: ");
+    println(temp_file);
+    
+    return temp_file;
+}

@@ -154,6 +154,31 @@ impl Backend {
             .map(|f| f.name.clone())
             .collect();
         
+        // Load additional libraries (env_man, fs_man)
+        use nlang::nlang_libs::registry::get_default_registry;
+        let registry = get_default_registry();
+        
+        // Index env_man functions
+        if let Some(env_lib) = registry.get_library("env_man") {
+            for func in &env_lib.functions {
+                s.std_functions.push(format!("env_man.{}", func.name));
+            }
+        }
+        
+        // Index fs_man functions
+        if let Some(fs_lib) = registry.get_library("fs_man") {
+            for func in &fs_lib.functions {
+                s.std_functions.push(format!("fs_man.{}", func.name));
+            }
+        }
+        
+        // Index test_lib functions
+        if let Some(test_lib) = registry.get_library("test_lib") {
+            for func in &test_lib.functions {
+                s.std_functions.push(format!("test_lib.{}", func.name));
+            }
+        }
+        
         // Index string and array methods
         if s.string_methods.is_empty() {
             for t in stdlib.types.iter() {

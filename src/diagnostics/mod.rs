@@ -320,6 +320,30 @@ fn suggest(message: &str) -> Vec<String> {
     if m.contains("expects") && m.contains("argument") {
         suggestions.push("check function signature and argument count".to_string());
         suggestions.push("verify argument types match function parameters".to_string());
+        suggestions.push("ensure library is imported (std, fs_man, env_man, etc.)".to_string());
+    }
+    
+    // fs_man library suggestions
+    if m.contains("fs_man") || m.contains("file system") || m.contains("file not found") {
+        suggestions.push("fs_man functions: read_file, write_file, copy_file, move_file, exists, is_file, is_dir".to_string());
+        suggestions.push("directory ops: read_dir, list_files, list_dirs, walk_dir, create_dir, remove_dir".to_string());
+        suggestions.push("path utilities: basename, dirname, extname, join, canonicalize, absolute_path".to_string());
+        suggestions.push("import fs_man: 'import fs_man;' then use fs_man.function_name()".to_string());
+    }
+    if m.contains("permission") {
+        suggestions.push("use fs_man.set_permissions(path, mode) with octal mode like 0o644".to_string());
+    }
+    if m.contains("symlink") || m.contains("hard link") {
+        suggestions.push("fs_man.create_symlink(target, link) or fs_man.create_hard_link(target, link)".to_string());
+    }
+    if m.contains("temp") && (m.contains("file") || m.contains("directory")) {
+        suggestions.push("fs_man.create_temp_file(prefix) or fs_man.create_temp_dir(prefix)".to_string());
+    }
+    
+    // env_man library suggestions
+    if m.contains("env_man") || m.contains("environment variable") {
+        suggestions.push("env_man functions: get(key), set(key, value), unset(key), list(), os()".to_string());
+        suggestions.push("import env_man: 'import env_man;' then use env_man.function_name()".to_string());
     }
     
     // Comma errors

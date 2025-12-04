@@ -4,18 +4,20 @@ version = "0.1.0"
 description = "A multi-module NLang test game"
 
 [modules.game.submodules]
-stats = "src/game/stats.nlang"
-combat = "src/game/combat.nlang"
-emotes = "src/game/emotes.nlang"
 character = "src/game/character.nlang"
+combat = "src/game/combat.nlang"
 inventory = "src/game/inventory.nlang"
-
-[modules.utils.submodules]
-formatter = "src/utils/formatter.nlang"
-logger = "src/utils/logger.nlang"
-math_helper = "src/utils/math_helper.nlang"
+stats = "src/game/stats.nlang"
+emotes = "src/game/emotes.nlang"
 
 [modules.ui.submodules]
-menu = "src/ui/menu.nlang"
 effects = "src/ui/effects.nlang"
 display = "src/ui/display.nlang"
+menu = "src/ui/menu.nlang"
+
+[modules.utils.submodules]
+logger = "src/utils/logger.nlang"
+config_manager = "src/utils/config_manager.nlang"
+math_helper = "src/utils/math_helper.nlang"
+save_manager = "src/utils/save_manager.nlang"
+formatter = "src/utils/formatter.nlang"

@@ -1152,6 +1152,17 @@ impl CCodeGenerator {
                 new_function_return_types.insert(name.clone(), c_return_type);
             }
         }
+        
+        for lib_name in self.registry.get_registered_libs() {
+            if let Some(lib) = self.registry.get_library(&lib_name) {
+                for func in &lib.functions {
+                    let qualified_name = format!("{}.{}", lib_name, func.name);
+                    let c_return_type = self.type_to_c(&func.return_type);
+                    new_function_return_types.insert(qualified_name, c_return_type);
+                }
+            }
+        }
+        
         self.function_return_types = Rc::new(new_function_return_types);
     }
     // --------------------------------------------------------------------- //
@@ -1463,7 +1474,58 @@ impl CCodeGenerator {
                                 op= if fname=="sort" {"sort"} else {"reverse"}, arg_code=arg_code, len_code=len_code, name=name));
                                 return Ok(());
                             }
+                            
+                            // Check for fs_man.read_dir() call
+                            let parts: Vec<&str> = fname.split('.').collect();
+                            if parts.len() == 2 && parts[0] == "fs_man" && parts[1] == "read_dir" {
+                                if arguments.len() != 1 {
+                                    return Err(CCodeGenError::Unsupported(
+                                        "read_dir expects 1 argument".into(),
+                                    ));
+                                }
+                                let path_code = self.emit_expr(&arguments[0])?;
+                                let len_var = format!("{var}_len", var = name);
+                                self.arr_len_vars.insert(name.clone(), len_var.clone());
+                                self.vars.insert(name.clone(), "char**".to_string());
+                                
+                                // Generate C code: StringArray* arr = fs_man_read_dir(path); char** name = arr->items; size_t name_len = arr->count;
+                                let temp_var = format!("{}_array", name);
+                                self.line(&format!("StringArray* {temp} = fs_man_read_dir({path});", temp=temp_var, path=path_code));
+                                self.line(&format!("char** {var} = {temp} ? {temp}->items : NULL;", var=name, temp=temp_var));
+                                self.line(&format!("size_t {len} = {temp} ? {temp}->count : 0;", len=len_var, temp=temp_var));
+                                self.line(&format!("if ({temp}) free({temp});", temp=temp_var));
+                                
+                                self.mark_var_decl(name);
+                                self.set_drop_kind(name, 5); // Free string array
+                                return Ok(());
+                            }
                         } else if let Expr::Get { object, name: meth } = callee.as_ref() {
+                            // Check for fs_man.read_dir() using Get expression
+                            if let Expr::Variable(lib_name) = object.as_ref() {
+                                if lib_name == "fs_man" && meth == "read_dir" {
+                                    if arguments.len() != 1 {
+                                        return Err(CCodeGenError::Unsupported(
+                                            "read_dir expects 1 argument".into(),
+                                        ));
+                                    }
+                                    let path_code = self.emit_expr(&arguments[0])?;
+                                    let len_var = format!("{var}_len", var = name);
+                                    self.arr_len_vars.insert(name.clone(), len_var.clone());
+                                    self.vars.insert(name.clone(), "char**".to_string());
+                                    
+                                    // Generate C code: StringArray* arr = fs_man_read_dir(path); char** name = arr->items; size_t name_len = arr->count;
+                                    let temp_var = format!("{}_array", name);
+                                    self.line(&format!("StringArray* {temp} = fs_man_read_dir({path});", temp=temp_var, path=path_code));
+                                    self.line(&format!("char** {var} = {temp} ? {temp}->items : NULL;", var=name, temp=temp_var));
+                                    self.line(&format!("size_t {len} = {temp} ? {temp}->count : 0;", len=len_var, temp=temp_var));
+                                    self.line(&format!("if ({temp}) free({temp});", temp=temp_var));
+                                    
+                                    self.mark_var_decl(name);
+                                    self.set_drop_kind(name, 5); // Free string array
+                                    return Ok(());
+                                }
+                            }
+                            
                             if meth == "split" {
                                 let obj_code = self.emit_expr(object)?;
                                 if arguments.len() != 1 {
@@ -1842,7 +1904,7 @@ impl CCodeGenerator {
             Expr::Call {
                 callee, arguments, ..
             } => {
-                // Check registry for library functions
+                // Check registry for library functions FIRST
                 if let Expr::Variable(fname) = callee.as_ref() {
                     let parts: Vec<&str> = fname.split('.').collect();
                     if parts.len() == 2 {
@@ -1876,6 +1938,24 @@ impl CCodeGenerator {
                                         }
                                         return Ok(code);
                                     }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Also check Expr::Get for library functions (e.g., module.function pattern)
+                if let Expr::Get { object, name } = callee.as_ref() {
+                    if let Expr::Variable(lib_name) = object.as_ref() {
+                        if let Some(lib) = self.registry.get_library(lib_name) {
+                            if let Some(func) = lib.functions.iter().find(|f| f.name == *name) {
+                                if let Some(c_impl) = &func.c_implementation {
+                                    let mut code = c_impl.clone();
+                                    for (i, arg) in arguments.iter().enumerate() {
+                                        let arg_code = self.emit_expr(arg)?;
+                                        code = code.replace(&format!("{{{}}}", i), &arg_code);
+                                    }
+                                    return Ok(code);
                                 }
                             }
                         }

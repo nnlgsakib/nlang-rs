@@ -6,3 +6,4 @@ pub mod registry;
 pub mod std_lib;
 pub mod test_lib;
 pub mod env_man;
+pub mod fs_man;

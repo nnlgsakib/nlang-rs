@@ -121,4 +121,39 @@ def main() {
     println("");
     
     println("=== All Cross-Module Tests Passed ===");
+    
+    println("");
+    println("=== File System Integration Tests (fs_man) ===");
+    
+    println("Test 5: Save/Load System:");
+    utils.save_manager.create_save_directory();
+    utils.save_manager.save_player_data(player_name, player_level, health);
+    utils.save_manager.backup_save_file(player_name);
+    store loaded_data = utils.save_manager.load_player_data(player_name);
+    print("Loaded data preview: ");
+    println(loaded_data);
+    store save_size = utils.save_manager.get_save_file_size(player_name);
+    store save_count = utils.save_manager.list_save_files();
+    print("Total save files: ");
+    println(save_count);
+    println("");
+    
+    println("Test 6: Configuration System:");
+    utils.config_manager.create_config_directory();
+    utils.config_manager.save_settings(1920, 1080, 75);
+    store settings = utils.config_manager.load_settings();
+    utils.config_manager.get_config_info();
+    println("");
+    
+    println("Test 7: Game Paths & Temp Files:");
+    utils.config_manager.get_game_paths();
+    store autosave = utils.save_manager.create_temp_save(player_name);
+    utils.config_manager.clean_temp_files();
+    println("");
+    
+    println("Test 8: Log Export:");
+    utils.config_manager.export_game_logs();
+    println("");
+    
+    println("=== File System Tests Complete ===");
 }

@@ -1,0 +1,100 @@
+sub mod config_manager;
+
+import fs_man;
+import std;
+
+export def create_config_directory() {
+    store config_dir = "game_config";
+    
+    if (!fs_man.exists(config_dir)) {
+        fs_man.create_dir(config_dir);
+        println("[CONFIG] Created config directory");
+    }
+}
+
+export def save_settings(resolution_width: int, resolution_height: int, volume: int) {
+    store config_file = fs_man.path_join("game_config", "settings.cfg");
+    
+    @mut store content = "# Game Settings\n";
+    content = content + "resolution_width=" + str(resolution_width) + "\n";
+    content = content + "resolution_height=" + str(resolution_height) + "\n";
+    content = content + "volume=" + str(volume) + "\n";
+    
+    fs_man.write_file(config_file, content);
+    println("[CONFIG] Settings saved");
+}
+
+export def load_settings() -> string {
+    store config_file = fs_man.path_join("game_config", "settings.cfg");
+    
+    if (fs_man.exists(config_file)) {
+        store content = fs_man.read_file(config_file);
+        println("[CONFIG] Settings loaded");
+        return content;
+    } else {
+        println("[CONFIG] No settings file found, using defaults");
+        return "DEFAULT_SETTINGS";
+    }
+}
+
+export def export_game_logs() {
+    store log_dir = "game_logs";
+    fs_man.create_dir_all(log_dir);
+    
+    store timestamp = "20241204_183045";
+    store log_file = fs_man.path_join(log_dir, "game_" + timestamp + ".log");
+    
+    @mut store log_content = "=== Game Session Log ===\n";
+    log_content = log_content + "Started: " + timestamp + "\n";
+    log_content = log_content + "Player actions logged...\n";
+    
+    fs_man.write_file(log_file, log_content);
+    print("[CONFIG] Exported log to: ");
+    println(log_file);
+}
+
+export def get_config_info() {
+    println("[CONFIG] Configuration Information:");
+    
+    store config_dir = "game_config";
+    print("  Config directory: ");
+    println(config_dir);
+    print("  Exists: ");
+    println(fs_man.exists(config_dir));
+    
+    store config_file = fs_man.path_join(config_dir, "settings.cfg");
+    print("  Settings file: ");
+    println(config_file);
+    print("  Exists: ");
+    println(fs_man.exists(config_file));
+    
+    if (fs_man.exists(config_file)) {
+        store size = fs_man.file_size(config_file);
+        print("  File size: ");
+        print(size);
+        println(" bytes");
+    }
+}
+
+export def clean_temp_files() {
+    store temp_dir = fs_man.temp_dir();
+    print("[CONFIG] System temp directory: ");
+    println(temp_dir);
+    println("[CONFIG] Cleaned temp files (simulation)");
+}
+
+export def get_game_paths() {
+    println("[CONFIG] Game Path Information:");
+    
+    store current = fs_man.current_dir();
+    print("  Current directory: ");
+    println(current);
+    
+    store home = fs_man.home_dir();
+    print("  Home directory: ");
+    println(home);
+    
+    store sep = fs_man.get_path_separator();
+    print("  Path separator: ");
+    println(sep);
+}

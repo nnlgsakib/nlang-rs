@@ -1,0 +1,170 @@
+import std;
+import fs_man;
+
+def main() {
+    println("╔════════════════════════════════════════════╗");
+    println("║   File System Management Demo (fs_man)    ║");
+    println("╚════════════════════════════════════════════╝");
+    println("");
+    
+    println("=== 1. Path Utilities ===");
+    
+    store path1 = "documents";
+    store path2 = "report.pdf";
+    store full_path = fs_man.path_join(path1, path2);
+    print("Joined path: ");
+    println(full_path);
+    
+    store sample_path = "folder/subfolder/document.txt";
+    print("Basename: ");
+    println(fs_man.basename(sample_path));
+    print("Dirname: ");
+    println(fs_man.dirname(sample_path));
+    print("Extension: ");
+    println(fs_man.extname(sample_path));
+    println("");
+    
+    println("=== 2. Directory Operations ===");
+    
+    store demo_dir = "fs_demo_files";
+    
+    if (fs_man.exists(demo_dir)) {
+        println("Cleaning up old demo directory...");
+        fs_man.remove_dir_all(demo_dir);
+    }
+    
+    fs_man.create_dir_all(demo_dir);
+    print("Created directory: ");
+    println(demo_dir);
+    print("Is directory? ");
+    println(fs_man.is_dir(demo_dir));
+    println("");
+    
+    println("=== 3. File Creation and Writing ===");
+    
+    store file1 = fs_man.path_join(demo_dir, "greeting.txt");
+    store file2 = fs_man.path_join(demo_dir, "data.txt");
+    store file3 = fs_man.path_join(demo_dir, "notes.md");
+    
+    fs_man.write_file(file1, "Hello from Nlang!");
+    fs_man.write_file(file2, "Line 1\n");
+    fs_man.append_file(file2, "Line 2\n");
+    fs_man.append_file(file2, "Line 3\n");
+    fs_man.write_file(file3, "# Notes\n\nThis is a markdown file.");
+    
+    println("Created 3 files:");
+    print("  - ");
+    println(fs_man.basename(file1));
+    print("  - ");
+    println(fs_man.basename(file2));
+    print("  - ");
+    println(fs_man.basename(file3));
+    println("");
+    
+    println("=== 4. File Reading ===");
+    
+    store content1 = fs_man.read_file(file1);
+    print("Content of greeting.txt: ");
+    println(content1);
+    
+    store content2 = fs_man.read_file(file2);
+    print("Content of data.txt:\n");
+    println(content2);
+    println("");
+    
+    println("=== 5. File Metadata ===");
+    
+    store size = fs_man.file_size(file2);
+    print("Size of data.txt: ");
+    print(size);
+    println(" bytes");
+    
+    store perms = fs_man.permissions(file1);
+    print("Permissions: ");
+    println(perms);
+    println("");
+    
+    println("=== 6. File Operations ===");
+    
+    store backup_file = fs_man.path_join(demo_dir, "greeting_backup.txt");
+    fs_man.copy_file(file1, backup_file);
+    print("Copied ");
+    print(fs_man.basename(file1));
+    print(" to ");
+    println(fs_man.basename(backup_file));
+    
+    store renamed_file = fs_man.path_join(demo_dir, "important_notes.md");
+    fs_man.rename_file(file3, renamed_file);
+    print("Renamed notes.md to ");
+    println(fs_man.basename(renamed_file));
+    println("");
+    
+    println("=== 7. Directory Listing ===");
+    
+    println("Files in demo directory:");
+    store files = fs_man.read_dir(demo_dir);
+    @mut store i = 0;
+    while (i < len(files)) {
+        print("  ");
+        print(i + 1);
+        print(". ");
+        println(files[i]);
+        i = i + 1;
+    }
+    println("");
+    
+    println("=== 8. Environment Paths ===");
+    
+    print("Current directory: ");
+    println(fs_man.current_dir());
+    print("Home directory: ");
+    println(fs_man.home_dir());
+    print("Temp directory: ");
+    println(fs_man.temp_dir());
+    print("Path separator: ");
+    println(fs_man.get_path_separator());
+    println("");
+    
+    println("=== 9. Temporary Files ===");
+    
+    store temp_file = fs_man.create_temp_file("nlang_demo");
+    fs_man.write_file(temp_file, "Temporary data for processing");
+    print("Created temp file: ");
+    println(temp_file);
+    
+    store temp_content = fs_man.read_file(temp_file);
+    print("Temp file content: ");
+    println(temp_content);
+    
+    fs_man.remove_file(temp_file);
+    println("Temp file cleaned up");
+    println("");
+    
+    println("=== 10. Path Resolution ===");
+    
+    store abs_path = fs_man.absolute_path(".");
+    print("Absolute path of '.': ");
+    println(abs_path);
+    
+    store canonical = fs_man.canonicalize(".");
+    print("Canonical path: ");
+    println(canonical);
+    
+    print("Is '/absolute/path' absolute? ");
+    println(fs_man.is_absolute("/absolute/path"));
+    print("Is 'relative/path' relative? ");
+    println(fs_man.is_relative("relative/path"));
+    println("");
+    
+    println("=== 11. Cleanup ===");
+    
+    println("Removing demo directory and all files...");
+    fs_man.remove_dir_all(demo_dir);
+    print("Exists after removal? ");
+    println(fs_man.exists(demo_dir));
+    println("");
+    
+    println("╔════════════════════════════════════════════╗");
+    println("║        Demo Completed Successfully!        ║");
+    println("╚════════════════════════════════════════════╝");
+}
