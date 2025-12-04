@@ -2,9 +2,90 @@ use std::collections::HashSet;
 use std::path::Path;
 pub mod color;
 
+/// Represents a source code location with precise positioning
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Span {
     pub line: usize,
     pub column: usize,
+}
+
+impl Span {
+    pub fn new(line: usize, column: usize) -> Self {
+        Self { line, column }
+    }
+    
+    pub fn unknown() -> Self {
+        Self { line: 1, column: 1 }
+    }
+}
+
+/// Severity level for diagnostic messages
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DiagnosticSeverity {
+    Error,
+    Warning,
+    Info,
+    Hint,
+}
+
+/// Represents a complete diagnostic message with context
+#[derive(Debug, Clone)]
+pub struct Diagnostic {
+    pub severity: DiagnosticSeverity,
+    pub title: String,
+    pub message: String,
+    pub span: Option<Span>,
+    pub suggestions: Vec<String>,
+    pub related_info: Vec<RelatedInformation>,
+}
+
+/// Additional contextual information for a diagnostic
+#[derive(Debug, Clone)]
+pub struct RelatedInformation {
+    pub span: Span,
+    pub message: String,
+}
+
+impl Diagnostic {
+    pub fn error(title: impl Into<String>, message: impl Into<String>) -> Self {
+        Self {
+            severity: DiagnosticSeverity::Error,
+            title: title.into(),
+            message: message.into(),
+            span: None,
+            suggestions: Vec::new(),
+            related_info: Vec::new(),
+        }
+    }
+    
+    pub fn warning(title: impl Into<String>, message: impl Into<String>) -> Self {
+        Self {
+            severity: DiagnosticSeverity::Warning,
+            title: title.into(),
+            message: message.into(),
+            span: None,
+            suggestions: Vec::new(),
+            related_info: Vec::new(),
+        }
+    }
+    
+    pub fn with_span(mut self, span: Span) -> Self {
+        self.span = Some(span);
+        self
+    }
+    
+    pub fn with_suggestion(mut self, suggestion: impl Into<String>) -> Self {
+        self.suggestions.push(suggestion.into());
+        self
+    }
+    
+    pub fn with_related(mut self, span: Span, message: impl Into<String>) -> Self {
+        self.related_info.push(RelatedInformation {
+            span,
+            message: message.into(),
+        });
+        self
+    }
 }
 
 fn get_line(source: &str, line: usize) -> Option<&str> {
@@ -168,56 +249,201 @@ fn analyze_line_for_type_errors(line_text: &str) -> Option<(usize, String)> {
     }
 }
 
-fn suggest(message: &str) -> Option<String> {
+/// Enhanced error suggestion system with production-grade accuracy
+fn suggest(message: &str) -> Vec<String> {
     let m = message.to_lowercase();
+    let mut suggestions = Vec::new();
+    
+    // Missing receiver errors
     if m.contains("missing receiver") || m.contains("got dot") {
-        return Some("help: method call missing receiver; add an object before '.'".to_string());
+        suggestions.push("add an object before '.' (e.g., obj.method())".to_string());
     }
+    
+    // Parameter errors
     if m.contains("expected parameter name") {
-        return Some("help: add ')' after parameters; use '()' for none".to_string());
+        suggestions.push("add ')' after parameters; use '()' for no parameters".to_string());
     }
+    
+    // Semicolon errors
     if m.contains("expected ';'") || m.contains("expected ';' after") {
-        Some("help: try adding a semicolon: ';'".to_string())
-    } else if m.contains("expected '}'") {
-        Some("help: try adding a brace: '}'".to_string())
-    } else if m.contains("expected ')'") {
-        Some("help: try adding a closing parenthesis: ')'".to_string())
-    } else if m.contains("expected ']'") {
-        Some("help: try adding a closing bracket: ']'".to_string())
-    } else if m.contains("vault key must be string")
-        || m.contains("vault[string]")
-        || m.contains("indexing supported for arrays[int] and vault[string]")
-    {
-        Some("help: vault uses string keys; e.g., users[\"Alice\"]".to_string())
-    } else if m.contains("unknown pool method") {
-        Some("help: pool supports 'add(value)'".to_string())
-    } else if m.contains("unknown tree method") {
-        Some("help: tree supports 'add(child)'".to_string())
-    } else if m.contains("split delimiter must be string")
-        || m.contains("join delimiter must be string")
-    {
-        Some("help: delimiter must be a string".to_string())
-    } else if m.contains("substring start must be int") || m.contains("substring end must be int") {
-        Some("help: substring indices must be integers".to_string())
-    } else if m.contains("substring start > end") {
-        Some("help: ensure start <= end for substring".to_string())
-    } else if m.contains("regex pattern must be string") {
-        Some("help: regex pattern must be a string literal".to_string())
-    } else if m.contains("invalid regex") {
-        Some("help: check regex syntax; escape special characters properly".to_string())
-    } else if m.contains("expects") && m.contains("argument") {
-        Some("help: check function signature and argument count".to_string())
-    } else if m.contains("expected ','") {
-        Some("help: try adding a comma: ','".to_string())
-    } else if m.contains("expected expression") && m.contains("dot") {
-        Some("help: try closing parentheses: ')' or add '()' after method name".to_string())
-    } else {
-        None
+        suggestions.push("add a semicolon: ';'".to_string());
+        suggestions.push("check if the previous statement is complete".to_string());
     }
+    
+    // Bracket/brace/paren errors
+    if m.contains("expected '}'") {
+        suggestions.push("add a closing brace: '}'".to_string());
+        suggestions.push("ensure all blocks are properly closed".to_string());
+    }
+    if m.contains("expected ')'") {
+        suggestions.push("add a closing parenthesis: ')'".to_string());
+        suggestions.push("verify function call arguments are complete".to_string());
+    }
+    if m.contains("expected ']'") {
+        suggestions.push("add a closing bracket: ']'".to_string());
+        suggestions.push("check array indexing syntax".to_string());
+    }
+    
+    // Data structure specific errors
+    if m.contains("vault key must be string") || m.contains("vault[string]") {
+        suggestions.push("vault uses string keys; e.g., users[\"Alice\"]".to_string());
+    }
+    if m.contains("indexing supported for arrays[int] and vault[string]") {
+        suggestions.push("use integer index for arrays, string key for vault".to_string());
+    }
+    if m.contains("unknown pool method") {
+        suggestions.push("pool supports 'add(value)'".to_string());
+    }
+    if m.contains("unknown tree method") {
+        suggestions.push("tree supports 'add(child)'".to_string());
+    }
+    
+    // String method errors
+    if m.contains("split delimiter must be string") || m.contains("join delimiter must be string") {
+        suggestions.push("delimiter must be a string literal".to_string());
+    }
+    if m.contains("substring start must be int") || m.contains("substring end must be int") {
+        suggestions.push("substring indices must be integers".to_string());
+    }
+    if m.contains("substring start > end") {
+        suggestions.push("ensure start <= end for substring".to_string());
+    }
+    if m.contains("regex pattern must be string") {
+        suggestions.push("regex pattern must be a string literal".to_string());
+    }
+    if m.contains("invalid regex") {
+        suggestions.push("check regex syntax; escape special characters properly".to_string());
+        suggestions.push("common escapes: \\., \\*, \\+, \\?, \\(, \\)".to_string());
+    }
+    
+    // Argument errors
+    if m.contains("expects") && m.contains("argument") {
+        suggestions.push("check function signature and argument count".to_string());
+        suggestions.push("verify argument types match function parameters".to_string());
+    }
+    
+    // Comma errors
+    if m.contains("expected ','") {
+        suggestions.push("add a comma: ','".to_string());
+        suggestions.push("separate multiple arguments/items with commas".to_string());
+    }
+    
+    // Expression errors
+    if m.contains("expected expression") && m.contains("dot") {
+        suggestions.push("close parentheses: ')' or add '()' after method name".to_string());
+    }
+    
+    // Type errors
+    if m.contains("type mismatch") || m.contains("expected type") {
+        suggestions.push("ensure variable types match their usage".to_string());
+        suggestions.push("use explicit type annotations if needed: 'store name:type = value'".to_string());
+    }
+    
+    // Module errors
+    if m.contains("module") && m.contains("not found") {
+        suggestions.push("check mod-rec.toml for module registration".to_string());
+        suggestions.push("verify module path and export.nlang file".to_string());
+    }
+    if m.contains("submodule") && m.contains("not found") {
+        suggestions.push("check if submodule is listed in mod-rec.toml".to_string());
+        suggestions.push("verify submodule is exported in export.nlang".to_string());
+    }
+    
+    // Memory safety errors
+    if m.contains("immutable") && m.contains("cannot assign") {
+        suggestions.push("add '@mut' annotation to make variable mutable".to_string());
+        suggestions.push("example: @mut store x = 10;".to_string());
+    }
+    if m.contains("moved value") {
+        suggestions.push("value was moved; clone it or use a reference".to_string());
+        suggestions.push("restructure code to avoid using value after move".to_string());
+    }
+    if m.contains("borrow") && m.contains("mutably") {
+        suggestions.push("only one mutable borrow allowed at a time".to_string());
+        suggestions.push("end existing borrows before creating new ones".to_string());
+    }
+    
+    // Division errors
+    if m.contains("division by zero") {
+        suggestions.push("add a check: if (divisor != 0) { ... }".to_string());
+    }
+    
+    // Array errors
+    if m.contains("index out of bounds") {
+        suggestions.push("verify array index is within valid range".to_string());
+        suggestions.push("use len() function to check array size".to_string());
+    }
+    
+    suggestions
 }
 
 fn render_caret(line_text: &str, column: usize) -> String {
     color::caret_line(line_text, column)
+}
+
+/// Production-ready rendering of diagnostics with full context
+pub fn render_diagnostic(diag: &Diagnostic, file_path: &Path, source: &str) -> String {
+    let mut out = String::new();
+    
+    // Severity tag and title
+    let (tag, color_fn): (String, fn(&str) -> String) = match diag.severity {
+        DiagnosticSeverity::Error => (color::error_tag(), color::red),
+        DiagnosticSeverity::Warning => (color::warn_tag(), color::yellow),
+        DiagnosticSeverity::Info => (color::info_tag(), color::blue),
+        DiagnosticSeverity::Hint => ("💡".to_string(), color::blue),
+    };
+    
+    out.push_str(&format!(
+        "{} {}\n",
+        tag,
+        color::bold(&color_fn(&diag.title))
+    ));
+    
+    // Location
+    if let Some(span) = diag.span {
+        out.push_str(&format!(
+            "{}\n",
+            color::location(&file_path.display().to_string(), span.line, span.column)
+        ));
+        
+        // Source code context
+        if let Some(line_text) = get_line(source, span.line) {
+            out.push_str(&render_caret(line_text, span.column));
+            out.push('\n');
+        }
+    }
+    
+    out.push_str("   |\n");
+    
+    // Main message
+    out.push_str(&format!(
+        "   = {} {}\n",
+        tag,
+        color::bold(&color_fn(&diag.message))
+    ));
+    
+    // Suggestions
+    for (idx, suggestion) in diag.suggestions.iter().enumerate() {
+        if idx == 0 {
+            out.push_str(&format!("   = {} {}\n", color::help_tag(), suggestion));
+        } else {
+            out.push_str(&format!("   = {} {}\n", color::info_tag(), suggestion));
+        }
+    }
+    
+    // Related information
+    for related in &diag.related_info {
+        out.push_str(&format!(
+            "   = {} {}:{}:{}: {}\n",
+            color::info_tag(),
+            file_path.display(),
+            related.span.line,
+            related.span.column,
+            related.message
+        ));
+    }
+    
+    out
 }
 
 pub fn emit_basic(
@@ -306,8 +532,15 @@ pub fn emit_basic(
     let suppress_inline_help = lt.contains("semantic error") || lt.contains("runtime error");
     if !suppress_inline_help {
         let mut help_used = false;
-        if let Some(help) = suggest(message) {
-            out.push_str(&format!("   = {} {}\n", color::help_tag(), help));
+        let suggestions = suggest(message);
+        if !suggestions.is_empty() {
+            for (idx, help) in suggestions.iter().enumerate() {
+                if idx == 0 {
+                    out.push_str(&format!("   = {} {}\n", color::help_tag(), help));
+                } else {
+                    out.push_str(&format!("   = {} {}\n", color::info_tag(), help));
+                }
+            }
             help_used = true;
         }
         if !help_used {
