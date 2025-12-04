@@ -2,88 +2,53 @@ import std;
 import fs_man;
 
 def main() {
-    println("╔════════════════════════════════════════════╗");
-    println("║   File System Management Demo (fs_man)    ║");
-    println("╚════════════════════════════════════════════╝");
-    println("");
+    println("╔════════════════════════════════════════════╗\n║   File System Management Demo (fs_man)    ║\n╚════════════════════════════════════════════╝\n");
     
     println("=== 1. Path Utilities ===");
-    
     store path1 = "documents";
     store path2 = "report.pdf";
     store full_path = fs_man.path_join(path1, path2);
-    println("Joined path: []", full_path);
-    
     store sample_path = "folder/subfolder/document.txt";
-    println("Basename: []", fs_man.basename(sample_path));
-    println("Dirname: []", fs_man.dirname(sample_path));
-    println("Extension: []", fs_man.extname(sample_path));
-    println("");
+    println("Joined path: []\nBasename: []\nDirname: []\nExtension: []\n", full_path, fs_man.basename(sample_path), fs_man.dirname(sample_path), fs_man.extname(sample_path));
     
     println("=== 2. Directory Operations ===");
-    
     store demo_dir = "fs_demo_files";
-    
     if (fs_man.exists(demo_dir)) {
         println("Cleaning up old demo directory...");
         fs_man.remove_dir_all(demo_dir);
     }
-    
     fs_man.create_dir_all(demo_dir);
-    println("Created directory: []", demo_dir);
-    println("Is directory? []", fs_man.is_dir(demo_dir));
-    println("");
+    println("Created directory: []\nIs directory? []\n", demo_dir, fs_man.is_dir(demo_dir));
     
     println("=== 3. File Creation and Writing ===");
-    
     store file1 = fs_man.path_join(demo_dir, "greeting.txt");
     store file2 = fs_man.path_join(demo_dir, "data.txt");
     store file3 = fs_man.path_join(demo_dir, "notes.md");
-    
     fs_man.write_file(file1, "Hello from Nlang!");
     fs_man.write_file(file2, "Line 1\n");
     fs_man.append_file(file2, "Line 2\n");
     fs_man.append_file(file2, "Line 3\n");
     fs_man.write_file(file3, "# Notes\n\nThis is a markdown file.");
-    
-    println("Created 3 files:");
-    println("  - []", fs_man.basename(file1));
-    println("  - []", fs_man.basename(file2));
-    println("  - []", fs_man.basename(file3));
-    println("");
+    println("Created 3 files:\n  - []\n  - []\n  - []\n", fs_man.basename(file1), fs_man.basename(file2), fs_man.basename(file3));
     
     println("=== 4. File Reading ===");
-    
     store content1 = fs_man.read_file(file1);
-    println("Content of greeting.txt: []", content1);
-    
     store content2 = fs_man.read_file(file2);
-    println("Content of data.txt:\n[]", content2);
-    println("");
+    println("Content of greeting.txt: []\nContent of data.txt:\n[]\n", content1, content2);
     
     println("=== 5. File Metadata ===");
-    
     store size = fs_man.file_size(file2);
-    println("Size of data.txt: [] bytes", size);
-    
     store perms = fs_man.permissions(file1);
-    println("Permissions: []", perms);
-    println("");
+    println("Size of data.txt: [] bytes\nPermissions: []\n", size, perms);
     
     println("=== 6. File Operations ===");
-    
     store backup_file = fs_man.path_join(demo_dir, "greeting_backup.txt");
     fs_man.copy_file(file1, backup_file);
-    println("Copied [] to []", fs_man.basename(file1), fs_man.basename(backup_file));
-    
     store renamed_file = fs_man.path_join(demo_dir, "important_notes.md");
     fs_man.rename_file(file3, renamed_file);
-    println("Renamed notes.md to []", fs_man.basename(renamed_file));
-    println("");
+    println("Copied [] to []\nRenamed notes.md to []\n", fs_man.basename(file1), fs_man.basename(backup_file), fs_man.basename(renamed_file));
     
-    println("=== 7. Directory Listing ===");
-    
-    println("Files in demo directory:");
+    println("=== 7. Directory Listing ===\nFiles in demo directory:");
     store files = fs_man.read_dir(demo_dir);
     @mut store i = 0;
     while (i < len(files)) {
@@ -93,46 +58,24 @@ def main() {
     println("");
     
     println("=== 8. Environment Paths ===");
-    
-    println("Current directory: []", fs_man.current_dir());
-    println("Home directory: []", fs_man.home_dir());
-    println("Temp directory: []", fs_man.temp_dir());
-    println("Path separator: []", fs_man.get_path_separator());
-    println("");
+    println("Current directory: []\nHome directory: []\nTemp directory: []\nPath separator: []\n", fs_man.current_dir(), fs_man.home_dir(), fs_man.temp_dir(), fs_man.get_path_separator());
     
     println("=== 9. Temporary Files ===");
-    
     store temp_file = fs_man.create_temp_file("nlang_demo");
     fs_man.write_file(temp_file, "Temporary data for processing");
-    println("Created temp file: []", temp_file);
-    
     store temp_content = fs_man.read_file(temp_file);
-    println("Temp file content: []", temp_content);
-    
     fs_man.remove_file(temp_file);
-    println("Temp file cleaned up");
-    println("");
+    println("Created temp file: []\nTemp file content: []\nTemp file cleaned up\n", temp_file, temp_content);
     
     println("=== 10. Path Resolution ===");
-    
     store abs_path = fs_man.absolute_path(".");
-    println("Absolute path of '.': []", abs_path);
-    
     store canonical = fs_man.canonicalize(".");
-    println("Canonical path: []", canonical);
-    
-    println("Is '/absolute/path' absolute? []", fs_man.is_absolute("/absolute/path"));
-    println("Is 'relative/path' relative? []", fs_man.is_relative("relative/path"));
-    println("");
+    println("Absolute path of '.': []\nCanonical path: []\nIs '/absolute/path' absolute? []\nIs 'relative/path' relative? []\n", abs_path, canonical, fs_man.is_absolute("/absolute/path"), fs_man.is_relative("relative/path"));
     
     println("=== 11. Cleanup ===");
-    
     println("Removing demo directory and all files...");
     fs_man.remove_dir_all(demo_dir);
-    println("Exists after removal? []", fs_man.exists(demo_dir));
-    println("");
+    println("Exists after removal? []\n", fs_man.exists(demo_dir));
     
-    println("╔════════════════════════════════════════════╗");
-    println("║        Demo Completed Successfully!        ║");
-    println("╚════════════════════════════════════════════╝");
+    println("╔════════════════════════════════════════════╗\n║        Demo Completed Successfully!        ║\n╚════════════════════════════════════════════╝");
 }

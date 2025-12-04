@@ -2108,7 +2108,7 @@ impl CCodeGenerator {
                                 let mut arg_idx = 1;
 
                                 for (i, part) in parts.iter().enumerate() {
-                                    final_fmt.push_str(&part.replace('%', "%%"));
+                                    final_fmt.push_str(&Self::escape_c_string(part));
                                     if i < parts.len() - 1 {
                                         if arg_idx < arguments.len() {
                                             let arg = &arguments[arg_idx];
@@ -3553,6 +3553,17 @@ impl CCodeGenerator {
                 }
             }
         })
+    }
+    
+    /// Escape a string for use in C printf format string
+    /// Handles newlines, quotes, and percent signs
+    fn escape_c_string(s: &str) -> String {
+        s.replace('%', "%%")
+            .replace('\\', "\\\\")
+            .replace('\n', "\\n")
+            .replace('\r', "\\r")
+            .replace('\t', "\\t")
+            .replace('"', "\\\"")
     }
     
     /// Extract the fully qualified name from a nested Expr::Get chain
