@@ -54,27 +54,20 @@ def main() {
     // Test std library functions - sum, min, max, pow
     println("=== Using std library ===");
     store scores: [int; 5] = [85, 92, 78, 95, 88];
-    print("Scores sum: ");
-    println(sum(scores));
-    print("Min score: ");
-    println(min(scores));
-    print("Max score: ");
-    println(max(scores));
-    print("pow(2, 8): ");
-    println(pow(2, 8));
+    println("Scores sum: []", sum(scores));
+    println("Min score: []", min(scores));
+    println("Max score: []", max(scores));
+    println("pow(2, 8): []", pow(2, 8));
     println("");
     
     // Test utils.math_helper functions
     println("=== Using utils.math_helper ===");
     store test_scores = utils.math_helper.sum_array(scores);
-    print("Manual sum: ");
-    println(test_scores);
+    println("Manual sum: []", test_scores);
     store avg = utils.math_helper.average(85, 92, 78);
-    print("Average of 85, 92, 78: ");
-    println(avg);
+    println("Average of 85, 92, 78: []", avg);
     store scaled = utils.math_helper.scale_value(100, 150);
-    print("100 scaled by 150%: ");
-    println(scaled);
+    println("100 scaled by 150%: []", scaled);
     println("");
     
     // Show main menu using ui.menu (same-module call: menu uses display)
@@ -113,11 +106,9 @@ def main() {
     // Test 4: Direct inventory access from main
     println("Test 4: Direct inventory access:");
     store total_pwr = game.inventory.total_power(item_powers);
-    print("Total inventory power: ");
-    println(total_pwr);
+    println("Total inventory power: []", total_pwr);
     store has_legendary = game.inventory.has_legendary_item(item_powers);
-    print("Has legendary item: ");
-    println(has_legendary);
+    println("Has legendary item: []", has_legendary);
     println("");
     
     println("=== All Cross-Module Tests Passed ===");
@@ -130,12 +121,10 @@ def main() {
     utils.save_manager.save_player_data(player_name, player_level, health);
     utils.save_manager.backup_save_file(player_name);
     store loaded_data = utils.save_manager.load_player_data(player_name);
-    print("Loaded data preview: ");
-    println(loaded_data);
+    println("Loaded data preview: []", loaded_data);
     store save_size = utils.save_manager.get_save_file_size(player_name);
     store save_count = utils.save_manager.list_save_files();
-    print("Total save files: ");
-    println(save_count);
+    println("Total save files: []", save_count);
     println("");
     
     println("Test 6: Configuration System:");

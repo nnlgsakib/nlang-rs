@@ -3,8 +3,7 @@ sub mod character;
 // Character submodule - standalone implementation
 
 export def create_character(name: string) -> string {
-    print("⚔️ Creating character: ");
-    println(name);
+    println("⚔️ Creating character: []", name);
     return name;
 }
 

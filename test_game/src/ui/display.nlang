@@ -10,23 +10,17 @@ export def show_welcome() {
 
 export def show_character_info(name: string, level: int, health: int) {
     println("┌──────────────────────────────────┐");
-    print("│ Character: ");
-    println(name);
-    print("│ Level: ");
-    println(level);
-    print("│ Health: ");
-    println(health);
+    println("│ Character: []", name);
+    println("│ Level: []", level);
+    println("│ Health: []", health);
     println("└──────────────────────────────────┘");
 }
 
 export def show_stats_panel(attack: int, defense: int, luck: int) {
     println("╭─────── Stats Panel ───────╮");
-    print("│ Attack:  ");
-    println(attack);
-    print("│ Defense: ");
-    println(defense);
-    print("│ Luck:    ");
-    println(luck);
+    println("│ Attack:  []", attack);
+    println("│ Defense: []", defense);
+    println("│ Luck:    []", luck);
     println("╰───────────────────────────╯");
 }
 
@@ -35,9 +29,7 @@ export def show_separator() {
 }
 
 export def show_section_header(title: string) {
-    print("══════ ");
-    print(title);
-    println(" ══════");
+    println("══════ [] ══════", title);
 }
 
 // Cross-module call: ui.display calls utils.formatter
@@ -50,6 +42,5 @@ export def show_health_display(current: int, max_hp: int) {
 // Cross-module call: ui.display calls game.stats
 export def show_computed_damage(base_atk: int, level: int) {
     store damage = game.stats.calculate_damage(base_atk, 2);
-    print("Computed damage: ");
-    println(damage);
+    println("Computed damage: []", damage);
 }

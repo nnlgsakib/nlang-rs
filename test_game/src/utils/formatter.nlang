@@ -17,17 +17,11 @@ export def format_health_bar(current: int, maximum: int) {
         }
         i = i + 1;
     }
-    print("] ");
-    print(current);
-    print("/");
-    println(maximum);
+    println("] []/[]", current, maximum);
 }
 
 export def format_stat_line(label: string, value: int) {
-    print("  ");
-    print(label);
-    print(": ");
-    println(value);
+    println("  []: []", label, value);
 }
 
 export def format_percentage(value: int, total: int) {
@@ -35,36 +29,27 @@ export def format_percentage(value: int, total: int) {
     if (total != 0) {
         pct = (value * 100) / total;
     }
-    print(pct);
-    println("%");
+    println("[]%", pct);
 }
 
 export def format_level_progress(current_exp: int, needed_exp: int) {
-    print("EXP: ");
-    print(current_exp);
-    print("/");
-    print(needed_exp);
-    print(" (");
     @mut store pct = 0;
     if (needed_exp != 0) {
         pct = (current_exp * 100) / needed_exp;
     }
-    print(pct);
-    println("%)");
+    println("EXP: []/[] ([]%)", current_exp, needed_exp, pct);
 }
 
 export def format_damage_text(damage: int, is_critical: bool) {
     if (is_critical) {
-        print("💥 CRITICAL! ");
+        println("💥 CRITICAL! Damage: []", damage);
+    } else {
+        println("Damage: []", damage);
     }
-    print("Damage: ");
-    println(damage);
 }
 
 export def format_header(text: string) {
     println("╔════════════════════════════════════╗");
-    print("║ ");
-    print(text);
-    println("");
+    println("║ []", text);
     println("╚════════════════════════════════════╝");
 }
