@@ -1,0 +1,271 @@
+import std;
+import webcore_man;
+import fs_man;
+import game;
+import utils;
+
+def parse_uri(data:string) -> string {
+    @mut store uri = "/";
+    
+    if (len(data) > 5) {
+        @mut store second_space = 4;
+        @mut store i = 4;
+        
+        while (i < len(data)) {
+            if (i < len(data)) {
+                store ch = data.substring(i, i + 1);
+                if (ch == " ") {
+                    second_space = i;
+                    break;
+                }
+            }
+            i = i + 1;
+        }
+        
+        if (second_space > 4) {
+            uri = data.substring(4, second_space);
+        }
+    }
+    
+    return uri;
+}
+
+def serve_file(file_path:string) -> string {
+    if (fs_man.exists(file_path)) {
+        return fs_man.read_file(file_path);
+    } else {
+        return "";
+    }
+}
+
+def get_content_type(uri:string) -> string {
+    @mut store content_type = "text/plain";
+    
+    if (len(uri) > 5) {
+        store last_3 = uri.substring(len(uri) - 3, len(uri));
+        store last_4 = uri.substring(len(uri) - 4, len(uri));
+        store last_5 = uri.substring(len(uri) - 5, len(uri));
+        
+        if (last_5 == ".html") {
+            content_type = "text/html";
+        } else {
+            if (last_4 == ".css") {
+                content_type = "text/css";
+            } else {
+                if (last_3 == ".js") {
+                    content_type = "application/javascript";
+                } else {
+                    if (last_5 == ".json") {
+                        content_type = "application/json";
+                    }
+                }
+            }
+        }
+    }
+    
+    return content_type;
+}
+
+def get_character_json() -> string {
+    store player_name = "Hero";
+    store player_level = 5;
+    store health = game.character.get_health();
+    store max_health = game.stats.calculate_max_health(player_level);
+    
+    store json = "{\"name\":\"" + player_name + "\",\"level\":" + str(player_level) + ",\"health\":" + str(health) + ",\"max_health\":" + str(max_health) + "}";
+    return json;
+}
+
+def get_stats_json() -> string {
+    store player_level = 5;
+    store attack = 15;
+    store defense = game.stats.calculate_defense(10, player_level);
+    store luck = 25;
+    store clamped_luck = utils.math_helper.clamp(luck, 0, 100);
+    store crit_chance = game.stats.calculate_critical_chance(clamped_luck);
+    
+    store json = "{\"attack\":" + str(attack) + ",\"defense\":" + str(defense) + ",\"luck\":" + str(luck) + ",\"crit_chance\":" + str(crit_chance) + "}";
+    return json;
+}
+
+def get_combat_json() -> string {
+    store atk_power = 15;
+    store def_power = 10;
+    store luck = 25;
+    
+    store hit_chance = game.combat.calculate_hit_chance(luck, def_power);
+    store damage = game.combat.simulate_battle_round(atk_power, def_power, luck);
+    store is_crit = luck > 30;
+    
+    @mut store result = "Miss";
+    if (damage > 0) {
+        if (is_crit) {
+            result = "Critical Hit!";
+        } else {
+            result = "Hit";
+        }
+    }
+    
+    store json = "{\"round\":1,\"hit_chance\":" + str(hit_chance) + ",\"damage\":" + str(damage) + ",\"is_critical\":" + str(is_crit) + ",\"result\":\"" + result + "\"}";
+    return json;
+}
+
+def get_emote_json(emote:string) -> string {
+    @mut store message = "Unknown emote";
+    
+    if (emote == "wave") {
+        message = "👋 Character waves at you!";
+    } else {
+        if (emote == "dance") {
+            message = "💃 Character dances joyfully!";
+        } else {
+            if (emote == "cheer") {
+                message = "🎉 Character cheers loudly!";
+            }
+        }
+    }
+    
+    store json = "{\"emote\":\"" + emote + "\",\"message\":\"" + message + "\"}";
+    return json;
+}
+
+def handle_api_route(uri:string) -> string {
+    @mut store response = "";
+    
+    if (uri == "/api/status") {
+        response = "{\"status\":\"running\",\"version\":\"1.0.0\",\"game\":\"RPG Web Edition\"}";
+    } else {
+        if (uri == "/api/character") {
+            response = get_character_json();
+        } else {
+            if (uri == "/api/stats") {
+                response = get_stats_json();
+            } else {
+                if (uri == "/api/combat") {
+                    response = get_combat_json();
+                } else {
+                    @mut store is_emote_route = 0;
+                    if (len(uri) > 11) {
+                        store prefix = uri.substring(0, 11);
+                        if (prefix == "/api/emote/") {
+                            is_emote_route = 1;
+                        }
+                    }
+                    
+                    if (is_emote_route == 1) {
+                        store emote = uri.substring(11, len(uri));
+                        response = get_emote_json(emote);
+                    } else {
+                        response = "{\"error\":\"Not Found\",\"path\":\"" + uri + "\"}";
+                    }
+                }
+            }
+        }
+    }
+    
+    return response;
+}
+
+def main() {
+    println("╔════════════════════════════════════════════╗");
+    println("║        RPG Game Web Server                ║");
+    println("╚════════════════════════════════════════════╝\n");
+    
+    store webroot = "webroot";
+    println("Web root: []\n", webroot);
+    
+    if (fs_man.exists(webroot)) {
+        println("✓ Web root directory exists");
+    } else {
+        println("✗ Web root directory not found!");
+        println("Creating web root...");
+        fs_man.create_dir_all(webroot);
+    }
+    
+    store index_file = fs_man.path_join(webroot, "index.html");
+    if (fs_man.exists(index_file)) {
+        println("✓ index.html found\n");
+    } else {
+        println("✗ index.html not found!\n");
+    }
+    
+    println("Starting TCP server on 127.0.0.1:8082...");
+    store listener = webcore_man.tcp_listen("127.0.0.1", 8082);
+    println("Server started!\n");
+    println("Open in browser: http://127.0.0.1:8082/\n");
+    println("Press Ctrl+C to stop\n");
+    println("─────────────────────────────────────────────\n");
+    
+    @mut store total_requests = 0;
+    
+    while (total_requests < 100) {
+        store client = webcore_man.tcp_accept(listener);
+        store data = webcore_man.tcp_read(client, 4096);
+        
+        if (len(data) > 0) {
+            store uri = parse_uri(data);
+            total_requests = total_requests + 1;
+            
+            println("[#[]] {}", total_requests, uri);
+            
+            @mut store response_body = "";
+            @mut store content_type = "text/html";
+            @mut store status_code = 200;
+            
+            if (uri == "/") {
+                store file_content = serve_file(index_file);
+                if (len(file_content) > 0) {
+                    response_body = file_content;
+                    content_type = "text/html";
+                } else {
+                    status_code = 404;
+                    response_body = "404 - File not found";
+                }
+            } else {
+                @mut store is_api_route = 0;
+                if (len(uri) > 4) {
+                    store prefix = uri.substring(0, 4);
+                    if (prefix == "/api") {
+                        is_api_route = 1;
+                    }
+                }
+                
+                if (is_api_route == 1) {
+                    content_type = "application/json";
+                    response_body = handle_api_route(uri);
+                } else {
+                    store file_path = fs_man.path_join(webroot, uri.substring(1, len(uri)));
+                    store file_content = serve_file(file_path);
+                    if (len(file_content) > 0) {
+                        response_body = file_content;
+                        content_type = get_content_type(uri);
+                    } else {
+                        status_code = 404;
+                        content_type = "application/json";
+                        response_body = "{\"error\":\"Not Found\",\"path\":\"" + uri + "\"}";
+                    }
+                }
+            }
+            
+            @mut store status_text = "200 OK";
+            if (status_code == 404) {
+                status_text = "404 Not Found";
+            }
+            
+            store response = "HTTP/1.1 " + status_text + "\r\nContent-Type: " + content_type + "\r\nContent-Length: " + str(len(response_body)) + "\r\nServer: Nlang-RPG-Game/1.0\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\n\r\n" + response_body;
+            
+            webcore_man.tcp_write(client, response);
+            webcore_man.tcp_close(client);
+        } else {
+            webcore_man.tcp_close(client);
+        }
+    }
+    
+    webcore_man.tcp_close(listener);
+    
+    println("\n─────────────────────────────────────────────");
+    println("Server handled [] requests", total_requests);
+    println("╔════════════════════════════════════════════╗");
+    println("║       Server Shutdown Successfully         ║");
+    println("╚════════════════════════════════════════════╝");
+}

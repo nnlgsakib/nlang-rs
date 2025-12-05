@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG Game - Web Edition</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚔️ RPG Game - Web Edition ⚔️</h1>
+            <p class="subtitle">Built with Nlang WebCore</p>
+        </header>
+
+        <div class="game-panel">
+            <div class="character-section">
+                <h2>Character Info</h2>
+                <div id="character-info" class="info-box">
+                    <p><strong>Name:</strong> <span id="player-name">Loading...</span></p>
+                    <p><strong>Level:</strong> <span id="player-level">-</span></p>
+                    <p><strong>Health:</strong> <span id="player-health">-</span> / <span id="player-max-health">-</span></p>
+                </div>
+                
+                <div class="health-bar-container">
+                    <div id="health-bar" class="health-bar" style="width: 100%"></div>
+                </div>
+            </div>
+
+            <div class="stats-section">
+                <h2>Stats</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-label">⚔️ Attack</span>
+                        <span id="stat-attack" class="stat-value">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">🛡️ Defense</span>
+                        <span id="stat-defense" class="stat-value">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">🍀 Luck</span>
+                        <span id="stat-luck" class="stat-value">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">💥 Crit Chance</span>
+                        <span id="stat-crit" class="stat-value">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions-panel">
+            <h2>Actions</h2>
+            <div class="button-group">
+                <button onclick="loadCharacter()" class="btn btn-primary">🔄 Refresh Character</button>
+                <button onclick="loadStats()" class="btn btn-secondary">📊 Load Stats</button>
+                <button onclick="simulateCombat()" class="btn btn-danger">⚔️ Simulate Combat</button>
+            </div>
+        </div>
+
+        <div class="combat-log-panel">
+            <h2>Combat Log</h2>
+            <div id="combat-log" class="combat-log"></div>
+        </div>
+
+        <div class="emotes-panel">
+            <h2>Emotes</h2>
+            <div class="button-group">
+                <button onclick="performEmote('wave')" class="btn btn-emote">👋 Wave</button>
+                <button onclick="performEmote('dance')" class="btn btn-emote">💃 Dance</button>
+                <button onclick="performEmote('cheer')" class="btn btn-emote">🎉 Cheer</button>
+            </div>
+        </div>
+
+        <footer>
+            <p>Server Status: <span id="server-status" class="status-online">●</span></p>
+            <p class="api-info">API Endpoint: <code>http://127.0.0.1:8082</code></p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

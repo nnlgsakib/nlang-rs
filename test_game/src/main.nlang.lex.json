@@ -1,0 +1,4082 @@
+[
+  {
+    "lexeme": "import",
+    "line": 1,
+    "type": "Import"
+  },
+  {
+    "lexeme": "std",
+    "line": 1,
+    "type": "Identifier(\"std\")"
+  },
+  {
+    "lexeme": ";",
+    "line": 1,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "import",
+    "line": 2,
+    "type": "Import"
+  },
+  {
+    "lexeme": "game",
+    "line": 2,
+    "type": "Identifier(\"game\")"
+  },
+  {
+    "lexeme": ";",
+    "line": 2,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "import",
+    "line": 3,
+    "type": "Import"
+  },
+  {
+    "lexeme": "ui",
+    "line": 3,
+    "type": "Identifier(\"ui\")"
+  },
+  {
+    "lexeme": ";",
+    "line": 3,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "import",
+    "line": 4,
+    "type": "Import"
+  },
+  {
+    "lexeme": "utils",
+    "line": 4,
+    "type": "Identifier(\"utils\")"
+  },
+  {
+    "lexeme": ";",
+    "line": 4,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "def",
+    "line": 6,
+    "type": "Def"
+  },
+  {
+    "lexeme": "main",
+    "line": 6,
+    "type": "Identifier(\"main\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 6,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": ")",
+    "line": 6,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": "{",
+    "line": 6,
+    "type": "LeftBrace"
+  },
+  {
+    "lexeme": "ui",
+    "line": 8,
+    "type": "Identifier(\"ui\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 8,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "display",
+    "line": 8,
+    "type": "Identifier(\"display\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 8,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "show_welcome",
+    "line": 8,
+    "type": "Identifier(\"show_welcome\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 8,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": ")",
+    "line": 8,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 8,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 9,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 9,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"\"",
+    "line": 9,
+    "type": "String(\"\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 9,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 9,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 12,
+    "type": "Store"
+  },
+  {
+    "lexeme": "player_name",
+    "line": 12,
+    "type": "Identifier(\"player_name\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 12,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "game",
+    "line": 12,
+    "type": "Identifier(\"game\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 12,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "character",
+    "line": 12,
+    "type": "Identifier(\"character\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 12,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "create_character",
+    "line": 12,
+    "type": "Identifier(\"create_character\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 12,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"Hero\"",
+    "line": 12,
+    "type": "String(\"Hero\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 12,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 12,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 13,
+    "type": "Store"
+  },
+  {
+    "lexeme": "player_level",
+    "line": 13,
+    "type": "Identifier(\"player_level\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 13,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "5",
+    "line": 13,
+    "type": "Integer(5)"
+  },
+  {
+    "lexeme": ";",
+    "line": 13,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 16,
+    "type": "Store"
+  },
+  {
+    "lexeme": "health",
+    "line": 16,
+    "type": "Identifier(\"health\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 16,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "game",
+    "line": 16,
+    "type": "Identifier(\"game\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 16,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "character",
+    "line": 16,
+    "type": "Identifier(\"character\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 16,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "get_health",
+    "line": 16,
+    "type": "Identifier(\"get_health\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 16,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": ")",
+    "line": 16,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 16,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 17,
+    "type": "Store"
+  },
+  {
+    "lexeme": "max_health",
+    "line": 17,
+    "type": "Identifier(\"max_health\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 17,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "game",
+    "line": 17,
+    "type": "Identifier(\"game\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 17,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "stats",
+    "line": 17,
+    "type": "Identifier(\"stats\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 17,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "calculate_max_health",
+    "line": 17,
+    "type": "Identifier(\"calculate_max_health\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 17,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "player_level",
+    "line": 17,
+    "type": "Identifier(\"player_level\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 17,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 17,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "ui",
+    "line": 20,
+    "type": "Identifier(\"ui\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 20,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "display",
+    "line": 20,
+    "type": "Identifier(\"display\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 20,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "show_character_info",
+    "line": 20,
+    "type": "Identifier(\"show_character_info\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 20,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "player_name",
+    "line": 20,
+    "type": "Identifier(\"player_name\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 20,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "player_level",
+    "line": 20,
+    "type": "Identifier(\"player_level\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 20,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "max_health",
+    "line": 20,
+    "type": "Identifier(\"max_health\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 20,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 20,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 21,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 21,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"\"",
+    "line": 21,
+    "type": "String(\"\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 21,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 21,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 24,
+    "type": "Store"
+  },
+  {
+    "lexeme": "total_stats",
+    "line": 24,
+    "type": "Identifier(\"total_stats\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 24,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "game",
+    "line": 24,
+    "type": "Identifier(\"game\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 24,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "character",
+    "line": 24,
+    "type": "Identifier(\"character\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 24,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "get_character_stats",
+    "line": 24,
+    "type": "Identifier(\"get_character_stats\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 24,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "player_level",
+    "line": 24,
+    "type": "Identifier(\"player_level\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 24,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 24,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 25,
+    "type": "Store"
+  },
+  {
+    "lexeme": "attack",
+    "line": 25,
+    "type": "Identifier(\"attack\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 25,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "15",
+    "line": 25,
+    "type": "Integer(15)"
+  },
+  {
+    "lexeme": ";",
+    "line": 25,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 26,
+    "type": "Store"
+  },
+  {
+    "lexeme": "defense",
+    "line": 26,
+    "type": "Identifier(\"defense\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 26,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "game",
+    "line": 26,
+    "type": "Identifier(\"game\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 26,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "stats",
+    "line": 26,
+    "type": "Identifier(\"stats\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 26,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "calculate_defense",
+    "line": 26,
+    "type": "Identifier(\"calculate_defense\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 26,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "10",
+    "line": 26,
+    "type": "Integer(10)"
+  },
+  {
+    "lexeme": ",",
+    "line": 26,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "player_level",
+    "line": 26,
+    "type": "Identifier(\"player_level\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 26,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 26,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 27,
+    "type": "Store"
+  },
+  {
+    "lexeme": "luck",
+    "line": 27,
+    "type": "Identifier(\"luck\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 27,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "25",
+    "line": 27,
+    "type": "Integer(25)"
+  },
+  {
+    "lexeme": ";",
+    "line": 27,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "ui",
+    "line": 30,
+    "type": "Identifier(\"ui\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 30,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "display",
+    "line": 30,
+    "type": "Identifier(\"display\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 30,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "show_stats_panel",
+    "line": 30,
+    "type": "Identifier(\"show_stats_panel\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 30,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "attack",
+    "line": 30,
+    "type": "Identifier(\"attack\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 30,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "defense",
+    "line": 30,
+    "type": "Identifier(\"defense\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 30,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "luck",
+    "line": 30,
+    "type": "Identifier(\"luck\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 30,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 30,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 31,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 31,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"\"",
+    "line": 31,
+    "type": "String(\"\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 31,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 31,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 34,
+    "type": "Store"
+  },
+  {
+    "lexeme": "clamped_luck",
+    "line": 34,
+    "type": "Identifier(\"clamped_luck\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 34,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "utils",
+    "line": 34,
+    "type": "Identifier(\"utils\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 34,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "math_helper",
+    "line": 34,
+    "type": "Identifier(\"math_helper\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 34,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "clamp",
+    "line": 34,
+    "type": "Identifier(\"clamp\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 34,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "luck",
+    "line": 34,
+    "type": "Identifier(\"luck\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 34,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "0",
+    "line": 34,
+    "type": "Integer(0)"
+  },
+  {
+    "lexeme": ",",
+    "line": 34,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "100",
+    "line": 34,
+    "type": "Integer(100)"
+  },
+  {
+    "lexeme": ")",
+    "line": 34,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 34,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 35,
+    "type": "Store"
+  },
+  {
+    "lexeme": "crit_chance",
+    "line": 35,
+    "type": "Identifier(\"crit_chance\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 35,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "game",
+    "line": 35,
+    "type": "Identifier(\"game\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 35,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "stats",
+    "line": 35,
+    "type": "Identifier(\"stats\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 35,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "calculate_critical_chance",
+    "line": 35,
+    "type": "Identifier(\"calculate_critical_chance\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 35,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "clamped_luck",
+    "line": 35,
+    "type": "Identifier(\"clamped_luck\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 35,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 35,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 38,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 38,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"Health Bar:\"",
+    "line": 38,
+    "type": "String(\"Health Bar:\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 38,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 38,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "utils",
+    "line": 39,
+    "type": "Identifier(\"utils\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 39,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "formatter",
+    "line": 39,
+    "type": "Identifier(\"formatter\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 39,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "format_health_bar",
+    "line": 39,
+    "type": "Identifier(\"format_health_bar\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 39,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "health",
+    "line": 39,
+    "type": "Identifier(\"health\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 39,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "max_health",
+    "line": 39,
+    "type": "Identifier(\"max_health\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 39,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 39,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 40,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 40,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"\"",
+    "line": 40,
+    "type": "String(\"\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 40,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 40,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 43,
+    "type": "Store"
+  },
+  {
+    "lexeme": "base_damage",
+    "line": 43,
+    "type": "Identifier(\"base_damage\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 43,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "game",
+    "line": 43,
+    "type": "Identifier(\"game\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 43,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "character",
+    "line": 43,
+    "type": "Identifier(\"character\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 43,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "get_damage",
+    "line": 43,
+    "type": "Identifier(\"get_damage\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 43,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "attack",
+    "line": 43,
+    "type": "Identifier(\"attack\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 43,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "player_level",
+    "line": 43,
+    "type": "Identifier(\"player_level\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 43,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 43,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 44,
+    "type": "Store"
+  },
+  {
+    "lexeme": "is_crit",
+    "line": 44,
+    "type": "Identifier(\"is_crit\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 44,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "crit_chance",
+    "line": 44,
+    "type": "Identifier(\"crit_chance\")"
+  },
+  {
+    "lexeme": ">",
+    "line": 44,
+    "type": "Greater"
+  },
+  {
+    "lexeme": "10",
+    "line": 44,
+    "type": "Integer(10)"
+  },
+  {
+    "lexeme": ";",
+    "line": 44,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "utils",
+    "line": 45,
+    "type": "Identifier(\"utils\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 45,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "formatter",
+    "line": 45,
+    "type": "Identifier(\"formatter\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 45,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "format_damage_text",
+    "line": 45,
+    "type": "Identifier(\"format_damage_text\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 45,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "base_damage",
+    "line": 45,
+    "type": "Identifier(\"base_damage\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 45,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "is_crit",
+    "line": 45,
+    "type": "Identifier(\"is_crit\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 45,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 45,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 46,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 46,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"\"",
+    "line": 46,
+    "type": "String(\"\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 46,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 46,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 49,
+    "type": "Store"
+  },
+  {
+    "lexeme": "current_exp",
+    "line": 49,
+    "type": "Identifier(\"current_exp\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 49,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "350",
+    "line": 49,
+    "type": "Integer(350)"
+  },
+  {
+    "lexeme": ";",
+    "line": 49,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 50,
+    "type": "Store"
+  },
+  {
+    "lexeme": "needed_exp",
+    "line": 50,
+    "type": "Identifier(\"needed_exp\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 50,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "game",
+    "line": 50,
+    "type": "Identifier(\"game\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 50,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "character",
+    "line": 50,
+    "type": "Identifier(\"character\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 50,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "level_up_info",
+    "line": 50,
+    "type": "Identifier(\"level_up_info\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 50,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "player_level",
+    "line": 50,
+    "type": "Identifier(\"player_level\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 50,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 50,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "utils",
+    "line": 51,
+    "type": "Identifier(\"utils\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 51,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "formatter",
+    "line": 51,
+    "type": "Identifier(\"formatter\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 51,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "format_level_progress",
+    "line": 51,
+    "type": "Identifier(\"format_level_progress\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 51,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "current_exp",
+    "line": 51,
+    "type": "Identifier(\"current_exp\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 51,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "needed_exp",
+    "line": 51,
+    "type": "Identifier(\"needed_exp\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 51,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 51,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 52,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 52,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"\"",
+    "line": 52,
+    "type": "String(\"\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 52,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 52,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 55,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 55,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"=== Using std library ===\"",
+    "line": 55,
+    "type": "String(\"=== Using std library ===\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 55,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 55,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 56,
+    "type": "Store"
+  },
+  {
+    "lexeme": "scores",
+    "line": 56,
+    "type": "Identifier(\"scores\")"
+  },
+  {
+    "lexeme": ":",
+    "line": 56,
+    "type": "Colon"
+  },
+  {
+    "lexeme": "[",
+    "line": 56,
+    "type": "LeftBracket"
+  },
+  {
+    "lexeme": "int",
+    "line": 56,
+    "type": "Identifier(\"int\")"
+  },
+  {
+    "lexeme": ";",
+    "line": 56,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "5",
+    "line": 56,
+    "type": "Integer(5)"
+  },
+  {
+    "lexeme": "]",
+    "line": 56,
+    "type": "RightBracket"
+  },
+  {
+    "lexeme": "=",
+    "line": 56,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "[",
+    "line": 56,
+    "type": "LeftBracket"
+  },
+  {
+    "lexeme": "85",
+    "line": 56,
+    "type": "Integer(85)"
+  },
+  {
+    "lexeme": ",",
+    "line": 56,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "92",
+    "line": 56,
+    "type": "Integer(92)"
+  },
+  {
+    "lexeme": ",",
+    "line": 56,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "78",
+    "line": 56,
+    "type": "Integer(78)"
+  },
+  {
+    "lexeme": ",",
+    "line": 56,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "95",
+    "line": 56,
+    "type": "Integer(95)"
+  },
+  {
+    "lexeme": ",",
+    "line": 56,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "88",
+    "line": 56,
+    "type": "Integer(88)"
+  },
+  {
+    "lexeme": "]",
+    "line": 56,
+    "type": "RightBracket"
+  },
+  {
+    "lexeme": ";",
+    "line": 56,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 57,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 57,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"Scores sum: []\"",
+    "line": 57,
+    "type": "String(\"Scores sum: []\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 57,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "sum",
+    "line": 57,
+    "type": "Identifier(\"sum\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 57,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "scores",
+    "line": 57,
+    "type": "Identifier(\"scores\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 57,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ")",
+    "line": 57,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 57,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 58,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 58,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"Min score: []\"",
+    "line": 58,
+    "type": "String(\"Min score: []\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 58,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "min",
+    "line": 58,
+    "type": "Identifier(\"min\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 58,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "scores",
+    "line": 58,
+    "type": "Identifier(\"scores\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 58,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ")",
+    "line": 58,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 58,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 59,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 59,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"Max score: []\"",
+    "line": 59,
+    "type": "String(\"Max score: []\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 59,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "max",
+    "line": 59,
+    "type": "Identifier(\"max\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 59,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "scores",
+    "line": 59,
+    "type": "Identifier(\"scores\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 59,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ")",
+    "line": 59,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 59,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 60,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 60,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"pow(2, 8): []\"",
+    "line": 60,
+    "type": "String(\"pow(2, 8): []\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 60,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "pow",
+    "line": 60,
+    "type": "Identifier(\"pow\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 60,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "2",
+    "line": 60,
+    "type": "Integer(2)"
+  },
+  {
+    "lexeme": ",",
+    "line": 60,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "8",
+    "line": 60,
+    "type": "Integer(8)"
+  },
+  {
+    "lexeme": ")",
+    "line": 60,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ")",
+    "line": 60,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 60,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 61,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 61,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"\"",
+    "line": 61,
+    "type": "String(\"\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 61,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 61,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 64,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 64,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"=== Using utils.math_helper ===\"",
+    "line": 64,
+    "type": "String(\"=== Using utils.math_helper ===\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 64,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 64,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 65,
+    "type": "Store"
+  },
+  {
+    "lexeme": "test_scores",
+    "line": 65,
+    "type": "Identifier(\"test_scores\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 65,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "utils",
+    "line": 65,
+    "type": "Identifier(\"utils\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 65,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "math_helper",
+    "line": 65,
+    "type": "Identifier(\"math_helper\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 65,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "sum_array",
+    "line": 65,
+    "type": "Identifier(\"sum_array\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 65,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "scores",
+    "line": 65,
+    "type": "Identifier(\"scores\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 65,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 65,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 66,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 66,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"Manual sum: []\"",
+    "line": 66,
+    "type": "String(\"Manual sum: []\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 66,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "test_scores",
+    "line": 66,
+    "type": "Identifier(\"test_scores\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 66,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 66,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 67,
+    "type": "Store"
+  },
+  {
+    "lexeme": "avg",
+    "line": 67,
+    "type": "Identifier(\"avg\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 67,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "utils",
+    "line": 67,
+    "type": "Identifier(\"utils\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 67,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "math_helper",
+    "line": 67,
+    "type": "Identifier(\"math_helper\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 67,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "average",
+    "line": 67,
+    "type": "Identifier(\"average\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 67,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "85",
+    "line": 67,
+    "type": "Integer(85)"
+  },
+  {
+    "lexeme": ",",
+    "line": 67,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "92",
+    "line": 67,
+    "type": "Integer(92)"
+  },
+  {
+    "lexeme": ",",
+    "line": 67,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "78",
+    "line": 67,
+    "type": "Integer(78)"
+  },
+  {
+    "lexeme": ")",
+    "line": 67,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 67,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 68,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 68,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"Average of 85, 92, 78: []\"",
+    "line": 68,
+    "type": "String(\"Average of 85, 92, 78: []\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 68,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "avg",
+    "line": 68,
+    "type": "Identifier(\"avg\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 68,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 68,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 69,
+    "type": "Store"
+  },
+  {
+    "lexeme": "scaled",
+    "line": 69,
+    "type": "Identifier(\"scaled\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 69,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "utils",
+    "line": 69,
+    "type": "Identifier(\"utils\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 69,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "math_helper",
+    "line": 69,
+    "type": "Identifier(\"math_helper\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 69,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "scale_value",
+    "line": 69,
+    "type": "Identifier(\"scale_value\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 69,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "100",
+    "line": 69,
+    "type": "Integer(100)"
+  },
+  {
+    "lexeme": ",",
+    "line": 69,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "150",
+    "line": 69,
+    "type": "Integer(150)"
+  },
+  {
+    "lexeme": ")",
+    "line": 69,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 69,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 70,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 70,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"100 scaled by 150%: []\"",
+    "line": 70,
+    "type": "String(\"100 scaled by 150%: []\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 70,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "scaled",
+    "line": 70,
+    "type": "Identifier(\"scaled\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 70,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 70,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 71,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 71,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"\"",
+    "line": 71,
+    "type": "String(\"\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 71,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 71,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "ui",
+    "line": 74,
+    "type": "Identifier(\"ui\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 74,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "menu",
+    "line": 74,
+    "type": "Identifier(\"menu\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 74,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "show_main_menu",
+    "line": 74,
+    "type": "Identifier(\"show_main_menu\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 74,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": ")",
+    "line": 74,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 74,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 77,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 77,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"Emote Actions:\"",
+    "line": 77,
+    "type": "String(\"Emote Actions:\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 77,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 77,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "game",
+    "line": 78,
+    "type": "Identifier(\"game\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 78,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "emotes",
+    "line": 78,
+    "type": "Identifier(\"emotes\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 78,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "wave",
+    "line": 78,
+    "type": "Identifier(\"wave\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 78,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": ")",
+    "line": 78,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 78,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "game",
+    "line": 79,
+    "type": "Identifier(\"game\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 79,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "emotes",
+    "line": 79,
+    "type": "Identifier(\"emotes\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 79,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "dance",
+    "line": 79,
+    "type": "Identifier(\"dance\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 79,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": ")",
+    "line": 79,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 79,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "game",
+    "line": 80,
+    "type": "Identifier(\"game\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 80,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "emotes",
+    "line": 80,
+    "type": "Identifier(\"emotes\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 80,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "cheer",
+    "line": 80,
+    "type": "Identifier(\"cheer\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 80,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": ")",
+    "line": 80,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 80,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 81,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 81,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"\"",
+    "line": 81,
+    "type": "String(\"\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 81,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 81,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "ui",
+    "line": 84,
+    "type": "Identifier(\"ui\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 84,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "menu",
+    "line": 84,
+    "type": "Identifier(\"menu\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 84,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "show_game_over",
+    "line": 84,
+    "type": "Identifier(\"show_game_over\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 84,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": ")",
+    "line": 84,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 84,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 87,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 87,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"\"",
+    "line": 87,
+    "type": "String(\"\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 87,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 87,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 88,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 88,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"=== Cross-Module Complexity Tests ===\"",
+    "line": 88,
+    "type": "String(\"=== Cross-Module Complexity Tests ===\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 88,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 88,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 91,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 91,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"Test 1: ui.display -> utils.formatter:\"",
+    "line": 91,
+    "type": "String(\"Test 1: ui.display -> utils.formatter:\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 91,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 91,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "ui",
+    "line": 92,
+    "type": "Identifier(\"ui\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 92,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "display",
+    "line": 92,
+    "type": "Identifier(\"display\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 92,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "show_health_display",
+    "line": 92,
+    "type": "Identifier(\"show_health_display\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 92,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "75",
+    "line": 92,
+    "type": "Integer(75)"
+  },
+  {
+    "lexeme": ",",
+    "line": 92,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "100",
+    "line": 92,
+    "type": "Integer(100)"
+  },
+  {
+    "lexeme": ")",
+    "line": 92,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 92,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 93,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 93,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"\"",
+    "line": 93,
+    "type": "String(\"\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 93,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 93,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 96,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 96,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"Test 2: ui.display -> game.stats:\"",
+    "line": 96,
+    "type": "String(\"Test 2: ui.display -> game.stats:\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 96,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 96,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "ui",
+    "line": 97,
+    "type": "Identifier(\"ui\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 97,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "display",
+    "line": 97,
+    "type": "Identifier(\"display\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 97,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "show_computed_damage",
+    "line": 97,
+    "type": "Identifier(\"show_computed_damage\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 97,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "20",
+    "line": 97,
+    "type": "Integer(20)"
+  },
+  {
+    "lexeme": ",",
+    "line": 97,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "5",
+    "line": 97,
+    "type": "Integer(5)"
+  },
+  {
+    "lexeme": ")",
+    "line": 97,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 97,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 98,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 98,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"\"",
+    "line": 98,
+    "type": "String(\"\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 98,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 98,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 101,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 101,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"Test 3: game.emotes -> game.inventory (sibling):\"",
+    "line": 101,
+    "type": "String(\"Test 3: game.emotes -> game.inventory (sibling):\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 101,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 101,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 102,
+    "type": "Store"
+  },
+  {
+    "lexeme": "item_powers",
+    "line": 102,
+    "type": "Identifier(\"item_powers\")"
+  },
+  {
+    "lexeme": ":",
+    "line": 102,
+    "type": "Colon"
+  },
+  {
+    "lexeme": "[",
+    "line": 102,
+    "type": "LeftBracket"
+  },
+  {
+    "lexeme": "int",
+    "line": 102,
+    "type": "Identifier(\"int\")"
+  },
+  {
+    "lexeme": ";",
+    "line": 102,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "5",
+    "line": 102,
+    "type": "Integer(5)"
+  },
+  {
+    "lexeme": "]",
+    "line": 102,
+    "type": "RightBracket"
+  },
+  {
+    "lexeme": "=",
+    "line": 102,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "[",
+    "line": 102,
+    "type": "LeftBracket"
+  },
+  {
+    "lexeme": "50",
+    "line": 102,
+    "type": "Integer(50)"
+  },
+  {
+    "lexeme": ",",
+    "line": 102,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "35",
+    "line": 102,
+    "type": "Integer(35)"
+  },
+  {
+    "lexeme": ",",
+    "line": 102,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "80",
+    "line": 102,
+    "type": "Integer(80)"
+  },
+  {
+    "lexeme": ",",
+    "line": 102,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "25",
+    "line": 102,
+    "type": "Integer(25)"
+  },
+  {
+    "lexeme": ",",
+    "line": 102,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "60",
+    "line": 102,
+    "type": "Integer(60)"
+  },
+  {
+    "lexeme": "]",
+    "line": 102,
+    "type": "RightBracket"
+  },
+  {
+    "lexeme": ";",
+    "line": 102,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "game",
+    "line": 103,
+    "type": "Identifier(\"game\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 103,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "emotes",
+    "line": 103,
+    "type": "Identifier(\"emotes\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 103,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "hype_character",
+    "line": 103,
+    "type": "Identifier(\"hype_character\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 103,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "player_name",
+    "line": 103,
+    "type": "Identifier(\"player_name\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 103,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "item_powers",
+    "line": 103,
+    "type": "Identifier(\"item_powers\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 103,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 103,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 104,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 104,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"\"",
+    "line": 104,
+    "type": "String(\"\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 104,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 104,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 107,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 107,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"Test 4: Direct inventory access:\"",
+    "line": 107,
+    "type": "String(\"Test 4: Direct inventory access:\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 107,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 107,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 108,
+    "type": "Store"
+  },
+  {
+    "lexeme": "total_pwr",
+    "line": 108,
+    "type": "Identifier(\"total_pwr\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 108,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "game",
+    "line": 108,
+    "type": "Identifier(\"game\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 108,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "inventory",
+    "line": 108,
+    "type": "Identifier(\"inventory\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 108,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "total_power",
+    "line": 108,
+    "type": "Identifier(\"total_power\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 108,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "item_powers",
+    "line": 108,
+    "type": "Identifier(\"item_powers\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 108,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 108,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 109,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 109,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"Total inventory power: []\"",
+    "line": 109,
+    "type": "String(\"Total inventory power: []\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 109,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "total_pwr",
+    "line": 109,
+    "type": "Identifier(\"total_pwr\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 109,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 109,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 110,
+    "type": "Store"
+  },
+  {
+    "lexeme": "has_legendary",
+    "line": 110,
+    "type": "Identifier(\"has_legendary\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 110,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "game",
+    "line": 110,
+    "type": "Identifier(\"game\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 110,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "inventory",
+    "line": 110,
+    "type": "Identifier(\"inventory\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 110,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "has_legendary_item",
+    "line": 110,
+    "type": "Identifier(\"has_legendary_item\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 110,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "item_powers",
+    "line": 110,
+    "type": "Identifier(\"item_powers\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 110,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 110,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 111,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 111,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"Has legendary item: []\"",
+    "line": 111,
+    "type": "String(\"Has legendary item: []\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 111,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "has_legendary",
+    "line": 111,
+    "type": "Identifier(\"has_legendary\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 111,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 111,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 112,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 112,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"\"",
+    "line": 112,
+    "type": "String(\"\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 112,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 112,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 114,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 114,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"=== All Cross-Module Tests Passed ===\"",
+    "line": 114,
+    "type": "String(\"=== All Cross-Module Tests Passed ===\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 114,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 114,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 116,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 116,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"\"",
+    "line": 116,
+    "type": "String(\"\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 116,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 116,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 117,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 117,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"=== File System Integration Tests (fs_man) ===\"",
+    "line": 117,
+    "type": "String(\"=== File System Integration Tests (fs_man) ===\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 117,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 117,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 119,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 119,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"Test 5: Save/Load System:\"",
+    "line": 119,
+    "type": "String(\"Test 5: Save/Load System:\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 119,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 119,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "utils",
+    "line": 120,
+    "type": "Identifier(\"utils\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 120,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "save_manager",
+    "line": 120,
+    "type": "Identifier(\"save_manager\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 120,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "create_save_directory",
+    "line": 120,
+    "type": "Identifier(\"create_save_directory\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 120,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": ")",
+    "line": 120,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 120,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "utils",
+    "line": 121,
+    "type": "Identifier(\"utils\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 121,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "save_manager",
+    "line": 121,
+    "type": "Identifier(\"save_manager\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 121,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "save_player_data",
+    "line": 121,
+    "type": "Identifier(\"save_player_data\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 121,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "player_name",
+    "line": 121,
+    "type": "Identifier(\"player_name\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 121,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "player_level",
+    "line": 121,
+    "type": "Identifier(\"player_level\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 121,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "health",
+    "line": 121,
+    "type": "Identifier(\"health\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 121,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 121,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "utils",
+    "line": 122,
+    "type": "Identifier(\"utils\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 122,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "save_manager",
+    "line": 122,
+    "type": "Identifier(\"save_manager\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 122,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "backup_save_file",
+    "line": 122,
+    "type": "Identifier(\"backup_save_file\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 122,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "player_name",
+    "line": 122,
+    "type": "Identifier(\"player_name\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 122,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 122,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 123,
+    "type": "Store"
+  },
+  {
+    "lexeme": "loaded_data",
+    "line": 123,
+    "type": "Identifier(\"loaded_data\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 123,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "utils",
+    "line": 123,
+    "type": "Identifier(\"utils\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 123,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "save_manager",
+    "line": 123,
+    "type": "Identifier(\"save_manager\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 123,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "load_player_data",
+    "line": 123,
+    "type": "Identifier(\"load_player_data\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 123,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "player_name",
+    "line": 123,
+    "type": "Identifier(\"player_name\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 123,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 123,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 124,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 124,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"Loaded data preview: []\"",
+    "line": 124,
+    "type": "String(\"Loaded data preview: []\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 124,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "loaded_data",
+    "line": 124,
+    "type": "Identifier(\"loaded_data\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 124,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 124,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 125,
+    "type": "Store"
+  },
+  {
+    "lexeme": "save_size",
+    "line": 125,
+    "type": "Identifier(\"save_size\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 125,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "utils",
+    "line": 125,
+    "type": "Identifier(\"utils\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 125,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "save_manager",
+    "line": 125,
+    "type": "Identifier(\"save_manager\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 125,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "get_save_file_size",
+    "line": 125,
+    "type": "Identifier(\"get_save_file_size\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 125,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "player_name",
+    "line": 125,
+    "type": "Identifier(\"player_name\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 125,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 125,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 126,
+    "type": "Store"
+  },
+  {
+    "lexeme": "save_count",
+    "line": 126,
+    "type": "Identifier(\"save_count\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 126,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "utils",
+    "line": 126,
+    "type": "Identifier(\"utils\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 126,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "save_manager",
+    "line": 126,
+    "type": "Identifier(\"save_manager\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 126,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "list_save_files",
+    "line": 126,
+    "type": "Identifier(\"list_save_files\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 126,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": ")",
+    "line": 126,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 126,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 127,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 127,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"Total save files: []\"",
+    "line": 127,
+    "type": "String(\"Total save files: []\")"
+  },
+  {
+    "lexeme": ",",
+    "line": 127,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "save_count",
+    "line": 127,
+    "type": "Identifier(\"save_count\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 127,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 127,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 128,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 128,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"\"",
+    "line": 128,
+    "type": "String(\"\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 128,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 128,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 130,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 130,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"Test 6: Configuration System:\"",
+    "line": 130,
+    "type": "String(\"Test 6: Configuration System:\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 130,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 130,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "utils",
+    "line": 131,
+    "type": "Identifier(\"utils\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 131,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "config_manager",
+    "line": 131,
+    "type": "Identifier(\"config_manager\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 131,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "create_config_directory",
+    "line": 131,
+    "type": "Identifier(\"create_config_directory\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 131,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": ")",
+    "line": 131,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 131,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "utils",
+    "line": 132,
+    "type": "Identifier(\"utils\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 132,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "config_manager",
+    "line": 132,
+    "type": "Identifier(\"config_manager\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 132,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "save_settings",
+    "line": 132,
+    "type": "Identifier(\"save_settings\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 132,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "1920",
+    "line": 132,
+    "type": "Integer(1920)"
+  },
+  {
+    "lexeme": ",",
+    "line": 132,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "1080",
+    "line": 132,
+    "type": "Integer(1080)"
+  },
+  {
+    "lexeme": ",",
+    "line": 132,
+    "type": "Comma"
+  },
+  {
+    "lexeme": "75",
+    "line": 132,
+    "type": "Integer(75)"
+  },
+  {
+    "lexeme": ")",
+    "line": 132,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 132,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 133,
+    "type": "Store"
+  },
+  {
+    "lexeme": "settings",
+    "line": 133,
+    "type": "Identifier(\"settings\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 133,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "utils",
+    "line": 133,
+    "type": "Identifier(\"utils\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 133,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "config_manager",
+    "line": 133,
+    "type": "Identifier(\"config_manager\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 133,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "load_settings",
+    "line": 133,
+    "type": "Identifier(\"load_settings\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 133,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": ")",
+    "line": 133,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 133,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "utils",
+    "line": 134,
+    "type": "Identifier(\"utils\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 134,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "config_manager",
+    "line": 134,
+    "type": "Identifier(\"config_manager\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 134,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "get_config_info",
+    "line": 134,
+    "type": "Identifier(\"get_config_info\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 134,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": ")",
+    "line": 134,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 134,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 135,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 135,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"\"",
+    "line": 135,
+    "type": "String(\"\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 135,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 135,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 137,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 137,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"Test 7: Game Paths & Temp Files:\"",
+    "line": 137,
+    "type": "String(\"Test 7: Game Paths & Temp Files:\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 137,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 137,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "utils",
+    "line": 138,
+    "type": "Identifier(\"utils\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 138,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "config_manager",
+    "line": 138,
+    "type": "Identifier(\"config_manager\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 138,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "get_game_paths",
+    "line": 138,
+    "type": "Identifier(\"get_game_paths\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 138,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": ")",
+    "line": 138,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 138,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "store",
+    "line": 139,
+    "type": "Store"
+  },
+  {
+    "lexeme": "autosave",
+    "line": 139,
+    "type": "Identifier(\"autosave\")"
+  },
+  {
+    "lexeme": "=",
+    "line": 139,
+    "type": "Assign"
+  },
+  {
+    "lexeme": "utils",
+    "line": 139,
+    "type": "Identifier(\"utils\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 139,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "save_manager",
+    "line": 139,
+    "type": "Identifier(\"save_manager\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 139,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "create_temp_save",
+    "line": 139,
+    "type": "Identifier(\"create_temp_save\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 139,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "player_name",
+    "line": 139,
+    "type": "Identifier(\"player_name\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 139,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 139,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "utils",
+    "line": 140,
+    "type": "Identifier(\"utils\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 140,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "config_manager",
+    "line": 140,
+    "type": "Identifier(\"config_manager\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 140,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "clean_temp_files",
+    "line": 140,
+    "type": "Identifier(\"clean_temp_files\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 140,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": ")",
+    "line": 140,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 140,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 141,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 141,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"\"",
+    "line": 141,
+    "type": "String(\"\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 141,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 141,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 143,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 143,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"Test 8: Log Export:\"",
+    "line": 143,
+    "type": "String(\"Test 8: Log Export:\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 143,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 143,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "utils",
+    "line": 144,
+    "type": "Identifier(\"utils\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 144,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "config_manager",
+    "line": 144,
+    "type": "Identifier(\"config_manager\")"
+  },
+  {
+    "lexeme": ".",
+    "line": 144,
+    "type": "Dot"
+  },
+  {
+    "lexeme": "export_game_logs",
+    "line": 144,
+    "type": "Identifier(\"export_game_logs\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 144,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": ")",
+    "line": 144,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 144,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 145,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 145,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"\"",
+    "line": 145,
+    "type": "String(\"\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 145,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 145,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "println",
+    "line": 147,
+    "type": "Identifier(\"println\")"
+  },
+  {
+    "lexeme": "(",
+    "line": 147,
+    "type": "LeftParen"
+  },
+  {
+    "lexeme": "\"=== File System Tests Complete ===\"",
+    "line": 147,
+    "type": "String(\"=== File System Tests Complete ===\")"
+  },
+  {
+    "lexeme": ")",
+    "line": 147,
+    "type": "RightParen"
+  },
+  {
+    "lexeme": ";",
+    "line": 147,
+    "type": "Semicolon"
+  },
+  {
+    "lexeme": "}",
+    "line": 148,
+    "type": "RightBrace"
+  },
+  {
+    "lexeme": "",
+    "line": 148,
+    "type": "Eof"
+  }
+]
