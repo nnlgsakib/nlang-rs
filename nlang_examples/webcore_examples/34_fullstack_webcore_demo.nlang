@@ -1,0 +1,173 @@
+import std;
+import webcore_man;
+import fs_man;
+
+def serve_file(file_path:string) -> string {
+    if (fs_man.exists(file_path)) {
+        return fs_man.read_file(file_path);
+    } else {
+        return "";
+    }
+}
+
+def get_content_type(uri:string) -> string {
+    @mut store content_type = "text/plain";
+    
+    if (len(uri) > 5) {
+        store last_3 = uri.substring(len(uri) - 3, len(uri));
+        store last_4 = uri.substring(len(uri) - 4, len(uri));
+        store last_5 = uri.substring(len(uri) - 5, len(uri));
+        
+        if (last_5 == ".html") {
+            content_type = "text/html";
+        } else {
+            if (last_4 == ".css") {
+                content_type = "text/css";
+            } else {
+                if (last_3 == ".js") {
+                    content_type = "application/javascript";
+                } else {
+                    if (last_5 == ".json") {
+                        content_type = "application/json";
+                    }
+                }
+            }
+        }
+    }
+    
+    return content_type;
+}
+
+def parse_uri(data:string) -> string {
+    @mut store uri = "/";
+    
+    if (len(data) > 5) {
+        @mut store second_space = 4;
+        @mut store i = 4;
+        
+        while (i < len(data)) {
+            if (i < len(data)) {
+                store ch = data.substring(i, i + 1);
+                if (ch == " ") {
+                    second_space = i;
+                    break;
+                }
+            }
+            i = i + 1;
+        }
+        
+        if (second_space > 4) {
+            uri = data.substring(4, second_space);
+        }
+    }
+    
+    return uri;
+}
+
+def main() {
+    println("╔════════════════════════════════════════════╗");
+    println("║     WebCore Full Stack Demo Server        ║");
+    println("╚════════════════════════════════════════════╝\n");
+    
+    store webroot = "nlang_examples/webcore_examples/webcore_demo";
+    println("Web root: []\n", webroot);
+    
+    if (fs_man.exists(webroot)) {
+        println("✓ Web root directory exists");
+    } else {
+        println("✗ Web root directory not found!");
+        println("Creating web root...");
+        fs_man.create_dir_all(webroot);
+    }
+    
+    store index_file = fs_man.path_join(webroot, "index.html");
+    if (fs_man.exists(index_file)) {
+        println("✓ index.html found\n");
+    } else {
+        println("✗ index.html not found!\n");
+    }
+    
+    println("Starting TCP server on 127.0.0.1:8081...");
+    store listener = webcore_man.tcp_listen("127.0.0.1", 8081);
+    println("Server started!\n");
+    println("Open in browser: http://127.0.0.1:8081/\n");
+    println("Press Ctrl+C to stop\n");
+    println("─────────────────────────────────────────────\n");
+    
+    @mut store total_requests = 0;
+    
+    while (total_requests < 50) {
+        store client = webcore_man.tcp_accept(listener);
+        store data = webcore_man.tcp_read(client, 4096);
+        
+        if (len(data) > 0) {
+            store uri = parse_uri(data);
+            total_requests = total_requests + 1;
+            
+            println("[#[]] {}", total_requests, uri);
+            
+            @mut store response_body = "";
+            @mut store content_type = "text/html";
+            @mut store status_code = 200;
+            
+            if (uri == "/") {
+                store file_content = serve_file(index_file);
+                if (len(file_content) > 0) {
+                    response_body = file_content;
+                    content_type = "text/html";
+                } else {
+                    status_code = 404;
+                    response_body = "404 - File not found";
+                }
+            } else {
+                if (uri == "/api/status") {
+                    content_type = "application/json";
+                    response_body = "{\"status\":\"running\",\"version\":\"1.0.0\",\"protocol\":\"HTTP/1.1\",\"requests\":" + str(total_requests) + "}";
+                } else {
+                    if (uri == "/api/hello") {
+                        content_type = "application/json";
+                        response_body = "{\"message\":\"Hello from WebCore!\",\"timestamp\":" + str(total_requests) + "}";
+                    } else {
+                        @mut store is_user_route = 0;
+                        if (len(uri) > 7) {
+                            @mut store prefix = uri.substring(0, 7);
+                            if (prefix == "/users/") {
+                                is_user_route = 1;
+                            }
+                        }
+                        
+                        if (is_user_route == 1) {
+                            store user_id = uri.substring(7, len(uri));
+                            content_type = "application/json";
+                            response_body = "{\"id\":\"" + user_id + "\",\"name\":\"User " + user_id + "\",\"status\":\"active\",\"email\":\"user" + user_id + "@example.com\"}";
+                        } else {
+                            status_code = 404;
+                            content_type = "application/json";
+                            response_body = "{\"error\":\"Not Found\",\"path\":\"" + uri + "\"}";
+                        }
+                    }
+                }
+            }
+            
+       @mut     store status_text = "200 OK";
+            if (status_code == 404) {
+                status_text = "404 Not Found";
+            }
+            
+            store response = "HTTP/1.1 " + status_text + "\r\nContent-Type: " + content_type + "\r\nContent-Length: " + str(len(response_body)) + "\r\nServer: WebCore-Nlang/1.0\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\n\r\n" + response_body;
+            
+            webcore_man.tcp_write(client, response);
+            webcore_man.tcp_close(client);
+        } else {
+            webcore_man.tcp_close(client);
+        }
+    }
+    
+    webcore_man.tcp_close(listener);
+    
+    println("\n─────────────────────────────────────────────");
+    println("Server handled [] requests", total_requests);
+    println("╔════════════════════════════════════════════╗");
+    println("║       Server Shutdown Successfully         ║");
+    println("╚════════════════════════════════════════════╝");
+}

@@ -146,7 +146,9 @@ impl ExecutionEngine {
         cmd.arg("-o")
             .arg(output_path)
             .arg(&c_file);
-        if !cfg!(windows) {
+        if cfg!(windows) {
+            cmd.arg("-lws2_32");  // Link Winsock2 library on Windows
+        } else {
             cmd.arg("-lm");
         }
         let gcc_output = cmd

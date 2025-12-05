@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebCore Demo - Full Stack Application</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .api-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.3s ease;
+        }
+        
+        .api-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .api-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .api-card p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #764ba2;
+        }
+        
+        .response {
+            background: #f1f3f5;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .response.show {
+            display: block;
+        }
+        
+        .method {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .method.get {
+            background: #28a745;
+            color: white;
+        }
+        
+        .method.post {
+            background: #007bff;
+            color: white;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-box h3 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        
+        .stat-box p {
+            opacity: 0.9;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn.secondary {
+            background: #6c757d;
+        }
+        
+        .btn.secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn.success {
+            background: #28a745;
+        }
+        
+        .btn.success:hover {
+            background: #218838;
+        }
+        
+        .user-list {
+            margin-top: 20px;
+        }
+        
+        .user-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .user-info h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .user-info p {
+            color: #666;
+            font-size: 14px;
+            margin: 0;
+        }
+        
+        .interactive-section {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .interactive-section h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            background: #28a745;
+            color: white;
+            margin-left: 10px;
+        }
+        
+        .badge.inactive {
+            background: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 WebCore Demo</h1>
+            <p>Full Stack Application with Nlang Backend</p>
+        </div>
+        
+        <div class="card">
+            <h2>📊 Server Statistics</h2>
+            <div class="stats" id="stats">
+                <div class="stat-box">
+                    <h3 id="status">Loading...</h3>
+                    <p>Status</p>
+                </div>
+                <div class="stat-box">
+                    <h3 id="version">-</h3>
+                    <p>Version</p>
+                </div>
+                <div class="stat-box">
+                    <h3 id="requests">0</h3>
+                    <p>Requests Served</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>🔌 API Endpoints</h2>
+            <div class="api-grid">
+                <div class="api-card">
+                    <h3><span class="method get">GET</span> /api/status</h3>
+                    <p>Get server status and statistics</p>
+                    <button class="btn" onclick="testStatus()">Test Endpoint</button>
+                    <div class="response" id="status-response"></div>
+                </div>
+                
+                <div class="api-card">
+                    <h3><span class="method get">GET</span> /api/hello</h3>
+                    <p>Simple hello world endpoint</p>
+                    <button class="btn" onclick="testHello()">Test Endpoint</button>
+                    <div class="response" id="hello-response"></div>
+                </div>
+                
+                <div class="api-card">
+                    <h3><span class="method get">GET</span> /users/:id</h3>
+                    <p>Get user information by ID</p>
+                    <button class="btn" onclick="testUser()">Test Endpoint</button>
+                    <div class="response" id="user-response"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>🎮 Interactive API Testing</h2>
+            
+            <div class="interactive-section">
+                <h3>🔍 Search User by ID</h3>
+                <div class="input-group">
+                    <label for="userId">Enter User ID:</label>
+                    <input type="number" id="userId" placeholder="e.g., 42" value="1" min="1" max="999">
+                </div>
+                <div class="btn-group">
+                    <button class="btn success" onclick="searchUser()">🔍 Search User</button>
+                    <button class="btn secondary" onclick="randomUser()">🎲 Random User</button>
+                </div>
+                <div class="response" id="search-response"></div>
+            </div>
+            
+            <div class="user-list" id="userList">
+                <h3 style="margin-bottom: 15px;">📋 Recent Users</h3>
+                <p style="color: #666;">Search for users to see them here...</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>🧪 Stress Test</h2>
+            <p style="margin-bottom: 20px;">Test the server performance by sending multiple requests</p>
+            
+            <div class="input-group">
+                <label for="requestCount">Number of Requests:</label>
+                <input type="number" id="requestCount" placeholder="e.g., 10" value="10" min="1" max="100">
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn success" onclick="stressTest()">🚀 Start Test</button>
+                <button class="btn secondary" onclick="clearStressResults()">🗑️ Clear Results</button>
+            </div>
+            
+            <div class="response show" id="stress-response" style="background: #e7f3ff; border-left: 4px solid #007bff;">
+                <strong>Ready to test!</strong> Click "Start Test" to begin.
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>💡 About This Demo</h2>
+            <p>This is a full-stack web application powered by:</p>
+            <ul style="margin-top: 15px; margin-left: 20px; line-height: 2;">
+                <li><strong>Frontend:</strong> HTML, CSS, JavaScript</li>
+                <li><strong>Backend:</strong> Nlang programming language</li>
+                <li><strong>Networking:</strong> WebCore library (TCP/HTTP)</li>
+                <li><strong>File System:</strong> fs_man library</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        let userCache = [];
+        
+        async function testStatus() {
+            const responseDiv = document.getElementById('status-response');
+            responseDiv.textContent = 'Loading...';
+            responseDiv.classList.add('show');
+            
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+                
+                // Update stats
+                document.getElementById('status').textContent = data.status || 'running';
+                document.getElementById('version').textContent = data.version || '1.0.0';
+                document.getElementById('requests').textContent = data.requests || '0';
+            } catch (error) {
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        async function testHello() {
+            const responseDiv = document.getElementById('hello-response');
+            responseDiv.textContent = 'Loading...';
+            responseDiv.classList.add('show');
+            
+            try {
+                const response = await fetch('/api/hello');
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        async function testUser() {
+            const responseDiv = document.getElementById('user-response');
+            responseDiv.textContent = 'Loading...';
+            responseDiv.classList.add('show');
+            
+            try {
+                const userId = Math.floor(Math.random() * 100) + 1;
+                const response = await fetch('/users/' + userId);
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        async function searchUser() {
+            const userId = document.getElementById('userId').value;
+            const responseDiv = document.getElementById('search-response');
+            
+            if (!userId) {
+                responseDiv.textContent = 'Please enter a user ID';
+                responseDiv.classList.add('show');
+                return;
+            }
+            
+            responseDiv.textContent = 'Searching...';
+            responseDiv.classList.add('show');
+            
+            try {
+                const response = await fetch('/users/' + userId);
+                const data = await response.json();
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+                
+                // Add to user cache
+                const existingIndex = userCache.findIndex(u => u.id === data.id);
+                if (existingIndex >= 0) {
+                    userCache[existingIndex] = data;
+                } else {
+                    userCache.unshift(data);
+                    if (userCache.length > 5) userCache.pop();
+                }
+                
+                renderUserList();
+                testStatus(); // Update request count
+            } catch (error) {
+                responseDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        function randomUser() {
+            const randomId = Math.floor(Math.random() * 999) + 1;
+            document.getElementById('userId').value = randomId;
+            searchUser();
+        }
+        
+        function renderUserList() {
+            const userList = document.getElementById('userList');
+            
+            if (userCache.length === 0) {
+                userList.innerHTML = '<h3 style="margin-bottom: 15px;">📋 Recent Users</h3><p style="color: #666;">Search for users to see them here...</p>';
+                return;
+            }
+            
+            let html = '<h3 style="margin-bottom: 15px;">📋 Recent Users</h3>';
+            
+            userCache.forEach(user => {
+                const isActive = user.status === 'active';
+                html += `
+                    <div class="user-item">
+                        <div class="user-info">
+                            <h4>👤 ${user.name} <span class="badge ${isActive ? '' : 'inactive'}">${user.status}</span></h4>
+                            <p>📧 ${user.email} | 🆔 User #${user.id}</p>
+                        </div>
+                        <button class="btn" onclick="viewUserDetails('${user.id}')">View Details</button>
+                    </div>
+                `;
+            });
+            
+            userList.innerHTML = html;
+        }
+        
+        function viewUserDetails(userId) {
+            document.getElementById('userId').value = userId;
+            searchUser();
+            window.scrollTo({ top: document.getElementById('search-response').offsetTop - 100, behavior: 'smooth' });
+        }
+        
+        async function stressTest() {
+            const count = parseInt(document.getElementById('requestCount').value);
+            const responseDiv = document.getElementById('stress-response');
+            
+            if (!count || count < 1 || count > 100) {
+                responseDiv.textContent = 'Please enter a number between 1 and 100';
+                return;
+            }
+            
+            responseDiv.textContent = `Starting stress test with ${count} requests...\n\n`;
+            
+            const startTime = Date.now();
+            let successful = 0;
+            let failed = 0;
+            
+            const promises = [];
+            for (let i = 0; i < count; i++) {
+                const endpoint = ['/api/status', '/api/hello', '/users/' + (i + 1)][i % 3];
+                promises.push(
+                    fetch(endpoint)
+                        .then(r => {
+                            successful++;
+                            responseDiv.textContent += `✓ Request ${i + 1}/${count} successful (${endpoint})\n`;
+                            return r.json();
+                        })
+                        .catch(e => {
+                            failed++;
+                            responseDiv.textContent += `✗ Request ${i + 1}/${count} failed: ${e.message}\n`;
+                        })
+                );
+                
+                // Small delay to avoid overwhelming
+                if (i % 5 === 0) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+            }
+            
+            await Promise.all(promises);
+            
+            const endTime = Date.now();
+            const duration = endTime - startTime;
+            
+            responseDiv.textContent += `\n${'='.repeat(50)}\n`;
+            responseDiv.textContent += `✅ Test Complete!\n`;
+            responseDiv.textContent += `Total Requests: ${count}\n`;
+            responseDiv.textContent += `Successful: ${successful}\n`;
+            responseDiv.textContent += `Failed: ${failed}\n`;
+            responseDiv.textContent += `Duration: ${duration}ms\n`;
+            responseDiv.textContent += `Avg Response Time: ${(duration / count).toFixed(2)}ms\n`;
+            
+            testStatus(); // Update request count
+        }
+        
+        function clearStressResults() {
+            const responseDiv = document.getElementById('stress-response');
+            responseDiv.textContent = 'Ready to test! Click "Start Test" to begin.';
+        }
+        
+        // Load stats on page load
+        window.addEventListener('load', () => {
+            testStatus();
+        });
+        
+        // Auto-refresh stats every 5 seconds
+        setInterval(() => {
+            testStatus();
+        }, 5000);
+    </script>
+</body>
+</html>

@@ -565,12 +565,12 @@ void fs_man_create_symlink(const char* target, const char* link) {
 #endif
 }
 
-void fs_man_create_hard_link(const char* target, const char* link) {
-    if (!target || !link) return;
+void fs_man_create_hard_link(const char* target, const char* link_path) {
+    if (!target || !link_path) return;
 #ifdef _WIN32
-    CreateHardLink(link, target, NULL);
+    CreateHardLink(link_path, target, NULL);
 #else
-    link(target, link);
+    link(target, link_path);
 #endif
 }
 

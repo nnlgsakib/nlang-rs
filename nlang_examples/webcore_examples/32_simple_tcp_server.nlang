@@ -1,0 +1,34 @@
+import std;
+import webcore_man;
+
+def main() {
+    println("=== Simple TCP Server Test ===\n");
+    
+    println("Creating TCP listener on 127.0.0.1:8081...");
+    store listener = webcore_man.tcp_listen("127.0.0.1", 8081);
+    println("Listener FD: []\n", listener);
+    
+    println("Waiting for connection...");
+    println("Test with: telnet 127.0.0.1 8081");
+    println("Or: curl http://127.0.0.1:8081/\n");
+    
+    store client = webcore_man.tcp_accept(listener);
+    println("Client connected! FD: []\n", client);
+    
+    store peer = webcore_man.tcp_peer_addr(client);
+    println("Peer address: []\n", peer);
+    
+    println("Reading data...");
+    store data = webcore_man.tcp_read(client, 1024);
+    println("Received {} bytes:\n{}\n", len(data), data);
+    
+    println("Sending HTTP response...");
+    store response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 13\r\n\r\nHello, World!";
+    store written = webcore_man.tcp_write(client, response);
+    println("Wrote {} bytes\n", written);
+    
+    webcore_man.tcp_close(client);
+    webcore_man.tcp_close(listener);
+    
+    println("=== Test Complete ===");
+}

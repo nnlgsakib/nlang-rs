@@ -1,3 +1,4 @@
+use crate::nlang_libs::webcore_man::create_webcore_man_lib;
 use crate::nlang_libs::fs_man::create_fs_man_lib;
 use crate::nlang_libs::env_man::create_env_man_lib;
 use crate::nlang_libs::common::LibraryDefinition;
@@ -53,6 +54,7 @@ pub fn get_default_registry() -> LibraryRegistry {
     // Here we would register any default libraries if we had any others.
     // For example:
     // registry.register_library(create_fs_lib());
+    registry.register_library(create_webcore_man_lib());
     registry.register_library(create_fs_man_lib());
     registry.register_library(create_env_man_lib());
     registry.register_library(create_test_lib_lib());

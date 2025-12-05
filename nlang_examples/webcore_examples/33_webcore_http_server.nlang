@@ -1,0 +1,84 @@
+import std;
+import webcore_man;
+
+def main() {
+    println("╔════════════════════════════════════════════╗");
+    println("║       WebCore TCP Backend Demo            ║");
+    println("╚════════════════════════════════════════════╝\n");
+    
+    println("Creating TCP listener on 127.0.0.1:8081...");
+    store listener = webcore_man.tcp_listen("127.0.0.1", 8081);
+    println("Server started on http://127.0.0.1:8081\n");
+    println("Test endpoints:");
+    println("  - http://127.0.0.1:8081/");
+    println("  - http://127.0.0.1:8081/api/status");
+    println("  - http://127.0.0.1:8081/users/123\n");
+    
+    @mut store request_count = 0;
+    while (request_count < 10) {
+        println("Waiting for request #[]...", request_count + 1);
+        
+        store client = webcore_man.tcp_accept(listener);
+        store peer = webcore_man.tcp_peer_addr(client);
+        
+        store data = webcore_man.tcp_read(client, 4096);
+        
+        if (len(data) > 0) {
+            store first_line = data.substring(0, 100);
+            println("[Request] {}", first_line);
+            
+           @mut  store uri = "/";
+            if (len(data) > 5) {
+               @mut  store second_space = 4;
+                @mut store i = 4;
+                while (i < len(data)) {
+                    if (i < len(data)) {
+                        store ch = data.substring(i, i + 1);
+                        if (ch == " ") {
+                            second_space = i;
+                            break;
+                        }
+                    }
+                    i = i + 1;
+                }
+                if (second_space > 4) {
+                    uri = data.substring(4, second_space);
+                }
+            }
+            
+            println("  -> Matched URI: {}\n", uri);
+            
+            @mut store response_body = "";
+            @mut store content_type = "text/html";
+            
+            if (uri == "/") {
+                response_body = "<!DOCTYPE html><html><head><title>WebCore Backend</title></head><body><h1>Welcome to WebCore Backend</h1><p>Available endpoints:</p><ul><li>GET / - This page</li><li>GET /api/status - Server status</li><li>GET /users/123 - User endpoint</li></ul></body></html>";
+            } else {
+                if (uri == "/api/status") {
+                    content_type = "application/json";
+                    response_body = "{\"status\":\"running\",\"version\":\"1.0.0\",\"protocol\":\"HTTP/1.1\",\"requests\":" + str(request_count + 1) + "}";
+                } else {
+                    content_type = "application/json";
+                    response_body = "{\"message\":\"Hello from WebCore!\",\"path\":\"" + uri + "\",\"request\":" + str(request_count + 1) + "}";
+                }
+            }
+            
+            store response = "HTTP/1.1 200 OK\r\nContent-Type: " + content_type + "\r\nContent-Length: " + str(len(response_body)) + "\r\nServer: WebCore-Nlang/1.0\r\nConnection: close\r\n\r\n" + response_body;
+            
+            webcore_man.tcp_write(client, response);
+            webcore_man.tcp_close(client);
+            
+            request_count = request_count + 1;
+        } else {
+            webcore_man.tcp_close(client);
+        }
+    }
+    
+    webcore_man.tcp_close(listener);
+    
+    println("\n─────────────────────────────────────────────");
+    println("Server handled [] requests", request_count);
+    println("╔════════════════════════════════════════════╗");
+    println("║       Server Shutdown Successfully         ║");
+    println("╚════════════════════════════════════════════╝");
+}

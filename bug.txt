@@ -1,0 +1,73 @@
+Compiling nlang_examples/webcore_examples/34_fullstack_webcore_demo.nlang...
+Error: ❌ Feature not implemented
+  --> nlang_examples/webcore_examples/34_fullstack_webcore_demo.nlang:1:1
+
+   |
+   = ❌ gcc compilation failed: /tmp/34_fullstack_webcore_demo.c: In function ‘fs_man_create_hard_link’:
+/tmp/34_fullstack_webcore_demo.c:667:5: error: called object ‘link’ is not a function or function pointer
+  667 |     link(target, link);
+      |     ^~~~
+/tmp/34_fullstack_webcore_demo.c:662:62: note: declared here
+  662 | void fs_man_create_hard_link(const char* target, const char* link) {
+      |                                                  ~~~~~~~~~~~~^~~~
+/tmp/34_fullstack_webcore_demo.c: In function ‘get_content_type’:
+/tmp/34_fullstack_webcore_demo.c:2148:21: warning: passing argument 1 of ‘free’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 2148 |    if(last_3 ) free(last_3);
+      |                     ^~~~~~
+In file included from /tmp/34_fullstack_webcore_demo.c:3:
+/usr/include/stdlib.h:687:25: note: expected ‘void *’ but argument is of type ‘const char *’
+  687 | extern void free (void *__ptr) __THROW;
+      |                   ~~~~~~^~~~~
+/tmp/34_fullstack_webcore_demo.c:2149:21: warning: passing argument 1 of ‘free’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 2149 |    if(last_4 ) free(last_4);
+      |                     ^~~~~~
+In file included from /tmp/34_fullstack_webcore_demo.c:3:
+/usr/include/stdlib.h:687:25: note: expected ‘void *’ but argument is of type ‘const char *’
+  687 | extern void free (void *__ptr) __THROW;
+      |                   ~~~~~~^~~~~
+/tmp/34_fullstack_webcore_demo.c:2150:21: warning: passing argument 1 of ‘free’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 2150 |    if(last_5 ) free(last_5);
+      |                     ^~~~~~
+In file included from /tmp/34_fullstack_webcore_demo.c:3:
+/usr/include/stdlib.h:687:25: note: expected ‘void *’ but argument is of type ‘const char *’
+  687 | extern void free (void *__ptr) __THROW;
+      |                   ~~~~~~^~~~~
+/tmp/34_fullstack_webcore_demo.c: In function ‘parse_uri’:
+/tmp/34_fullstack_webcore_demo.c:2173:21: warning: passing argument 1 of ‘free’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 2173 |        if(ch ) free(ch);
+      |                     ^~
+In file included from /tmp/34_fullstack_webcore_demo.c:3:
+/usr/include/stdlib.h:687:25: note: expected ‘void *’ but argument is of type ‘const char *’
+  687 | extern void free (void *__ptr) __THROW;
+      |                   ~~~~~~^~~~~
+/tmp/34_fullstack_webcore_demo.c: In function ‘main’:
+/tmp/34_fullstack_webcore_demo.c:2282:31: warning: passing argument 1 of ‘free’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 2282 |              if(prefix ) free(prefix);
+      |                               ^~~~~~
+In file included from /tmp/34_fullstack_webcore_demo.c:3:
+/usr/include/stdlib.h:687:25: note: expected ‘void *’ but argument is of type ‘const char *’
+  687 | extern void free (void *__ptr) __THROW;
+      |                   ~~~~~~^~~~~
+/tmp/34_fullstack_webcore_demo.c:2290:32: warning: passing argument 1 of ‘free’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 2290 |              if(user_id ) free(user_id);
+      |                                ^~~~~~~
+In file included from /tmp/34_fullstack_webcore_demo.c:3:
+/usr/include/stdlib.h:687:25: note: expected ‘void *’ but argument is of type ‘const char *’
+  687 | extern void free (void *__ptr) __THROW;
+      |                   ~~~~~~^~~~~
+/tmp/34_fullstack_webcore_demo.c:2315:25: warning: passing argument 1 of ‘free’ discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 2315 |      if(response ) free(response);
+      |                         ^~~~~~~~
+In file included from /tmp/34_fullstack_webcore_demo.c:3:
+/usr/include/stdlib.h:687:25: note: expected ‘void *’ but argument is of type ‘const char *’
+  687 | extern void free (void *__ptr) __THROW;
+      |                   ~~~~~~^~~~~
+
+   = 💡 help: fs_man functions: read_file, write_file, copy_file, move_file, exists, is_file, is_dir
+   = ℹ️ directory ops: read_dir, list_files, list_dirs, walk_dir, create_dir, remove_dir
+   = ℹ️ path utilities: basename, dirname, extname, join, canonicalize, absolute_path
+   = ℹ️ import fs_man: 'import fs_man;' then use fs_man.function_name()
+
+
+┌──(root㉿NLG-SAKIB)-[/mnt/d/projects/rust/nlang]
+└─#
